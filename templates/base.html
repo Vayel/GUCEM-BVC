@@ -1,0 +1,26 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <title>{% block title %}{% endblock %} | GUCEM</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}" />
+  {% block style %}{% endblock %}
+</head>
+<body>
+  <header>
+    Un header commun
+
+    <nav>
+      <ul>
+        <li><a href="{% url 'bvc:home' %}">BVC</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div id="contents">{% block contents %}{% endblock %}</div>
+
+  {% block javascript %}{% endblock %}
+</body>
+</html>

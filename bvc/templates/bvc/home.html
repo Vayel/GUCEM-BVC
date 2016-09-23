@@ -1,5 +1,12 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}BVC{% endblock %}
+
+{% block contents %}
 <p>Page d'accueil des BVC</p>
 
-<a href="{% url 'command_member' %}">Commandes adhérents</a>
+<a href="{% url 'bvc:command_member' %}">Commandes adhérents</a>
 <br/>
-<a href="{% url 'command_commission' %}">Commandes commissions</a>
+<a href="{% url 'bvc:command_commission' %}">Commandes commissions</a>
+{% endblock %}
