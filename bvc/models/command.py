@@ -1,7 +1,7 @@
 from django.db import models
 
 class AbstractCommand(models.Model):
-    amout = models.PositiveSmallIntegerField(default=0)
+    amount = models.PositiveSmallIntegerField(default=0)
     datetime = models.DateTimeField(auto_now_add=True)
     email = models.EmailField()
     comments = models.TextField(default='')
