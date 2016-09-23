@@ -59,6 +59,7 @@ Actions possibles
     * Recevoir un mail de confirmation lorsque ma commande est préparée (avec rappel montant)
     * Recevoir un mail de relance après X temps
     * Recevoir un mail indiquant que la commande est annulée
+    * Pouvoir provoquer l'envoi d'un mail récapitulatif à partir de son numéro de licence. Concrètement, on le spécifie dans un formulaire puis on reçoit un mail avec ses commandes en cours et leur état.
 
 * En tant que responsable BVC
     * Indiquer qu'une "grosse" commande a été effectuée auprès du vieux campeur
