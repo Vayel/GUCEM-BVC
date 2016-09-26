@@ -4,5 +4,15 @@
 {% block title %}Commandes BVC adhérent{% endblock %}
 
 {% block contents %}
-<p>Commandes adhérents</p>
+<h2>Commandes adhérents</h2>
+
+<form action="{% url 'bvc:command_member' %}" method="POST">
+  {% csrf_token %}
+  
+  <table>
+    {{ form.as_table }}
+  </table>
+  
+  <input type="submit" value="Commander" />
+</form>
 {% endblock %}
