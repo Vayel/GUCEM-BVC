@@ -1,20 +1,26 @@
 from django.db import models
 
+# common command states
+PLACED_STATE = 'placed'
+PREPARED_STATE = 'prepared'
+CANCELLED_STATE = 'cancelled'
+
 class AbstractCommand(models.Model):
     amount = models.PositiveSmallIntegerField(default=0)
-    datetime = models.DateTimeField(auto_now_add=True)
     email = models.EmailField()
     comments = models.TextField(default='')
-
+    datetime_placed = models.DateTimeField(auto_now_add=True)
+    datetime_prepared = models.DateTimeField()
+    datetime_cancelled = models.DateTimeField()
+    class Meta:
+        abstract = True
+    
 class MemberCommand(AbstractCommand):
     ESMUG = 'esmug'
     GUCEM = 'gucem'
 
-    PLACED_STATE = 'placed'
-    PREPARED_STATE = 'prepared'
     SOLD_STATE = 'sold'
     CASHED_STATE = 'cashed'
-    CANCELED_STATE = 'canceled'
 
     CLUB_CHOICES = (
         (GUCEM, 'GUCEM'),
@@ -26,12 +32,15 @@ class MemberCommand(AbstractCommand):
         (PREPARED_STATE, 'Commande préparée'),
         (SOLD_STATE, 'Commande vendue'),
         (CASHED_STATE, 'Commande encaissée'),
-        (CANCELED_STATE, 'Commande annulée'),
+        (CANCELLED_STATE, 'Commande annulée'),
     )
 
     lastname = models.CharField(max_length=30,)
     firstname = models.CharField(max_length=30,)
     license = models.CharField(max_length=12,)
+    datetime_sold = models.DateTimeField()
+    datetime_cashed = models.DateTimeField()
+    
     club = models.CharField(
         max_length=max(len(choice[0]) for choice in CLUB_CHOICES),
         choices=CLUB_CHOICES,
@@ -51,7 +60,7 @@ class CommissionCommand(AbstractCommand):
 
     PLACED_STATE = 'placed'
     PREPARED_STATE = 'prepared'
-    SOLD_STATE = 'sold'
+    GIVEN_STATE = 'given'
 
     COMMISSION_CHOICES = (
         (CANYONING, 'Canyoning'),
@@ -63,9 +72,11 @@ class CommissionCommand(AbstractCommand):
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
         (PREPARED_STATE, 'Commande préparée'),
-        (SOLD_STATE, 'Commande distribuée'),
+        (GIVEN_STATE, 'Commande distribuée'),
+        (CANCELLED_STATE, 'Commande annulée'),
     )
 
+    datetime_given = models.DateTimeField()
     commission = models.CharField(
         max_length=max(len(choice[0]) for choice in COMMISSION_CHOICES),
         choices=COMMISSION_CHOICES,
