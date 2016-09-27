@@ -14,8 +14,9 @@ class GroupedCommand(models.Model):
         (RECEIVED_STATE, 'Commande disponible en magasin'),
         (PREPARED_STATE, 'Commande préparée'),
     )
-
-    placed_amount = models.PositiveSmallIntegerField(default=0,)
+    
+    # Amounts in BVC value
+    placed_amount = models.PositiveSmallIntegerField(default=0,) 
     received_amount = models.PositiveSmallIntegerField(default=0,)
     # Can be different from received_amount in case of loss
     prepared_amount = models.PositiveSmallIntegerField(default=0,)
@@ -29,7 +30,7 @@ class GroupedCommand(models.Model):
     )
 
     def __str__(self):
-        return '{} euros le {}'.format(
+        return '{} euros (en Bons) le {}'.format(
             self.placed_amount,
             self.datetime_placed.strftime('%Y-%m-%d'),
         )
@@ -42,7 +43,7 @@ class IndividualCommand(models.Model):
         null=True,
         blank=True,
     )
-    amount = models.PositiveSmallIntegerField(default=0,)
+    amount = models.PositiveSmallIntegerField(default=0,) # amount in BVC value
     email = models.EmailField()
     comments = models.TextField(default='', blank=True,)
     datetime_placed = models.DateTimeField(auto_now_add=True,)
@@ -53,7 +54,7 @@ class IndividualCommand(models.Model):
         abstract = True
     
     def __str__(self):
-        return '{} euros le {} pour {}'.format(
+        return '{} euros (en Bons) le {} pour {}'.format(
             self.amount,
             self.datetime_placed.strftime('%Y-%m-%d'),
             self.email,
@@ -95,6 +96,18 @@ class MemberCommand(IndividualCommand):
         choices=STATE_CHOICES,
         default=PLACED_STATE,
     )
+    
+    def __str__(self):
+        return '{}\n{} {}\nClub : {}\nLic : {}\nEtat : {}\nVendue le : {}\nEncaissée le : {}'.format(
+            super(MemberCommand,self).__str__(),
+            self.firstname,
+            self.lastname,
+            self.club,
+            self.license,
+            self.state,
+            self.datetime_sold.strftime('%Y-%m-%d'),
+            self.datetime_cashed.strftime('%Y-%m-%d'),
+        )
 
 class CommissionCommand(IndividualCommand):
     CANYONING = 'canyoning'
@@ -131,3 +144,11 @@ class CommissionCommand(IndividualCommand):
         choices=STATE_CHOICES,
         default=PLACED_STATE,
     )
+    
+    def __str__(self):
+        return '{}\nCommission : {}\nEtat : {}\nDistribuée le : {}\n'.format(
+            super(CommissionCommand,self).__str__(),
+            self.commission,
+            self.state,
+            self.datetime_given.strftime('%Y-%m-%d'),
+        )
