@@ -1,5 +1,7 @@
 from django.db import models
 
+from . import user
+
 # Common command states
 PLACED_STATE = 'placed'
 PREPARED_STATE = 'prepared'
@@ -36,6 +38,7 @@ class GroupedCommand(models.Model):
 
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
+    # Set at preparation
     grouped_command = models.ForeignKey(
         GroupedCommand,
         on_delete=models.CASCADE,
@@ -43,7 +46,6 @@ class IndividualCommand(models.Model):
         blank=True,
     )
     amount = models.PositiveSmallIntegerField(default=0,)
-    email = models.EmailField()
     comments = models.TextField(default='', blank=True,)
     datetime_placed = models.DateTimeField(auto_now_add=True,)
     datetime_prepared = models.DateTimeField(null=True, blank=True,)
@@ -60,16 +62,8 @@ class IndividualCommand(models.Model):
         )
     
 class MemberCommand(IndividualCommand):
-    ESMUG = 'esmug'
-    GUCEM = 'gucem'
-
     SOLD_STATE = 'sold'
     CASHED_STATE = 'cashed'
-
-    CLUB_CHOICES = (
-        (GUCEM, 'GUCEM'),
-        (ESMUG, 'ESMUG'),
-    )
 
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
@@ -79,17 +73,9 @@ class MemberCommand(IndividualCommand):
         (CANCELLED_STATE, 'Commande annulée'),
     )
 
-    lastname = models.CharField(max_length=30,)
-    firstname = models.CharField(max_length=30,)
-    license = models.CharField(max_length=12,)
+    member = models.ForeignKey(user.Member, on_delete=models.CASCADE,)
     datetime_sold = models.DateTimeField(null=True, blank=True,)
     datetime_cashed = models.DateTimeField(null=True, blank=True,)
-    
-    club = models.CharField(
-        max_length=max(len(choice[0]) for choice in CLUB_CHOICES),
-        choices=CLUB_CHOICES,
-        default=GUCEM,
-    )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
@@ -97,21 +83,7 @@ class MemberCommand(IndividualCommand):
     )
 
 class CommissionCommand(IndividualCommand):
-    CANYONING = 'canyoning'
-    CLIMBING = 'climbing'
-    CAVING = 'caving'
-    MOUNTAINEERING = 'mountaineering'
-
-    PLACED_STATE = 'placed'
-    PREPARED_STATE = 'prepared'
     GIVEN_STATE = 'given'
-
-    COMMISSION_CHOICES = (
-        (CANYONING, 'Canyoning'),
-        (CLIMBING, 'Escalade'),
-        (CAVING, 'Spéléologie'),
-        (MOUNTAINEERING, 'Alpinisme'),
-    )
 
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
@@ -120,12 +92,8 @@ class CommissionCommand(IndividualCommand):
         (CANCELLED_STATE, 'Commande annulée'),
     )
 
+    commission = models.ForeignKey(user.Commission, on_delete=models.CASCADE,)
     datetime_given = models.DateTimeField(null=True, blank=True)
-    commission = models.CharField(
-        max_length=max(len(choice[0]) for choice in COMMISSION_CHOICES),
-        choices=COMMISSION_CHOICES,
-        default=CANYONING,
-    )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,

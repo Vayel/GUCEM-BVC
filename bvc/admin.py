@@ -7,8 +7,7 @@ class CommandAdmin(admin.ModelAdmin):
     exclude = []
 
 class MemberCommandAdmin(CommandAdmin):
-    list_display = ['lastname', 'firstname', 'grouped_command',
-                    'datetime_placed', 'state',]
+    list_display = ['grouped_command', 'datetime_placed', 'state',]
     list_filter = ['state',]
 
 class CommissionCommandAdmin(CommandAdmin):
@@ -23,3 +22,6 @@ class GroupedCommandAdmin(CommandAdmin):
 admin.site.register(models.command.MemberCommand, MemberCommandAdmin)
 admin.site.register(models.command.CommissionCommand, CommissionCommandAdmin)
 admin.site.register(models.command.GroupedCommand, GroupedCommandAdmin)
+admin.site.register(models.user.Member)
+admin.site.register(models.user.Commission)
+admin.site.register(models.user.Manager)

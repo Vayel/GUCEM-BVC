@@ -5,10 +5,9 @@ from ..models import command
 class PlaceMemberCommand(ModelForm):
     class Meta:
         model = command.MemberCommand
-        fields = ['lastname', 'firstname', 'email', 'license', 'club',
-                  'amount', 'comments',]
+        fields = ['amount', 'comments',]
 
 class PlaceCommissionCommand(ModelForm):
     class Meta:
         model = command.CommissionCommand
-        fields = ['amount', 'commission', 'email', 'comments',]
+        fields = ['amount', 'comments',]
