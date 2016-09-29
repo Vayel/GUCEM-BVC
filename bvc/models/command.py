@@ -1,6 +1,7 @@
 from django.db import models
 
 from . import user
+from . import validators
 
 # Common command states
 PLACED_STATE = 'placed'
@@ -18,10 +19,19 @@ class GroupedCommand(models.Model):
     )
     
     # Amounts in BVC value
-    placed_amount = models.PositiveSmallIntegerField(default=0,) 
-    received_amount = models.PositiveSmallIntegerField(default=0,)
+    placed_amount = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[validators.validate_amount_multiple],
+    ) 
+    received_amount = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[validators.validate_amount_multiple],
+    )
     # Can be different from received_amount in case of loss
-    prepared_amount = models.PositiveSmallIntegerField(default=0,)
+    prepared_amount = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[validators.validate_amount_multiple],
+    )
     datetime_placed = models.DateTimeField(auto_now_add=True,)
     datetime_received = models.DateTimeField(null=True, blank=True,)
     datetime_prepared = models.DateTimeField(null=True, blank=True,)
@@ -46,7 +56,10 @@ class IndividualCommand(models.Model):
         null=True,
         blank=True,
     )
-    amount = models.PositiveSmallIntegerField(default=0,) # amount in BVC value
+    amount = models.PositiveSmallIntegerField( # Amount before reduction
+        default=0,
+        validators=[validators.validate_amount_multiple],
+    )
     comments = models.TextField(default='', blank=True,)
     datetime_placed = models.DateTimeField(auto_now_add=True,)
     datetime_prepared = models.DateTimeField(null=True, blank=True,)
