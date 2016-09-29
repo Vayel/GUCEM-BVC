@@ -6,7 +6,7 @@
 {% block contents %}
 <h2>Commandes adhérents</h2>
 
-<form action="{% url 'bvc:command_member' %}" method="POST">
+<form action="{% url 'bvc:place_member_command' %}" method="POST">
   {% csrf_token %}
   
   <table>

@@ -6,10 +6,10 @@ from .. import forms
 def home(request):
     return render(request, 'bvc/home.html')
 
-def command_commission(request):
-    return render(request, 'bvc/command_commission.html')
+def place_commission_command(request):
+    return render(request, 'bvc/place_commission_command.html')
 
-def command_member(request):
+def place_member_command(request):
     context = {}
 
     if request.method == 'POST':
@@ -18,10 +18,10 @@ def command_member(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Votre command a bien été passée.')
-            return redirect('bvc:command_member')
+            return redirect('bvc:place_member_command')
     else:
         form = forms.command.PlaceMemberCommand() 
 
     context['form'] = form
 
-    return render(request, 'bvc/command_member.html', context)
+    return render(request, 'bvc/place_member_command.html', context)

@@ -11,3 +11,8 @@ class PlaceCommissionCommand(ModelForm):
     class Meta:
         model = command.CommissionCommand
         fields = ['amount', 'comments',]
+
+class PlaceGroupedCommand(ModelForm):
+    class Meta:
+        model = command.GroupedCommand
+        fields = ['placed_amount']

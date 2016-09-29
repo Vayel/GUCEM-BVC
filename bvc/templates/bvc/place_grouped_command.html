@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Commandes BVC respo{% endblock %}
+
+{% block contents %}
+<h2>Commandes respo</h2>
+
+<form action="{% url 'bvc:place_grouped_command' %}" method="POST">
+  {% csrf_token %}
+  
+  <table>
+    {{ form.as_table }}
+  </table>
+  
+  <input type="submit" value="Commander" />
+</form>
+{% endblock %}
