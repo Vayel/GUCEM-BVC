@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}BVC{% endblock %}
+
+{% block contents %}
+<h2>Commandes à passer au magasin</h2>
+
+{% for form in received_formset %}
+  {{ form.as_p }}
+{% endfor %}
+
+<table border="1">
+  <tr>
+    <th>Date</th>
+    <th>Montant</th>
+    <th></th>
+  </tr>
+  {% for command in placed_commands %}
+  <tr>
+    <td>{{ command.datetime_placed|date:"d/m/y" }}</td>
+    <td>{{ command.placed_amount }}</td>
+    <td>
+        <form method="POST" action="{% url 'bvc:receive_grouped_command' command.id %}">  
+          {% csrf_token %}
+          {{ receive_form.as_p }}
+          <input type="submit" value="Commande reçue" />
+        </form>
+      </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Commandes à préparer</h2>
+
+<table border="1">
+  <tr>
+    <th>Date</th>
+    <th>Montant</th>
+    <th></th>
+  </tr>
+  {% for command in received_commands %}
+  <tr>
+    <td>{{ command.datetime_placed|date:"d/m/y" }}</td>
+    <td>{{ command.received_amount }}</td>
+    <td>
+        <form method="POST" action="{% url 'bvc:prepare_grouped_command' command.id %}">  
+          {% csrf_token %}
+          {{ prepare_form.as_p }}
+          <input type="submit" value="Commande préparée" />
+        </form>
+      </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Anciennes commandes</h2>
+
+<table border="1">
+  <tr>
+    <th>Date</th>
+    <th>Montant</th>
+  </tr>
+  {% for command in prepared_commands %}
+  <tr>
+    <td>{{ command.datetime_placed|date:"d/m/y" }}</td>
+    <td>{{ command.prepared_amount }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
