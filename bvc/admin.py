@@ -7,11 +7,11 @@ class CommandAdmin(admin.ModelAdmin):
     exclude = []
 
 class MemberCommandAdmin(CommandAdmin):
-    list_display = ['grouped_command', 'datetime_placed', 'state',]
+    list_display = ['datetime_placed', 'state',]
     list_filter = ['state',]
 
 class CommissionCommandAdmin(CommandAdmin):
-    list_display = ['commission', 'grouped_command', 'datetime_placed',
+    list_display = ['commission', 'datetime_placed',
                     'state',]
     list_filter = ['commission', 'state',]
 
@@ -24,4 +24,4 @@ admin.site.register(models.command.CommissionCommand, CommissionCommandAdmin)
 admin.site.register(models.command.GroupedCommand, GroupedCommandAdmin)
 admin.site.register(models.user.Member)
 admin.site.register(models.user.Commission)
-admin.site.register(models.user.Manager)
+admin.site.register(models.voucher.Operation)
