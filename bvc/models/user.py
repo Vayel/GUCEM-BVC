@@ -32,9 +32,3 @@ class Commission(models.Model):
 
     def __str__(self):
         return self.type
-
-class Manager(models.Model):
-    member = models.OneToOneField(Member)
-
-    def __str__(self):
-        return str(self.member)
