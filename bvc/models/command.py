@@ -7,11 +7,13 @@ from . import validators
 PLACED_STATE = 'placed'
 PREPARED_STATE = 'prepared'
 CANCELLED_STATE = 'cancelled'
+RECEIVED_STATE = 'received'
+SOLD_STATE = 'sold'
+CASHED_STATE = 'cashed'
+GIVEN_STATE = 'given'
 
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
-    RECEIVED_STATE = 'received'
-
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
         (RECEIVED_STATE, 'Commande disponible en magasin'),
@@ -62,9 +64,6 @@ class IndividualCommand(models.Model):
         abstract = True
     
 class MemberCommand(IndividualCommand):
-    SOLD_STATE = 'sold'
-    CASHED_STATE = 'cashed'
-
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
         (PREPARED_STATE, 'Commande préparée'),
@@ -90,8 +89,6 @@ class MemberCommand(IndividualCommand):
         )
 
 class CommissionCommand(IndividualCommand):
-    GIVEN_STATE = 'given'
-
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
         (PREPARED_STATE, 'Commande préparée'),

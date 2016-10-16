@@ -8,11 +8,6 @@
 
 <form action="{% url 'bvc:place_grouped_command' %}" method="POST">
   {% csrf_token %}
-  
-  <table>
-    {{ form.as_table }}
-  </table>
-  
   <input type="submit" value="Commander" />
 </form>
 {% endblock %}

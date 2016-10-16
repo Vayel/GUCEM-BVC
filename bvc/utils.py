@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from . import models
 
@@ -30,3 +31,9 @@ def get_cmd_email(cmd):
         return cmd.commission.user.email
 
     raise ValueError("cmd object must be a member command or a commission command.")
+
+def get_voucher_stock():
+    try:
+        return models.voucher.Operation.objects.latest('id').stock
+    except ObjectDoesNotExist:
+        return 0

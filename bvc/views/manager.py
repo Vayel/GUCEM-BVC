@@ -3,7 +3,6 @@ from itertools import chain
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
@@ -21,7 +20,7 @@ def list_grouped_commands(request):
             state=models.command.PLACED_STATE,
         ),
         'received_commands': models.command.GroupedCommand.objects.filter(
-            state=models.command.GroupedCommand.RECEIVED_STATE,
+            state=models.command.RECEIVED_STATE,
         ),
         'prepared_commands': models.command.GroupedCommand.objects.filter(
             state=models.command.PREPARED_STATE,
@@ -40,7 +39,7 @@ def receive_grouped_command(request, pk):
     if form.is_valid():
         form.save()
         command.datetime_received = now()
-        command.state = models.command.GroupedCommand.RECEIVED_STATE
+        command.state = models.command.RECEIVED_STATE
         command.save()
 
         send_mail(
@@ -68,11 +67,7 @@ def prepare_grouped_command(request, pk):
         command.save()
         
         # Fill stock
-        try:
-            stock = models.voucher.Operation.objects.latest('id').stock
-        except ObjectDoesNotExist:
-            stock = 0
-
+        stock = utils.get_voucher_stock()
         stock += command.prepared_amount
 
         operation = models.voucher.Operation(
@@ -146,30 +141,90 @@ def prepare_grouped_command(request, pk):
     return redirect('bvc:list_grouped_commands')
 
 def place_grouped_command(request):
-    # TODO: no form + determine cancelled commands
-    context = {}
+    if request.method != 'POST':
+        return render(request, 'bvc/place_grouped_command.html')
 
-    if request.method == 'POST':
-        form = forms.command.PlaceGroupedCommand(request.POST)
+    # Check if any grouped command was already placed
+    placed_grouped_cmd = models.command.GroupedCommand.objects.filter(
+        state=models.command.PLACED_STATE
+    )
+    if placed_grouped_cmd.count():
+        messages.success(request, 'Une commande groupée est déjà en cours.')
+        return redirect('bvc:place_grouped_command')
 
-        if form.is_valid():
-            form.save()
-            send_mail(
-                utils.format_mail_subject('Commande groupée'),
-                render_to_string(
-                    'bvc/mails/place_grouped_command.txt',
-                    {'amount': form.cleaned_data['placed_amount']}
-                ),
-                settings.BVC_MANAGER_MAIL,
-                [settings.TREASURER_MAIL],
-                fail_silently=False,
-            )
-            messages.success(request, 'Votre command a bien été passée.')
+    # Cancel old member commands
+    stock = utils.get_voucher_stock()
+    old_commands = models.command.MemberCommand.objects.filter(
+        state=models.command.PREPARED_STATE,
+    )
 
-            return redirect('bvc:place_grouped_command')
-    else:
-        form = forms.command.PlaceGroupedCommand(request.POST) 
+    for cmd in old_commands:
+        cmd.state = models.command.CANCELLED_STATE
+        cmd.datetime_cancelled = now()
+        cmd.save()
 
-    context['form'] = form
+        stock += cmd.amount
+        
+        operation = models.voucher.Operation(
+            command_type=models.voucher.Operation.MEMBER_COMMAND,
+            command_id=cmd.id, 
+            stock=stock,
+        )
+        operation.save()
 
-    return render(request, 'bvc/place_grouped_command.html', context)
+        send_mail(
+            utils.format_mail_subject('Commande annulée'),
+            render_to_string(
+                'bvc/mails/cancel_command.txt',
+                {
+                    'amount': cmd.amount,
+                    'date': cmd.datetime_placed,
+                }
+            ),
+            settings.BVC_MANAGER_MAIL,
+            [utils.get_cmd_email(cmd)],
+            fail_silently=False,
+        )
+    
+    # Place grouped command
+    commission_commands = models.command.CommissionCommand.objects.filter(
+        state=models.command.PLACED_STATE,
+    )
+    member_commands = models.command.MemberCommand.objects.filter(
+        state=models.command.PLACED_STATE,
+    )
+
+    placed_amount = sum(cmd.amount for cmd in chain(commission_commands, member_commands))
+    amount_to_place = (placed_amount + settings.VOUCHER_STOCK_MIN - stock +
+                       settings.GROUPED_COMMAND_EXTRA_AMOUNT)
+
+    if amount_to_place <= 0:
+        send_mail(
+            utils.format_mail_subject('Commande groupée non nécessaire'),
+            render_to_string('bvc/mails/no_grouped_command.txt',),
+            settings.BVC_MANAGER_MAIL,
+            [settings.TREASURER_MAIL],
+            fail_silently=False,
+        )
+        messages.success(request, 'Il y a suffisamment de stock.')
+
+        return redirect('bvc:place_grouped_command')
+
+    command = models.command.GroupedCommand()
+    command.datetime_placed = now()
+    command.placed_amount = amount_to_place 
+    command.save()
+
+    send_mail(
+        utils.format_mail_subject('Commande groupée'),
+        render_to_string(
+            'bvc/mails/place_grouped_command.txt',
+            {'amount': amount_to_place}
+        ),
+        settings.BVC_MANAGER_MAIL,
+        [settings.TREASURER_MAIL],
+        fail_silently=False,
+    )
+    messages.success(request, 'Votre command a bien été passée.')
+
+    return redirect('bvc:place_grouped_command')
