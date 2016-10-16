@@ -4,8 +4,10 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms import ValidationError
 
 from .. import models
+from .. import forms
 from .. import utils
 
 
@@ -117,3 +119,59 @@ class PlaceGroupedCommand(TestCase):
             models.command.GroupedCommand.objects.count(),
             2
         )
+
+class ReceiveGroupedCommand(TestCase):
+    def setUp(self):
+        self.setup_datetime = now()
+        self.placed_command = models.command.GroupedCommand.objects.create(
+            placed_amount=1000,
+        )
+
+    def test_get(self):
+        resp = self.client.get(reverse(
+            'bvc:receive_grouped_command',
+            args=[self.placed_command.id]
+        ))
+        self.assertEqual(resp.status_code, 405)
+
+    def test_valid_case(self):
+        resp = self.client.post(reverse(
+            'bvc:receive_grouped_command',
+            args=[self.placed_command.id],
+        ), {'received_amount': self.placed_command.placed_amount,})
+        self.assertEqual(resp.status_code, 302)
+
+        cmd = models.command.GroupedCommand.objects.get(id=self.placed_command.id)
+
+        self.assertEqual(cmd.received_amount, self.placed_command.placed_amount)
+        self.assertTrue(self.setup_datetime < cmd.datetime_received < now())
+        self.assertEqual(cmd.state, models.command.RECEIVED_STATE)
+
+    def test_unexisting_command(self):
+        resp = self.client.post(reverse(
+            'bvc:receive_grouped_command',
+            args=[self.placed_command.id + 1]
+        ))
+        self.assertEqual(resp.status_code, 404)
+
+    def test_invalid_amount(self):
+        form = forms.command.ReceiveGroupedCommand(
+            {'received_amount': self.placed_command.placed_amount + 1,},
+            instance=self.placed_command,
+        )
+
+        self.assertFalse(form.is_valid())
+
+    def test_already_received_command(self):
+        for state in (models.command.RECEIVED_STATE, models.command.PREPARED_STATE):
+            cmd = models.command.GroupedCommand.objects.create(
+                placed_amount=1000,
+                state=state,
+            )
+            cmd.save()
+
+            resp = self.client.post(reverse(
+                'bvc:receive_grouped_command',
+                args=[cmd.id]
+            ))
+            self.assertEqual(resp.status_code, 403)

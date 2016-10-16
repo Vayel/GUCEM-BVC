@@ -3,6 +3,7 @@ from itertools import chain
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
@@ -34,6 +35,10 @@ def list_grouped_commands(request):
 @require_http_methods(["POST"])
 def receive_grouped_command(request, pk):
     command = get_object_or_404(models.command.GroupedCommand, pk=pk)
+    
+    if command.state != models.command.PLACED_STATE:
+        raise PermissionDenied('Cette commande a déjà été reçue.')
+
     form = forms.command.ReceiveGroupedCommand(request.POST, instance=command)
 
     if form.is_valid():
@@ -211,7 +216,6 @@ def place_grouped_command(request):
         return redirect('bvc:place_grouped_command')
 
     command = models.command.GroupedCommand()
-    command.datetime_placed = now()
     command.placed_amount = amount_to_place 
     command.save()
 
