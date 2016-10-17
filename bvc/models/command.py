@@ -15,7 +15,7 @@ GIVEN_STATE = 'given'
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (
-        (PLACED_STATE, 'Commande effectuée'),
+        (PLACED_STATE, 'Commande passée au trésorier'),
         (RECEIVED_STATE, 'Commande disponible en magasin'),
         (PREPARED_STATE, 'Commande préparée'),
     )
@@ -24,29 +24,42 @@ class GroupedCommand(models.Model):
     placed_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_amount_multiple],
+        verbose_name='Montant commandé',
     ) 
     received_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_amount_multiple],
+        verbose_name='Montant reçu',
     )
     # Can be different from received_amount in case of loss
     prepared_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_amount_multiple],
+        verbose_name='Montant préparé',
     )
-    datetime_placed = models.DateTimeField(auto_now_add=True,)
-    datetime_received = models.DateTimeField(null=True, blank=True,)
-    datetime_prepared = models.DateTimeField(null=True, blank=True,)
+    datetime_placed = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de commande',
+    )
+    datetime_received = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name='Date de réception',
+    )
+    datetime_prepared = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name='Date de préparation',
+    )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
         default=PLACED_STATE,
+        verbose_name='Etat',
     )
 
     def __str__(self):
-        return '{} euros (en Bons) le {}'.format(
+        return '{} euros le {}'.format(
             self.placed_amount,
-            self.datetime_placed.strftime('%Y-%m-%d'),
+            self.datetime_placed.strftime('%d/%m/%Y'),
         )
 
 class IndividualCommand(models.Model):

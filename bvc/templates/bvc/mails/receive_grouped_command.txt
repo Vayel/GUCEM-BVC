@@ -1,1 +1,5 @@
-La commande {{ pk }} est disponible au Vieux Campeur.
+Les commandes suivantes sont disponibles au Vieux Campeur :
+
+{% for cmd in commands %}
+    * {{ cmd.placed_amount }} euros commandés le {{ cmd.datetime_placed|date:"d/m/y" }} 
+{% endfor %}

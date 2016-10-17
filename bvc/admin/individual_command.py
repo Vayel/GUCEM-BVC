@@ -1,7 +1,9 @@
 from django.contrib import admin
 
-from . import models
+from .. import models
 
+
+# TODO: duplicate from grouped command
 class CommandAdmin(admin.ModelAdmin):
     readonly_fields = ['datetime_placed']
     exclude = []
@@ -21,7 +23,3 @@ class GroupedCommandAdmin(CommandAdmin):
 
 admin.site.register(models.command.MemberCommand, MemberCommandAdmin)
 admin.site.register(models.command.CommissionCommand, CommissionCommandAdmin)
-admin.site.register(models.command.GroupedCommand, GroupedCommandAdmin)
-admin.site.register(models.user.Member)
-admin.site.register(models.user.Commission)
-admin.site.register(models.voucher.Operation)
