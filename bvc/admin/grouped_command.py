@@ -8,7 +8,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 from .. import models
-from .. import utils
 
 
 class CommandAdmin(admin.ModelAdmin):
@@ -16,6 +15,7 @@ class CommandAdmin(admin.ModelAdmin):
     exclude = []
 
 
+@admin.register(models.command.GroupedCommand)
 class GroupedCommandAdmin(CommandAdmin):
     list_display = ['datetime_placed', 'placed_amount', 'received_amount',
                     'prepared_amount', 'state',]
@@ -33,34 +33,18 @@ class GroupedCommandAdmin(CommandAdmin):
             )
             return
 
-        queryset.update(
-            state=models.command.RECEIVED_STATE,
-            datetime_received=now(),
-        )
-        
+        for command in queryset:
+            try:
+                command.receive(command.placed_amount)
+            except smtplib.SMTPException:
+                self.message_user(
+                    request,
+                    "Le mail n'a pas pu être envoyé au responsable des bons. Merci de le faire manuellement.",
+                    level=messages.WARNING,
+                )
+
         self.message_user(
             request,
             'Les commandes ont été mises à jour. Merci de renseigner le montant reçu pour chacune.',
             level=messages.SUCCESS,
         )
-
-        try:
-            send_mail(
-                utils.format_mail_subject('Réception de commandes groupées'),
-                render_to_string(
-                    'bvc/mails/receive_grouped_command.txt',
-                    {'commands': queryset}
-                ),
-                settings.TREASURER_MAIL,
-                [settings.BVC_MANAGER_MAIL],
-            )
-        except smtplib.SMTPException:
-            self.message_user(
-                request,
-                "Le mail n'a pas pu être envoyé au responsable des bons. Merci de le faire manuellement.",
-                level=messages.WARNING,
-            )
-
-
-
-admin.site.register(models.command.GroupedCommand, GroupedCommandAdmin)

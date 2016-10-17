@@ -1,7 +1,12 @@
 from django.db import models
+from django.utils.timezone import now
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 from . import user
 from . import validators
+from .. import utils
 
 # Common command states
 PLACED_STATE = 'placed'
@@ -60,6 +65,25 @@ class GroupedCommand(models.Model):
         return '{} euros le {}'.format(
             self.placed_amount,
             self.datetime_placed.strftime('%d/%m/%Y'),
+        )
+
+    def receive(self, amount):
+        if amount > self.placed_amount:
+            raise ValueError('')
+
+        self.state = RECEIVED_STATE
+        self.datetime_received = now()
+        self.received_amount = amount
+        self.save()
+        
+        send_mail(
+            utils.format_mail_subject('Réception de commande groupée'),
+            render_to_string(
+                'bvc/mails/receive_grouped_command.txt',
+                {'command': self}
+            ),
+            settings.TREASURER_MAIL,
+            [settings.BVC_MANAGER_MAIL],
         )
 
 class IndividualCommand(models.Model):

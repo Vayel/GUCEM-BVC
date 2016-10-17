@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from . import models
-
 def format_mail_subject(subject):
     tags = ''
 
@@ -11,6 +9,7 @@ def format_mail_subject(subject):
 
     return tags + subject
 
+# TODO
 def get_cmd_discount(cmd):
     if isinstance(cmd, models.command.CommissionCommand) or cmd.member.vip:
         return settings.VIP_DISCOUNT

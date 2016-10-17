@@ -1,5 +1,4 @@
-Les commandes suivantes sont disponibles au Vieux Campeur :
+La commande suivante est disponible au Vieux Campeur :
 
-{% for cmd in commands %}
-    * {{ cmd.placed_amount }} euros commandés le {{ cmd.datetime_placed|date:"d/m/y" }} 
-{% endfor %}
+Montant : {{ command.placed_amount }} euros
+Date de commande : {{ command.datetime_placed|date:"d/m/y" }} 
