@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.db import models
 from django.utils.timezone import now
 from django.core.mail import send_mail
@@ -6,6 +8,7 @@ from django.conf import settings
 
 from . import user
 from . import validators
+from . import voucher
 from .. import utils
 
 # Common command states
@@ -86,6 +89,80 @@ class GroupedCommand(models.Model):
             [settings.BVC_MANAGER_MAIL],
         )
 
+    def prepare(self, amount):
+        if amount > self.received_amount:
+            raise ValueError('')
+
+        self.state = PREPARED_STATE
+        self.datetime_prepared = now()
+        self.prepared_amount = amount
+        self.save()
+
+        stock = voucher.get_stock()
+        stock += amount
+        
+        voucher.Operation(
+            command_type=voucher.Operation.GROUPED_COMMAND,
+            command_id=self.id, 
+            stock=stock,
+        ).save()
+        
+        # Prepare individual commands
+        commission_commands = CommissionCommand.objects.filter(
+            state=PLACED_STATE,
+        ).order_by('datetime_placed')
+        member_commands = MemberCommand.objects.filter(
+            state=PLACED_STATE,
+        ).order_by('datetime_placed')
+
+        for cmd in chain(commission_commands, member_commands):
+            # Not enough vouchers to prepare current command
+            if stock - cmd.amount < settings.VOUCHER_STOCK_MIN:
+                send_mail(
+                    utils.format_mail_subject('Commande indisponible'),
+                    render_to_string(
+                        'bvc/mails/command_unprepared.txt',
+                        {'command': cmd,}
+                    ),
+                    settings.BVC_MANAGER_MAIL,
+                    [cmd.email],
+                )
+
+                # Try to prepare smaller commands
+                continue
+
+            # Prepare command
+            cmd.state = PREPARED_STATE
+            cmd.datetime_prepared = now()
+            cmd.save()
+
+            send_mail(
+                utils.format_mail_subject('Commande reçue'),
+                render_to_string(
+                    'bvc/mails/command_prepared.txt',
+                    {
+                        'amount': cmd.amount,
+                        'price': cmd.price,
+                    }
+                ),
+                settings.BVC_MANAGER_MAIL,
+                [cmd.email],
+            )
+
+            # Update stock
+            stock -= cmd.amount
+
+            if isinstance(cmd, CommissionCommand):
+                command_type = voucher.Operation.COMMISSION_COMMAND
+            elif isinstance(cmd, MemberCommand):
+                command_type = voucher.Operation.MEMBER_COMMAND
+
+            voucher.Operation(
+                command_type=command_type,
+                command_id=cmd.id, 
+                stock=stock,
+            ).save()
+
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
     amount = models.PositiveSmallIntegerField( # Amount before reduction
@@ -99,6 +176,10 @@ class IndividualCommand(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def price(self):
+        return (1 - self.discount) * self.amount
     
 class MemberCommand(IndividualCommand):
     STATE_CHOICES = (
@@ -125,6 +206,21 @@ class MemberCommand(IndividualCommand):
             self.member.user.last_name,
         )
 
+    @property
+    def email(self):
+        return self.member.user.email
+
+    @property
+    def discount(self):
+        if self.member.vip:
+            return settings.VIP_DISCOUNT
+        elif self.member.club == user.Member.ESMUG:
+            return settings.ESMUG_DISCOUNT
+        elif self.member.club == user.Member.GUCEM: 
+            return settings.GUCEM_DISCOUNT
+
+        raise ValueError()
+
 class CommissionCommand(IndividualCommand):
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
@@ -148,3 +244,11 @@ class CommissionCommand(IndividualCommand):
             self.state,
             self.datetime_given.strftime('%Y-%m-%d'),
         )
+
+    @property
+    def email(self):
+        return self.commission.user.email
+
+    @property
+    def discount(self):
+        return settings.VIP_DISCOUNT

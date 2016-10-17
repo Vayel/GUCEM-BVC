@@ -22,7 +22,7 @@ class GroupedCommandAdmin(CommandAdmin):
     fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
               'received_amount', 'datetime_prepared', 'prepared_amount',]
     list_filter = ['state',]
-    actions = ['receive']
+    actions = ['receive', 'prepare']
 
     def receive(self, request, queryset):
         if queryset.filter(~Q(state=models.command.PLACED_STATE)).count():
@@ -46,5 +46,30 @@ class GroupedCommandAdmin(CommandAdmin):
         self.message_user(
             request,
             'Les commandes ont été mises à jour. Merci de renseigner le montant reçu pour chacune.',
+            level=messages.SUCCESS,
+        )
+
+    def prepare(self, request, queryset):
+        if queryset.filter(~Q(state=models.command.RECEIVED_STATE)).count():
+            self.message_user(
+                request,
+                'Une des commandes a déjà été préparée. Opération annulée.',
+                level=messages.ERROR,
+            )
+            return
+
+        for command in queryset:
+            try:
+                command.prepare(command.received_amount)
+            except smtplib.SMTPException:
+                self.message_user(
+                    request,
+                    "Le mail n'a pas pu être envoyé à {}. Merci de le faire manuellement.".format(command.email),
+                    level=messages.WARNING,
+                )
+
+        self.message_user(
+            request,
+            'Les commandes ont été mises à jour. Merci de renseigner le montant préparé pour chacune.',
             level=messages.SUCCESS,
         )

@@ -1,6 +1,14 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 from . import validators
+
+def get_stock():
+    try:
+        return Operation.objects.latest('id').stock
+    except ObjectDoesNotExist:
+        return 0
+
 
 class Operation(models.Model):
     MEMBER_COMMAND = 'member'
