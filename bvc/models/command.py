@@ -46,7 +46,7 @@ class GroupedCommand(models.Model):
         verbose_name='Montant préparé',
     )
     datetime_placed = models.DateTimeField(
-        auto_now_add=True,
+        null=True, blank=True,
         verbose_name='Date de commande',
     )
     datetime_received = models.DateTimeField(
@@ -70,10 +70,57 @@ class GroupedCommand(models.Model):
             self.datetime_placed.strftime('%d/%m/%Y'),
         )
 
-    def receive(self, amount):
-        if amount > self.placed_amount:
-            raise ValueError('')
+    def check_next(self, amount):
+        if self.datetime_placed is None:
+            return
+        elif self.datetime_received is None: 
+            if amount > self.placed_amount:
+                raise ValueError(
+                    'Le montant reçu ({} euros) ne peut dépasser le montant '
+                    'commandé ({} euros).'.format(amount, self.placed_amount)
+                )
+        elif self.datetime_prepared is None:
+            if amount > self.received_amount:
+                raise ValueError(
+                    'Le montant préparé ({} euros) ne peut dépasser le montant '
+                    'reçu ({} euros).'.format(amount, self.received_amount)
+                )
 
+    def next(self, amount):
+        self.check_next(amount)
+
+        if self.datetime_placed is None:
+            self._place(amount)
+        elif self.datetime_received is None:
+            self._receive(amount)
+        elif self.datetime_prepared is None:
+            self._prepare_(amount)
+
+    def _place(self, amount):
+        if amount <= 0:
+            send_mail(
+                utils.format_mail_subject('Commande groupée non nécessaire'),
+                render_to_string('bvc/mails/no_grouped_command.txt',),
+                settings.BVC_MANAGER_MAIL,
+                [settings.TREASURER_MAIL],
+            )
+            return
+
+        self.placed_amount = amount
+        self.datetime_placed = now()
+        self.save()
+
+        send_mail(
+            utils.format_mail_subject('Commande groupée'),
+            render_to_string(
+                'bvc/mails/place_grouped_command.txt',
+                {'amount': amount}
+            ),
+            settings.BVC_MANAGER_MAIL,
+            [settings.TREASURER_MAIL],
+        )
+
+    def _receive(self, amount):
         self.state = RECEIVED_STATE
         self.datetime_received = now()
         self.received_amount = amount
@@ -89,10 +136,7 @@ class GroupedCommand(models.Model):
             [settings.BVC_MANAGER_MAIL],
         )
 
-    def prepare(self, amount):
-        if amount > self.received_amount:
-            raise ValueError('')
-
+    def _prepare_(self, amount):
         self.state = PREPARED_STATE
         self.datetime_prepared = now()
         self.prepared_amount = amount

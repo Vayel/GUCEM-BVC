@@ -1,37 +1,52 @@
-from django.forms import ModelForm, ValidationError
+from django import forms
+from django.utils.timezone import now
+from django.contrib import messages
 
-from ..models import command
+from .. import models
 
-class PlaceMemberCommand(ModelForm):
-    class Meta:
-        model = command.MemberCommand
-        fields = ['amount', 'comments',]
 
-class PlaceCommissionCommand(ModelForm):
-    class Meta:
-        model = command.CommissionCommand
-        fields = ['amount', 'comments',]
+class GroupedCommandAdmin(forms.ModelForm):
+    amount = forms.IntegerField(
+        min_value=0,
+        validators=[models.validators.validate_amount_multiple],
+        label='Montant',
+    )
 
-class PlaceGroupedCommand(ModelForm):
     class Meta:
-        model = command.GroupedCommand
-        fields = ['placed_amount']
-        
-class ReceiveGroupedCommand(ModelForm):
-    class Meta:
-        model = command.GroupedCommand
-        fields = ['received_amount']
+        model = models.command.GroupedCommand
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        instance = getattr(self, 'instance', None)
+
+        if instance is not None:
+            if instance.datetime_placed is None:
+                self.fields['amount'].label = instance._meta.get_field('placed_amount').verbose_name
+            elif instance.datetime_received is None:
+                self.fields['amount'].label = instance._meta.get_field('received_amount').verbose_name
+            elif instance.datetime_prepared is None:
+                self.fields['amount'].label = instance._meta.get_field('prepared_amount').verbose_name
+            else:
+                self.fields['amount'].widget = forms.HiddenInput()
+                self.fields['amount'].required = False
 
     def clean_received_amount(self):
-        received_amount = self.cleaned_data['received_amount']
+        amount = self.cleaned_data['amount'] or 0
 
-        if received_amount > self.instance.placed_amount:
-            raise ValidationError('Le montant reçu ne peut être supérieur à ' +
-                                  'celui commandé')
+        try:
+            self.instance.check_next(amount)
+        except ValueError as e:
+            raise ValidationError(e.msg)
 
-        return received_amount
+        return amount
 
-class PrepareGroupedCommand(ModelForm):
-    class Meta:
-        model = command.GroupedCommand
-        fields = ['prepared_amount']
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.next(self.cleaned_data['amount'])
+
+        if commit:
+            instance.save()
+
+        return instance

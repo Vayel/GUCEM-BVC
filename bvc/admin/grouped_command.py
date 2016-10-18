@@ -8,21 +8,26 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 from .. import models
+from .. import forms
 
 
+"""
 class CommandAdmin(admin.ModelAdmin):
     readonly_fields = ['datetime_placed']
     exclude = []
-
+"""
 
 @admin.register(models.command.GroupedCommand)
-class GroupedCommandAdmin(CommandAdmin):
+class GroupedCommandAdmin(admin.ModelAdmin):
     list_display = ['datetime_placed', 'placed_amount', 'received_amount',
                     'prepared_amount', 'state',]
-    fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
-              'received_amount', 'datetime_prepared', 'prepared_amount',]
     list_filter = ['state',]
+    readonly_fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
+              'received_amount', 'datetime_prepared', 'prepared_amount',]
+    fields = readonly_fields + ['amount']
     actions = ['receive', 'prepare']
+
+    form = forms.command.GroupedCommandAdmin
 
     def receive(self, request, queryset):
         if queryset.filter(~Q(state=models.command.PLACED_STATE)).count():
