@@ -9,6 +9,12 @@ def get_stock():
     except ObjectDoesNotExist:
         return 0
 
+def update_stock(type, id, delta):
+    Operation(
+        command_type=type,
+        command_id=id, 
+        stock=get_stock() + delta,
+    ).save()
 
 class Operation(models.Model):
     MEMBER_COMMAND = 'member'

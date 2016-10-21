@@ -20,6 +20,8 @@ SOLD_STATE = 'sold'
 CASHED_STATE = 'cashed'
 GIVEN_STATE = 'given'
 
+
+
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (
@@ -69,7 +71,22 @@ class GroupedCommand(models.Model):
             self.placed_amount,
             self.datetime_placed.strftime('%d/%m/%Y'),
         )
+    
+    @staticmethod
+    def get_amount_to_place():
+        commission_commands = CommissionCommand.objects.filter(
+            state=PLACED_STATE,
+        ).order_by('datetime_placed')
+        member_commands = MemberCommand.objects.filter(
+            state=PLACED_STATE,
+        ).order_by('datetime_placed')
 
+        return (
+            sum(cmd.amount for cmd in chain(commission_commands, member_commands)) +
+            settings.VOUCHER_STOCK_MIN +
+            settings.GROUPED_COMMAND_EXTRA_AMOUNT
+        )
+        
     def check_next(self, amount):
         if self.datetime_placed is None:
             return
@@ -142,16 +159,8 @@ class GroupedCommand(models.Model):
         self.prepared_amount = amount
         self.save()
 
-        stock = voucher.get_stock()
-        stock += amount
+        voucher.update_stock(voucher.Operation.GROUPED_COMMAND, self.id, amount)        
         
-        voucher.Operation(
-            command_type=voucher.Operation.GROUPED_COMMAND,
-            command_id=self.id, 
-            stock=stock,
-        ).save()
-        
-        # Prepare individual commands
         commission_commands = CommissionCommand.objects.filter(
             state=PLACED_STATE,
         ).order_by('datetime_placed')
@@ -175,37 +184,7 @@ class GroupedCommand(models.Model):
                 # Try to prepare smaller commands
                 continue
 
-            # Prepare command
-            cmd.state = PREPARED_STATE
-            cmd.datetime_prepared = now()
-            cmd.save()
-
-            send_mail(
-                utils.format_mail_subject('Commande reçue'),
-                render_to_string(
-                    'bvc/mails/command_prepared.txt',
-                    {
-                        'amount': cmd.amount,
-                        'price': cmd.price,
-                    }
-                ),
-                settings.BVC_MANAGER_MAIL,
-                [cmd.email],
-            )
-
-            # Update stock
-            stock -= cmd.amount
-
-            if isinstance(cmd, CommissionCommand):
-                command_type = voucher.Operation.COMMISSION_COMMAND
-            elif isinstance(cmd, MemberCommand):
-                command_type = voucher.Operation.MEMBER_COMMAND
-
-            voucher.Operation(
-                command_type=command_type,
-                command_id=cmd.id, 
-                stock=stock,
-            ).save()
+            cmd.prepare()
 
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
@@ -221,11 +200,55 @@ class IndividualCommand(models.Model):
     class Meta:
         abstract = True
 
+    @staticmethod
+    def cancel_old_commands():
+        old_commands = MemberCommand.objects.filter(state=PREPARED_STATE)
+        for cmd in old_commands:
+            cmd.cancel()
+
     @property
     def price(self):
         return (1 - self.discount) * self.amount
+
+    def prepare(self):
+        self.state = PREPARED_STATE
+        self.datetime_prepared = now()
+        self.save()
+        
+        send_mail(
+            utils.format_mail_subject('Commande reçue'),
+            render_to_string(
+                'bvc/mails/command_prepared.txt',
+                {
+                    'amount': self.amount,
+                    'price': self.price,
+                }
+            ),
+            settings.BVC_MANAGER_MAIL,
+            [self.email],
+        )
+        
+        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        
+
+    def cancel(self):
+        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, self.amount)
+        
+        send_mail(
+            utils.format_mail_subject('Commande annulée'),
+            render_to_string(
+                'bvc/mails/cancel_command.txt',
+                {
+                    'amount': self.amount,
+                    'date': self.datetime_placed,
+                }
+            ),
+            settings.BVC_MANAGER_MAIL,
+            [self.email],
+        )
     
 class MemberCommand(IndividualCommand):
+    VOUCHER_COMMAND_TYPE = voucher.Operation.MEMBER_COMMAND
+    
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
         (PREPARED_STATE, 'Commande préparée'),
@@ -234,9 +257,22 @@ class MemberCommand(IndividualCommand):
         (CANCELLED_STATE, 'Commande annulée'),
     )
 
+    CHECK_PAYMENT = 'check'
+    CASH_PAYMENT = 'cash'
+
+    PAYMENT_TYPE_CHOICES = (
+        (CHECK_PAYMENT, 'Chèque'),
+        (CASH_PAYMENT, 'Espèces'),
+    )
+
     member = models.ForeignKey(user.Member, on_delete=models.CASCADE,)
     datetime_sold = models.DateTimeField(null=True, blank=True,)
     datetime_cashed = models.DateTimeField(null=True, blank=True,)
+    payment_type = models.CharField(
+        null=True, blank=True,
+        max_length=max(len(choice[0]) for choice in PAYMENT_TYPE_CHOICES),
+        choices=PAYMENT_TYPE_CHOICES,
+    )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
@@ -265,7 +301,22 @@ class MemberCommand(IndividualCommand):
 
         raise ValueError()
 
+    def sell(self, payment_type):
+        self.state = SOLD_STATE
+        self.datetime_sold = now()
+        self.payment_type = payment_type
+        self.save()
+
+        # Add to next bank deposit
+
+    def cash(self):
+        self.state = CASHED_STATE
+        self.datetime_cashed = now()
+        self.save()
+
 class CommissionCommand(IndividualCommand):
+    VOUCHER_COMMAND_TYPE = voucher.Operation.COMMISSION_COMMAND
+
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
         (PREPARED_STATE, 'Commande préparée'),
@@ -296,3 +347,8 @@ class CommissionCommand(IndividualCommand):
     @property
     def discount(self):
         return settings.VIP_DISCOUNT
+
+    def distribute(self):
+        self.state = GIVEN_STATE
+        self.datetime_given = now()
+        self.save()
