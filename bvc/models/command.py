@@ -66,6 +66,10 @@ class GroupedCommand(models.Model):
         verbose_name='Etat',
     )
 
+    class Meta:
+        verbose_name = 'Commande groupée'
+        verbose_name_plural = 'Commandes groupées'
+
     def __str__(self):
         return '{} euros le {}'.format(
             self.placed_amount,
@@ -87,33 +91,7 @@ class GroupedCommand(models.Model):
             settings.GROUPED_COMMAND_EXTRA_AMOUNT
         )
         
-    def check_next(self, amount):
-        if self.datetime_placed is None:
-            return
-        elif self.datetime_received is None: 
-            if amount > self.placed_amount:
-                raise ValueError(
-                    'Le montant reçu ({} euros) ne peut dépasser le montant '
-                    'commandé ({} euros).'.format(amount, self.placed_amount)
-                )
-        elif self.datetime_prepared is None:
-            if amount > self.received_amount:
-                raise ValueError(
-                    'Le montant préparé ({} euros) ne peut dépasser le montant '
-                    'reçu ({} euros).'.format(amount, self.received_amount)
-                )
-
-    def next(self, amount):
-        self.check_next(amount)
-
-        if self.datetime_placed is None:
-            self._place(amount)
-        elif self.datetime_received is None:
-            self._receive(amount)
-        elif self.datetime_prepared is None:
-            self._prepare_(amount)
-
-    def _place(self, amount):
+    def place(self, amount):
         if amount <= 0:
             send_mail(
                 utils.format_mail_subject('Commande groupée non nécessaire'),
@@ -137,7 +115,7 @@ class GroupedCommand(models.Model):
             [settings.TREASURER_MAIL],
         )
 
-    def _receive(self, amount):
+    def receive(self, amount):
         self.state = RECEIVED_STATE
         self.datetime_received = now()
         self.received_amount = amount
@@ -153,7 +131,7 @@ class GroupedCommand(models.Model):
             [settings.BVC_MANAGER_MAIL],
         )
 
-    def _prepare_(self, amount):
+    def prepare_(self, amount):
         self.state = PREPARED_STATE
         self.datetime_prepared = now()
         self.prepared_amount = amount
@@ -279,6 +257,10 @@ class MemberCommand(IndividualCommand):
         default=PLACED_STATE,
     )
     
+    class Meta:
+        verbose_name = 'Commande adhérent'
+        verbose_name_plural = 'Commandes adhérents'
+
     def __str__(self):
         return '{}\n{}'.format(
             super(MemberCommand, self).__str__(),
@@ -332,6 +314,10 @@ class CommissionCommand(IndividualCommand):
         default=PLACED_STATE,
     )
     
+    class Meta:
+        verbose_name = 'Commande commission'
+        verbose_name_plural = 'Commandes commissions'
+
     def __str__(self):
         return '{}\nCommission : {}\nEtat : {}\nDistribuée le : {}\n'.format(
             super(CommissionCommand, self).__str__(),

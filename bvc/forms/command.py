@@ -4,49 +4,41 @@ from django.contrib import messages
 
 from .. import models
 
+def clean_amount(state, prev_state):
+    def decorator(func):
+        def wrapper(form):
+            amount = form.cleaned_data[state + '_amount']
+            if amount is None:
+                return amount
+            
+            prev_amount = form.instance.__dict__[prev_state + '_amount']
+            if amount > prev_amount:
+                raise forms.ValidationError(
+                    'The {} amount cannot be greater than '
+                    'the {} amount.'.format(state, prev_state)
+                )
+            if not amount:
+                raise forms.ValidationError('The amount cannot be zero.')
+
+            func(form, amount)
+
+            return amount
+        return wrapper
+    return decorator
 
 class GroupedCommandAdmin(forms.ModelForm):
-    amount = forms.IntegerField(
-        min_value=0,
-        validators=[models.validators.validate_amount_multiple],
-        label='Montant',
-    )
-
     class Meta:
         model = models.command.GroupedCommand
-        fields = []
+        fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
+                  'received_amount', 'datetime_prepared', 'prepared_amount',]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def clean_placed_amount(self, amount):
+        self.instance.place(amount)
 
-        instance = getattr(self, 'instance', None)
+    @clean_amount('received', 'placed')
+    def clean_received_amount(self, amount):
+        self.instance.receive(amount)
 
-        if instance is not None:
-            if instance.datetime_placed is None:
-                self.fields['amount'].label = instance._meta.get_field('placed_amount').verbose_name
-            elif instance.datetime_received is None:
-                self.fields['amount'].label = instance._meta.get_field('received_amount').verbose_name
-            elif instance.datetime_prepared is None:
-                self.fields['amount'].label = instance._meta.get_field('prepared_amount').verbose_name
-            else:
-                self.fields['amount'].widget = forms.HiddenInput()
-                self.fields['amount'].required = False
-
-    def clean_received_amount(self):
-        amount = self.cleaned_data['amount'] or 0
-
-        try:
-            self.instance.check_next(amount)
-        except ValueError as e:
-            raise ValidationError(e.msg)
-
-        return amount
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.next(self.cleaned_data['amount'])
-
-        if commit:
-            instance.save()
-
-        return instance
+    @clean_amount('prepared', 'received')
+    def clean_prepared_amount(self, amount):
+        self.instance.prepare_(amount)
