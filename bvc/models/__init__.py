@@ -1,4 +1,5 @@
 from . import command
-from .command import GroupedCommand, MemberCommand, CommissionCommand
+from .grouped_command import GroupedCommand
+from .individual_command import MemberCommand, CommissionCommand
 from . import voucher
 from .voucher import Operation

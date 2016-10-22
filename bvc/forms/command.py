@@ -28,7 +28,7 @@ def clean_amount(state, prev_state):
 
 class GroupedCommandAdmin(forms.ModelForm):
     class Meta:
-        model = models.command.GroupedCommand
+        model = models.GroupedCommand
         fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
                   'received_amount', 'datetime_prepared', 'prepared_amount',]
 
