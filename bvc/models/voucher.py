@@ -37,3 +37,6 @@ class Operation(models.Model):
         default=0,
         validators=[validators.validate_amount_multiple],
     )
+
+    def __str__(self):
+        return '{} - Stock = {}'.format(self.id, self.stock)
