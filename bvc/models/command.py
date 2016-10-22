@@ -22,6 +22,8 @@ GIVEN_STATE = 'given'
 
 
 
+class InvalidState(Exception): pass
+
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (
@@ -92,6 +94,9 @@ class GroupedCommand(models.Model):
         )
         
     def place(self, amount):
+        if self.state != None:
+            raise InvalidState()
+
         if amount <= 0:
             send_mail(
                 utils.format_mail_subject('Commande groupée non nécessaire'),
@@ -116,6 +121,9 @@ class GroupedCommand(models.Model):
         )
 
     def receive(self, amount):
+        if self.state != PLACED_STATE:
+            raise InvalidState()
+
         self.state = RECEIVED_STATE
         self.datetime_received = now()
         self.received_amount = amount
@@ -132,6 +140,9 @@ class GroupedCommand(models.Model):
         )
 
     def prepare_(self, amount):
+        if self.state != PREPARED_STATE:
+            raise InvalidState()
+
         self.state = PREPARED_STATE
         self.datetime_prepared = now()
         self.prepared_amount = amount
@@ -148,7 +159,7 @@ class GroupedCommand(models.Model):
 
         for cmd in chain(commission_commands, member_commands):
             # Not enough vouchers to prepare current command
-            if stock - cmd.amount < settings.VOUCHER_STOCK_MIN:
+            if voucher.get_stock() - cmd.amount < settings.VOUCHER_STOCK_MIN:
                 send_mail(
                     utils.format_mail_subject('Commande indisponible'),
                     render_to_string(
@@ -189,9 +200,14 @@ class IndividualCommand(models.Model):
         return (1 - self.discount) * self.amount
 
     def prepare(self):
+        if self.state != PLACED_STATE:
+            raise InvalidState()
+
         self.state = PREPARED_STATE
         self.datetime_prepared = now()
         self.save()
+
+        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        
         
         send_mail(
             utils.format_mail_subject('Commande reçue'),
@@ -205,11 +221,17 @@ class IndividualCommand(models.Model):
             settings.BVC_MANAGER_MAIL,
             [self.email],
         )
-        
-        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        
 
     def cancel(self):
-        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, self.amount)
+        if self.state not in [PLACED_STATE, PREPARED_STATE]:
+            raise InvalidState()
+
+        if self.state == PREPARED_STATE:
+            voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, self.amount)
+
+        self.state = CANCELLED_STATE
+        self.datetime_cancelled = now()
+        self.save()
         
         send_mail(
             utils.format_mail_subject('Commande annulée'),
@@ -284,14 +306,18 @@ class MemberCommand(IndividualCommand):
         raise ValueError()
 
     def sell(self, payment_type):
+        if self.state != PREPARED_STATE:
+            raise InvalidState()
+
         self.state = SOLD_STATE
         self.datetime_sold = now()
         self.payment_type = payment_type
         self.save()
 
-        # Add to next bank deposit
-
     def cash(self):
+        if self.state != SOLD_STATE:
+            raise InvalidState()
+
         self.state = CASHED_STATE
         self.datetime_cashed = now()
         self.save()
@@ -333,6 +359,9 @@ class CommissionCommand(IndividualCommand):
         return settings.VIP_DISCOUNT
 
     def distribute(self):
+        if self.state != PREPARED_STATE:
+            raise InvalidState()
+
         self.state = GIVEN_STATE
         self.datetime_given = now()
         self.save()
