@@ -12,6 +12,12 @@ class GroupedCommandAdmin(admin.ModelAdmin):
     fields = forms.command.GroupedCommandAdmin.Meta.fields
     form = forms.command.GroupedCommandAdmin
 
+    def get_actions(self, request):
+        # Remove delete action
+        actions = super().get_actions(request)
+        del actions['delete_selected']
+        return actions
+
     def get_readonly_fields(self, request, instance=None):
         if instance: # Editing an existing object
             fields = self.fields + []

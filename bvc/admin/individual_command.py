@@ -8,6 +8,12 @@ class IndividualCommandAdmin(admin.ModelAdmin):
     actions = ['cancel']
     list_filter = ['state',]
 
+    def get_actions(self, request):
+        # Remove delete action
+        actions = super().get_actions(request)
+        del actions['delete_selected']
+        return actions
+
     def cancel(self, request, queryset):
         for cmd in queryset:
             try:
