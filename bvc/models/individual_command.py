@@ -13,6 +13,11 @@ from . import voucher
 from .. import utils
 
 
+def cancel_old_commands():
+    old_commands = MemberCommand.objects.filter(state=PREPARED_STATE)
+    for cmd in old_commands:
+        cmd.cancel()
+
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
     amount = models.PositiveSmallIntegerField( # Amount before reduction
@@ -26,12 +31,6 @@ class IndividualCommand(models.Model):
 
     class Meta:
         abstract = True
-
-    @staticmethod
-    def cancel_old_commands():
-        old_commands = MemberCommand.objects.filter(state=PREPARED_STATE)
-        for cmd in old_commands:
-            cmd.cancel()
 
     @property
     def price(self):

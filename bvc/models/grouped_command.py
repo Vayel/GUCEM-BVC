@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from .command import *
+from .individual_command import CommissionCommand, MemberCommand
 from . import user
 from . import validators
 from . import voucher
@@ -82,7 +83,7 @@ class GroupedCommand(models.Model):
         )
         
     def place(self, amount):
-        if self.state != None:
+        if self.datetime_placed != None:
             raise InvalidState()
 
         if amount <= 0:
