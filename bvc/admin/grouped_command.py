@@ -1,17 +1,10 @@
-import smtplib
-
-from django.contrib import admin, messages
-from django.utils.timezone import now
-from django.db.models import Q
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from django.conf import settings
+from django.contrib import admin
 
 from .. import models
 from .. import forms
 
 
-@admin.register(models.command.GroupedCommand)
+@admin.register(models.GroupedCommand)
 class GroupedCommandAdmin(admin.ModelAdmin):
     list_display = ['datetime_placed', 'placed_amount', 'received_amount',
                     'prepared_amount', 'state',]

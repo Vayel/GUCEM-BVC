@@ -262,8 +262,8 @@ class MemberCommand(IndividualCommand):
         verbose_name_plural = 'Commandes adhérents'
 
     def __str__(self):
-        return '{}\n{}'.format(
-            super(MemberCommand, self).__str__(),
+        return '{} ({} {})'.format(
+            self.id,
             self.member.user.first_name,
             self.member.user.last_name,
         )
@@ -319,11 +319,9 @@ class CommissionCommand(IndividualCommand):
         verbose_name_plural = 'Commandes commissions'
 
     def __str__(self):
-        return '{}\nCommission : {}\nEtat : {}\nDistribuée le : {}\n'.format(
-            super(CommissionCommand, self).__str__(),
+        return '{} ({})'.format(
+            self.id,
             self.commission.type,
-            self.state,
-            self.datetime_given.strftime('%Y-%m-%d'),
         )
 
     @property

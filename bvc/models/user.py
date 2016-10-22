@@ -20,10 +20,9 @@ class Member(models.Model):
     vip = models.BooleanField(default=False) # -20%
 
     def __str__(self):
-        return '{} {} (n°{})'.format(
+        return '{} {}'.format(
             self.user.first_name,
             self.user.last_name,
-            self.license,
         )
 
 class Commission(models.Model):
