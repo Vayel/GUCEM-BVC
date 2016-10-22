@@ -6,6 +6,7 @@ from .. import models
 
 class IndividualCommandAdmin(admin.ModelAdmin):
     actions = ['cancel']
+    list_filter = ['state',]
 
     def cancel(self, request, queryset):
         for cmd in queryset:
@@ -21,7 +22,6 @@ class IndividualCommandAdmin(admin.ModelAdmin):
 @admin.register(models.MemberCommand)
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'state',]
-    list_filter = ['state',]
     actions = ['sell_by_check', 'sell_by_cash']
     ordering = ['datetime_placed']
 
@@ -41,3 +41,20 @@ class MemberCommandAdmin(IndividualCommandAdmin):
 
     def sell_by_cash(self, request, queryset):
         self.sell(request, queryset, models.MemberCommand.CASH_PAYMENT)
+
+@admin.register(models.CommissionCommand)
+class CommissionCommandAdmin(IndividualCommandAdmin):
+    list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',]
+    actions = ['distribute',]
+    ordering = ['datetime_placed']
+
+    def distribute(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.distribute()
+            except models.command.InvalidState:
+                self.message_user(
+                    request,
+                    "La commande {} n'est pas dans le bon état pour être distribuée.".format(cmd),
+                    level=messages.ERROR
+                )
