@@ -12,6 +12,9 @@ class GroupedCommandAdmin(admin.ModelAdmin):
     fields = forms.command.GroupedCommandAdmin.Meta.fields
     form = forms.command.GroupedCommandAdmin
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def get_actions(self, request):
         # Remove delete action
         actions = super().get_actions(request)

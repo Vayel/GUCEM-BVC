@@ -8,6 +8,9 @@ class IndividualCommandAdmin(admin.ModelAdmin):
     actions = ['cancel']
     list_filter = ['state',]
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def get_actions(self, request):
         # Remove delete action
         actions = super().get_actions(request)
