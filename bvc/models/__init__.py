@@ -6,4 +6,4 @@ from . import voucher
 from .voucher import VoucherOperation
 
 from . import money_stock
-from .money_stock import BankDeposit
+from .money_stock import BankDeposit, TreasuryOperation
