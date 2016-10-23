@@ -5,18 +5,18 @@ from . import validators
 
 def get_stock():
     try:
-        return Operation.objects.latest('id').stock
+        return VoucherOperation.objects.latest('id').stock
     except ObjectDoesNotExist:
         return 0
 
 def update_stock(type, id, delta):
-    Operation(
+    VoucherOperation(
         command_type=type,
         command_id=id, 
         stock=get_stock() + delta,
     ).save()
 
-class Operation(models.Model):
+class VoucherOperation(models.Model):
     MEMBER_COMMAND = 'member'
     COMMISSION_COMMAND = 'commission'
     GROUPED_COMMAND = 'grouped'

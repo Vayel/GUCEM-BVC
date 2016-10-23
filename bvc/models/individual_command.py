@@ -9,6 +9,7 @@ from django.conf import settings
 from .command import *
 from . import user
 from . import validators
+from . import money_stock
 from . import voucher
 from .. import utils
 
@@ -17,6 +18,15 @@ def cancel_old_commands():
     old_commands = MemberCommand.objects.filter(state=PREPARED_STATE)
     for cmd in old_commands:
         cmd.cancel()
+
+def cash_commands():
+    cmd = MemberCommand.objects.filter(
+        state=SOLD_STATE,
+        bank_deposit__isnull=False
+    )
+
+    cmd.update(state=CASHED_STATE)
+
 
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
@@ -85,7 +95,7 @@ class IndividualCommand(models.Model):
 
 
 class MemberCommand(IndividualCommand):
-    VOUCHER_COMMAND_TYPE = voucher.Operation.MEMBER_COMMAND
+    VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.MEMBER_COMMAND
     
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),
@@ -105,11 +115,15 @@ class MemberCommand(IndividualCommand):
 
     member = models.ForeignKey(user.Member, on_delete=models.CASCADE,)
     datetime_sold = models.DateTimeField(null=True, blank=True,)
-    datetime_cashed = models.DateTimeField(null=True, blank=True,)
     payment_type = models.CharField(
         null=True, blank=True,
         max_length=max(len(choice[0]) for choice in PAYMENT_TYPE_CHOICES),
         choices=PAYMENT_TYPE_CHOICES,
+    )
+    bank_deposit = models.ForeignKey(
+        money_stock.BankDeposit,
+        on_delete=models.CASCADE,
+        null=True,
     )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
@@ -152,6 +166,20 @@ class MemberCommand(IndividualCommand):
         self.payment_type = payment_type
         self.save()
 
+    def add_to_bank_deposit(self):
+        if self.state != SOLD_STATE:
+            raise InvalidState()
+
+        self.bank_deposit = money_stock.get_current_bank_deposit()
+        self.save()
+
+    def remove_from_bank_deposit(self):
+        if self.state != SOLD_STATE:
+            raise InvalidState()
+
+        self.bank_deposit = None
+        self.save()
+
     def cash(self):
         if self.state != SOLD_STATE:
             raise InvalidState()
@@ -162,7 +190,7 @@ class MemberCommand(IndividualCommand):
 
 
 class CommissionCommand(IndividualCommand):
-    VOUCHER_COMMAND_TYPE = voucher.Operation.COMMISSION_COMMAND
+    VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.COMMISSION_COMMAND
 
     STATE_CHOICES = (
         (PLACED_STATE, 'Commande effectuée'),

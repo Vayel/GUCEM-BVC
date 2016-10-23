@@ -30,8 +30,9 @@ class IndividualCommandAdmin(admin.ModelAdmin):
 
 @admin.register(models.MemberCommand)
 class MemberCommandAdmin(IndividualCommandAdmin):
-    list_display = ['id', 'member', 'datetime_placed', 'amount', 'state',]
-    actions = ['sell_by_check', 'sell_by_cash']
+    list_display = ['id', 'member', 'datetime_placed', 'amount', 'bank_deposit', 'state',]
+    actions = ['sell_by_check', 'sell_by_cash', 'add_to_bank_deposit',
+               'remove_from_bank_deposit']
     ordering = ['datetime_placed']
 
     def sell(self, request, queryset, payment_type):
@@ -50,6 +51,29 @@ class MemberCommandAdmin(IndividualCommandAdmin):
 
     def sell_by_cash(self, request, queryset):
         self.sell(request, queryset, models.MemberCommand.CASH_PAYMENT)
+        
+    def add_to_bank_deposit(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.add_to_bank_deposit()
+            except models.command.InvalidState:
+                self.message_user(
+                    request,
+                    "La commande {} n'est pas dans le bon état pour être déposée en banque.".format(cmd),
+                    level=messages.ERROR
+                )
+    
+    def remove_from_bank_deposit(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.remove_from_bank_deposit()
+            except models.command.InvalidState:
+                self.message_user(
+                    request,
+                    "La commande {} n'est pas dans le bon état pour être retirée d'un dépôt en banque.".format(cmd),
+                    level=messages.ERROR
+                )
+
 
 @admin.register(models.CommissionCommand)
 class CommissionCommandAdmin(IndividualCommandAdmin):

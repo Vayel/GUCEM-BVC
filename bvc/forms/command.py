@@ -26,7 +26,7 @@ def clean_amount(state, prev_state):
         return wrapper
     return decorator
 
-class GroupedCommandAdmin(forms.ModelForm):
+class GroupedCommandAdminForm(forms.ModelForm):
     class Meta:
         model = models.GroupedCommand
         fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
