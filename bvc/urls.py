@@ -11,5 +11,4 @@ urlpatterns = [
         name='place_commission_command'),
     url(r'^commande_groupee$', views.manager.place_grouped_command,
         name='place_grouped_command'),
-    url(r'^depot_banque$', views.manager.bank_deposit, name='bank_deposit'),
 ]

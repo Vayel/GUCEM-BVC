@@ -30,23 +30,3 @@ def place_grouped_command(request):
     messages.success(request, 'Votre command a bien été passée.')
 
     return redirect('admin:index')
-
-@staff_member_required
-def bank_deposit(request):
-    if request.method == 'POST':
-        messages.success(request, 'Le dépôt en banque a été enregistré.')
-
-        return redirect('admin:index')
-
-    context = {}
-
-    context['check_commands'] = models.MemberCommand.objects.filter(
-        state=models.command.SOLD_STATE,
-        payment_type=models.MemberCommand.CHECK_PAYMENT,
-    )
-    context['cash_commands'] = models.MemberCommand.objects.filter(
-        state=models.command.SOLD_STATE,
-        payment_type=models.MemberCommand.CASH_PAYMENT,
-    )
-
-    return render(request, 'bvc/bank_deposit.html', context)
