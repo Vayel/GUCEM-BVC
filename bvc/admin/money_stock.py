@@ -38,7 +38,7 @@ class BankDepositAdmin(admin.ModelAdmin):
             bank_deposit=instance
         )
         return (sum(cmd.amount for cmd in commands) +
-                sum(op.amount for op in treasury_ops))
+                sum(-op.amount for op in treasury_ops))
 
 @admin.register(models.TreasuryOperation)
 class TreasuryOperationAdmin(admin.ModelAdmin):

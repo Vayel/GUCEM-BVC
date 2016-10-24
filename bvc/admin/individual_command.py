@@ -30,7 +30,8 @@ class IndividualCommandAdmin(admin.ModelAdmin):
 
 @admin.register(models.MemberCommand)
 class MemberCommandAdmin(IndividualCommandAdmin):
-    list_display = ['id', 'member', 'datetime_placed', 'amount', 'bank_deposit', 'state',]
+    list_display = ['id', 'member', 'datetime_placed', 'amount', 'payment_type',
+                    'bank_deposit', 'state',]
     actions = ['sell_by_check', 'sell_by_cash', 'add_to_bank_deposit',
                'remove_from_bank_deposit']
     ordering = ['datetime_placed']
