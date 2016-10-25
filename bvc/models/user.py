@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+
 
 class Member(models.Model):
     ESMUG = 'esmug' # -15%
@@ -10,7 +11,7 @@ class Member(models.Model):
         (ESMUG, 'ESMUG'),
     )
 
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
     license = models.CharField(max_length=12, unique=True,)
     club = models.CharField(
         max_length=max(len(choice[0]) for choice in CLUB_CHOICES),
@@ -26,7 +27,7 @@ class Member(models.Model):
         )
 
 class Commission(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
     type = models.CharField(max_length=30, unique=True,)
 
     def __str__(self):

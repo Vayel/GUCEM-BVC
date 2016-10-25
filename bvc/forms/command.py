@@ -26,6 +26,7 @@ def clean_amount(state, prev_state):
         return wrapper
     return decorator
 
+
 class GroupedCommandAdminForm(forms.ModelForm):
     class Meta:
         model = models.GroupedCommand
@@ -42,3 +43,15 @@ class GroupedCommandAdminForm(forms.ModelForm):
     @clean_amount('prepared', 'received')
     def clean_prepared_amount(self, amount):
         self.instance.prepare_(amount)
+
+
+class PlaceMemberCommand(forms.ModelForm):
+    class Meta:
+        model = models.MemberCommand
+        fields = ['amount']
+
+
+class PlaceCommissionCommand(forms.ModelForm):
+    class Meta:
+        model = models.CommissionCommand
+        fields = ['commission', 'amount']

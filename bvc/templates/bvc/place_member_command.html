@@ -10,7 +10,9 @@
   {% csrf_token %}
   
   <table>
-    {{ form.as_table }}
+    {{ user_form.as_table }}
+    {{ member_form.as_table }}
+    {{ command_form.as_table }}
   </table>
   
   <input type="submit" value="Commander" />
