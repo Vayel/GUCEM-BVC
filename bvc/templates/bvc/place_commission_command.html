@@ -5,4 +5,14 @@
 
 {% block contents %}
 <p>Commandes commissions</p>
+
+<form action="{% url 'bvc:place_commission_command' %}" method="POST">
+  {% csrf_token %}
+  
+  <table>
+    {{ form.as_table }}
+  </table>
+  
+  <input type="submit" value="Commander" />
+</form>
 {% endblock %}

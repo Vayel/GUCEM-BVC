@@ -41,7 +41,22 @@ def home(request):
     return render(request, 'bvc/home.html')
 
 def place_commission_command(request):
-    return render(request, 'bvc/place_commission_command.html')
+    context = {}
+
+    if request.method == 'POST':
+        form = forms.command.PlaceCommissionCommand(request.POST) 
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, 'Votre command a bien été passée.')
+            return redirect('bvc:place_commission_command')
+    else:
+        form = forms.command.PlaceCommissionCommand() 
+
+    context['form'] = form
+
+    return render(request, 'bvc/place_commission_command.html', context)
 
 def place_member_command(request):
     context = {}
