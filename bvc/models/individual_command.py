@@ -113,7 +113,7 @@ class MemberCommand(IndividualCommand):
         (CASH_PAYMENT, 'Espèces'),
     )
 
-    member = models.ForeignKey(user.Member, on_delete=models.CASCADE,)
+    member = models.ForeignKey(user.Member, related_name='commands', on_delete=models.CASCADE,)
     datetime_sold = models.DateTimeField(null=True, blank=True,)
     payment_type = models.CharField(
         null=True, blank=True,
@@ -199,7 +199,7 @@ class CommissionCommand(IndividualCommand):
         (CANCELLED_STATE, 'Commande annulée'),
     )
 
-    commission = models.ForeignKey(user.Commission, on_delete=models.CASCADE,)
+    commission = models.ForeignKey(user.Commission, related_name='commands', on_delete=models.CASCADE,)
     datetime_given = models.DateTimeField(null=True, blank=True)
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),

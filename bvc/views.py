@@ -4,9 +4,12 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
+from django.conf import settings
 
 from . import models
 from . import forms
+from . import utils
 
 
 # Manager
@@ -82,15 +85,25 @@ def place_member_command(request):
                 pass
 
             if member_form.is_valid():
-                member = member_form.save()
+                member = member_form.save(commit=False)
+                member.user = user
+                member.save()
 
                 if command_form.is_valid():
                     command = command_form.save(commit=False)
                     command.member = member
                     command.save()
 
-                    messages.success(request, 'Votre command a bien été passée.')
+                    user.email_user(
+                        utils.format_mail_subject('Récapitulatif de vos commandes'),
+                        render_to_string(
+                            'bvc/mails/command_summary.txt',
+                            {'commands': member.commands.all()}
+                        ),
+                        settings.BVC_MANAGER_MAIL
+                    )
 
+                    messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
                     return redirect('bvc:place_member_command')
     else:
         user_form = forms.user.MemberUserCommand() 
