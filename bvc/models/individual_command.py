@@ -1,4 +1,5 @@
 from itertools import chain
+from decimal import Decimal, getcontext
 
 from django.db import models
 from django.utils.timezone import now
@@ -12,6 +13,9 @@ from . import validators
 from . import money_stock
 from . import voucher
 from .. import utils
+
+
+getcontext().prec = 6
 
 
 def cancel_old_commands():
@@ -44,7 +48,7 @@ class IndividualCommand(models.Model):
 
     @property
     def price(self):
-        return (1 - self.discount) * self.amount
+        return (Decimal('1') - Decimal(str(self.discount))) * Decimal(str(self.amount))
 
     def prepare(self):
         if self.state != PLACED_STATE:
