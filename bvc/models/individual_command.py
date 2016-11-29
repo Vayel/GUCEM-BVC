@@ -23,13 +23,14 @@ def cancel_old_commands():
     for cmd in old_commands:
         cmd.cancel()
 
-def cash_commands():
-    cmd = MemberCommand.objects.filter(
-        state=SOLD_STATE,
-        bank_deposit__isnull=False
+def bank_commands(payment_type, bank_deposit):
+    commands = MemberCommand.objects.filter(
+        state=TO_BE_BANKED_STATE,
+        payment_type=payment_type,
     )
 
-    cmd.update(state=CASHED_STATE)
+    for cmd in commands:
+        cmd.bank(bank_deposit)
 
 
 class IndividualCommand(models.Model):
@@ -105,12 +106,10 @@ class MemberCommand(IndividualCommand):
         (PLACED_STATE, 'Commande effectuée'),
         (PREPARED_STATE, 'Commande préparée'),
         (SOLD_STATE, 'Commande vendue'),
-        (CASHED_STATE, 'Commande encaissée'),
+        (TO_BE_BANKED_STATE, 'Commande à encaisser'),
+        (BANKED_STATE, 'Commande encaissée'),
         (CANCELLED_STATE, 'Commande annulée'),
     )
-
-    CHECK_PAYMENT = 'check'
-    CASH_PAYMENT = 'cash'
 
     PAYMENT_TYPE_CHOICES = (
         (CHECK_PAYMENT, 'Chèque'),
@@ -170,26 +169,26 @@ class MemberCommand(IndividualCommand):
         self.payment_type = payment_type
         self.save()
 
-    def add_to_bank_deposit(self):
+    def add_for_bank_deposit(self):
         if self.state != SOLD_STATE:
             raise InvalidState()
 
-        self.bank_deposit = money_stock.get_current_bank_deposit()
+        self.state = TO_BE_BANKED_STATE
         self.save()
 
     def remove_from_bank_deposit(self):
-        if self.state != SOLD_STATE:
+        if self.state != TO_BE_BANKED_STATE:
             raise InvalidState()
 
-        self.bank_deposit = None
+        self.state = SOLD_STATE
         self.save()
 
-    def cash(self):
-        if self.state != SOLD_STATE:
+    def bank(self, bank_deposit):
+        if self.state != TO_BE_BANKED_STATE:
             raise InvalidState()
 
-        self.state = CASHED_STATE
-        self.datetime_cashed = now()
+        self.state = BANKED_STATE
+        self.bank_deposit = bank_deposit
         self.save()
 
 

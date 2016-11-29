@@ -18,13 +18,30 @@ class BankDepositAdminForm(forms.ModelForm):
 
         return datetime
 
+
+class CheckBankDepositAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.CheckBankDeposit
+        exclude = []
+    
     def save(self, commit=True):
         instance = super().save(commit=False)
-        old_datetime = models.BankDeposit.objects.get(id=instance.id).datetime
+        models.individual_command.bank_commands(models.command.CHECK_PAYMENT, self.cleaned_data['bank_deposit'])
 
-        if old_datetime is None and instance.datetime is not None: # The bank deposit was done
-            models.individual_command.cash_commands()
-            models.BankDeposit.objects.create()
+        if commit:
+            instance.save()
+
+        return instance
+
+
+class CashBankDepositAdminForm(BankDepositAdminForm):
+    class Meta:
+        model = models.CashBankDeposit
+        exclude = []
+        
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        models.individual_command.bank_commands(models.command.CASH_PAYMENT, self.cleaned_data['bank_deposit'])
 
         if commit:
             instance.save()
@@ -34,11 +51,10 @@ class BankDepositAdminForm(forms.ModelForm):
 
 class TreasuryOperationAdminForm(forms.ModelForm):
     amount = forms.FloatField(initial=0)
-    with_bank_deposit = forms.BooleanField(required=False, initial=True,)
 
     class Meta:
         model = models.TreasuryOperation
-        fields = ['amount', 'with_bank_deposit']
+        fields = ['amount']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,8 +62,6 @@ class TreasuryOperationAdminForm(forms.ModelForm):
         if self.instance.id is None:
             return
 
-        self.fields['with_bank_deposit'].initial = self.instance.bank_deposit != None
-        self.fields['with_bank_deposit'].disabled = True
         self.fields['amount'].initial = self.instance.amount
         self.fields['amount'].disabled = True
 
@@ -62,11 +76,6 @@ class TreasuryOperationAdminForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-
-        if self.cleaned_data['with_bank_deposit']:
-            instance.bank_deposit = models.money_stock.get_current_bank_deposit()
-        else:
-            instance.bank_deposit = None
 
         instance.stock = models.money_stock.get_treasury() + self.cleaned_data['amount']
 
