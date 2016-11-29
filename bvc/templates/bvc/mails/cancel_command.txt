@@ -1,3 +1,5 @@
-Salut,
+{% extends "bvc/mails/base.txt" %}
 
-Ta commande de bons Vieux Campeur de TODO du TODO a été annulée.
+{% block contents %}
+Ta commande de bons Vieux Campeur de {{ amount }} euros du {{ date|date:"d/m/y" }} a été annulée.
+{% endblock %}

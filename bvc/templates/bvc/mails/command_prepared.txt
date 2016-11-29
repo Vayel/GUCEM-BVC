@@ -1,7 +1,9 @@
-Salut,
+{% extends "bvc/mails/base.txt" %}
 
+{% block contents %}
 Ta commande de bons Vieux Campeur est disponible. Tu peux venir la 
 récupérer à la permanence le mardi de 18h30 à 20h.
 
 Montant BVC : {{ amount }}
 Montant à payer : {{ price }}
+{% endblock %}

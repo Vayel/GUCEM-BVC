@@ -1,1 +1,5 @@
-Demande de BVC : {{ amount }} euros.
+{% extends "bvc/mails/base.txt" %}
+
+{% block contents %}
+Je souhaiterais passer commande de {{ amount }} euros auprès du Vieux Campeur.
+{% endblock %}
