@@ -12,6 +12,9 @@ class GroupedCommandAdmin(admin.ModelAdmin):
     fields = forms.command.GroupedCommandAdminForm.Meta.fields
     form = forms.command.GroupedCommandAdminForm
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
     def has_delete_permission(self, request, obj=None):
         return False
 
@@ -25,12 +28,15 @@ class GroupedCommandAdmin(admin.ModelAdmin):
         if instance: # Editing an existing object
             fields = self.fields + []
 
-            if instance.datetime_placed is None:
+            if instance.state is None:
                 fields.remove('placed_amount')
-            elif instance.datetime_received is None:
+                fields.remove('datetime_placed')
+            elif instance.state == models.command.PLACED_STATE:
                 fields.remove('received_amount')
-            elif instance.datetime_prepared is None:
+                fields.remove('datetime_received')
+            elif instance.state == models.command.RECEIVED_STATE:
                 fields.remove('prepared_amount')
+                fields.remove('datetime_prepared')
 
             return fields
 
@@ -46,11 +52,7 @@ class GroupedCommandAdmin(admin.ModelAdmin):
                             'datetime_prepared']
                 fields = [f for f in fields if f not in excluded]
             elif instance.datetime_received is None:
-                excluded = ['datetime_received', 'prepared_amount',
-                            'datetime_prepared']
-                fields = [f for f in fields if f not in excluded]
-            elif instance.datetime_prepared is None:
-                excluded = ['datetime_prepared']
+                excluded = ['prepared_amount', 'datetime_prepared']
                 fields = [f for f in fields if f not in excluded]
 
             return fields

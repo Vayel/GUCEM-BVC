@@ -109,12 +109,12 @@ class GroupedCommand(models.Model):
             [settings.TREASURER_MAIL],
         )
 
-    def receive(self, amount):
+    def receive(self, amount, datetime):
         if self.state != PLACED_STATE:
             raise InvalidState()
 
         self.state = RECEIVED_STATE
-        self.datetime_received = now()
+        self.datetime_received = datetime
         self.received_amount = amount
         self.save()
         
@@ -128,16 +128,16 @@ class GroupedCommand(models.Model):
             [settings.BVC_MANAGER_MAIL],
         )
 
-    def prepare_(self, amount):
-        if self.state != PREPARED_STATE:
+    def prepare_(self, amount, datetime):
+        if self.state != RECEIVED_STATE:
             raise InvalidState()
 
         self.state = PREPARED_STATE
-        self.datetime_prepared = now()
+        self.datetime_prepared = datetime
         self.prepared_amount = amount
         self.save()
 
-        voucher.update_stock(voucher.Operation.GROUPED_COMMAND, self.id, amount)        
+        voucher.update_stock(voucher.VoucherOperation.GROUPED_COMMAND, self.id, amount)        
         
         commission_commands = CommissionCommand.objects.filter(
             state=PLACED_STATE,
