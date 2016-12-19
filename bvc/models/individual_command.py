@@ -68,6 +68,7 @@ class IndividualCommand(models.Model):
                 {
                     'amount': self.amount,
                     'price': self.price,
+                    'paid_command': isinstance(self, MemberCommand),
                 }
             ),
             settings.BVC_MANAGER_MAIL,
