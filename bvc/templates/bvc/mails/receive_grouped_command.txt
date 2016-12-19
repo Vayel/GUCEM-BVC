@@ -1,4 +1,4 @@
 La commande suivante est disponible au Vieux Campeur :
 
-Montant : {{ command.placed_amount }} euros
+Montant : {{ command.received_amount }} euros
 Date de commande : {{ command.datetime_placed|date:"d/m/y" }} 

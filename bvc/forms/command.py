@@ -60,7 +60,13 @@ class GroupedCommandAdminForm(forms.ModelForm):
 
     def clean_received_amount(self):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
-        return self.clean_amount_field('received', 'placed')
+        amount = self.cleaned_data['received_amount']
+
+        if not amount:
+            raise forms.ValidationError('The amount cannot be zero.')
+
+        self.amount = amount
+        return amount
 
     def clean_datetime_received(self):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
