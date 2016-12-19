@@ -53,13 +53,13 @@ class IndividualCommand(models.Model):
 
     def prepare(self):
         if self.state != PLACED_STATE:
-            raise InvalidState()
+            raise InvalidState("La commande {} n'est pas dans le bon état pour être préparée.".format(self))
+
+        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        
 
         self.state = PREPARED_STATE
         self.datetime_prepared = now()
         self.save()
-
-        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        
         
         send_mail(
             utils.format_mail_subject('Commande reçue'),
@@ -76,7 +76,7 @@ class IndividualCommand(models.Model):
 
     def cancel(self):
         if self.state not in [PLACED_STATE, PREPARED_STATE]:
-            raise InvalidState()
+            raise InvalidState("La commande {} n'est pas dans le bon état pour être annulée.".format(self))
 
         if self.state == PREPARED_STATE:
             voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, self.amount)

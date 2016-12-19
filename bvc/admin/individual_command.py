@@ -5,7 +5,7 @@ from .. import models
 
 
 class IndividualCommandAdmin(admin.ModelAdmin):
-    actions = ['cancel']
+    actions = ['prepare', 'cancel',]
     list_filter = ['state',]
 
     def has_delete_permission(self, request, obj=None):
@@ -16,15 +16,26 @@ class IndividualCommandAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+    
+    def prepare(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.prepare()
+            except (ValueError, models.command.InvalidState) as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.ERROR
+                )
 
     def cancel(self, request, queryset):
         for cmd in queryset:
             try:
                 cmd.cancel()
-            except models.command.InvalidState:
+            except models.command.InvalidState as e:
                 self.message_user(
                     request,
-                    "La commande {} n'est pas dans le bon état pour être annulée.".format(cmd),
+                    str(e),
                     level=messages.ERROR
                 )
 

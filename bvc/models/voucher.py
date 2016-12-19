@@ -10,10 +10,15 @@ def get_stock():
         return 0
 
 def update_stock(type, id, delta):
+    stock = get_stock() + delta
+
+    if stock < 0:
+        raise ValueError("Il ne reste pas suffisamment de bons.")
+
     VoucherOperation(
         command_type=type,
         command_id=id, 
-        stock=get_stock() + delta,
+        stock=stock,
     ).save()
 
 class VoucherOperation(models.Model):
