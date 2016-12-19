@@ -204,6 +204,7 @@ class CommissionCommand(IndividualCommand):
 
     commission = models.ForeignKey(user.Commission, related_name='commands', on_delete=models.CASCADE,)
     datetime_given = models.DateTimeField(null=True, blank=True)
+    reason = models.TextField()
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,

@@ -87,7 +87,7 @@ class GroupedCommandAdminForm(forms.ModelForm):
 class PlaceMemberCommand(forms.ModelForm):
     class Meta:
         model = models.MemberCommand
-        fields = ['amount']
+        fields = ['amount', 'comments',]
 
 
 class PlaceCommissionCommand(forms.ModelForm):
@@ -98,4 +98,4 @@ class PlaceCommissionCommand(forms.ModelForm):
 
     class Meta:
         model = models.CommissionCommand
-        fields = ['commission', 'amount']
+        fields = ['commission', 'amount', 'reason', 'comments',]
