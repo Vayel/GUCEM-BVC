@@ -95,7 +95,7 @@ def place_member_command(request):
                     command.save()
 
                     user.email_user(
-                        utils.format_mail_subject('Récapitulatif de vos commandes'),
+                        utils.format_mail_subject('Récapitulatif de tes commandes'),
                         render_to_string(
                             'bvc/mails/command_summary.txt',
                             {'commands': member.commands.all()}

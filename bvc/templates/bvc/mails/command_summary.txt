@@ -6,7 +6,7 @@ Actuellement, tu as les commandes de bons suivantes :
 {% if cmd.state == 'placed' or cmd.state == 'prepared' %}
 Montant : {{ cmd.amount }} euros
 Prix : {{ cmd.price }} euros
-Disponible : {% if cmd.state == 'placed' %}Non{% elif cmd.state == 'prepared' %}Oui{% endif %}
+Disponible : {% if cmd.state == 'placed' %}Non (tu recevras un mail quand ce sera le cas){% elif cmd.state == 'prepared' %}Oui{% endif %}
 {% endif %}
 {% endfor %}
 {% endblock %}
