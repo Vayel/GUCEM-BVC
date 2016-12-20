@@ -1,7 +1,8 @@
 from django.contrib import admin
 
+from .site import admin_site
 from .. import models
 
 
-admin.site.register(models.user.Member)
-admin.site.register(models.user.Commission)
+admin_site.register(models.user.Member)
+admin_site.register(models.user.Commission)

@@ -1,10 +1,10 @@
 from django.contrib import admin
 
+from .site import admin_site
 from .. import forms
 from .. import models
 
 
-@admin.register(models.BankDeposit)
 class BankDepositAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'datetime', 'ref']
     fields = ['datetime', 'ref',]
@@ -19,7 +19,6 @@ class BankDepositAdmin(admin.ModelAdmin):
         return actions
 
 
-@admin.register(models.CheckBankDeposit)
 class CheckBankDepositAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'amount']
     form = forms.money_stock.CheckBankDepositAdminForm
@@ -40,7 +39,6 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         return sum(cmd.amount for cmd in commands)
 
 
-@admin.register(models.CashBankDeposit)
 class CashBankDepositAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'amount']
     form = forms.money_stock.CashBankDepositAdminForm
@@ -65,7 +63,6 @@ class CashBankDepositAdmin(admin.ModelAdmin):
                 sum(-op.amount for op in treasury_ops))
 
 
-@admin.register(models.TreasuryOperation)
 class TreasuryOperationAdmin(admin.ModelAdmin):
     list_display = ['stock']
     form = forms.money_stock.TreasuryOperationAdminForm
@@ -79,3 +76,9 @@ class TreasuryOperationAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+
+
+admin_site.register(models.BankDeposit, BankDepositAdmin)
+admin_site.register(models.CheckBankDeposit, CheckBankDepositAdmin)
+admin_site.register(models.CashBankDeposit, CashBankDepositAdmin)
+admin_site.register(models.TreasuryOperation, TreasuryOperationAdmin)

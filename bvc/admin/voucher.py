@@ -1,10 +1,10 @@
 from django.contrib import admin
 
+from .site import admin_site
 from .. import models
 
 
-@admin.register(models.VoucherOperation)
-class OperationAdmin(admin.ModelAdmin):
+class VoucherOperationAdmin(admin.ModelAdmin):
     readonly_fields = ['command_type', 'command_id', 'stock',]
 
     def has_add_permission(self, request, obj=None):
@@ -18,3 +18,6 @@ class OperationAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+
+
+admin_site.register(models.VoucherOperation, VoucherOperationAdmin)

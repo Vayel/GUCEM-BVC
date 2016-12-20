@@ -14,6 +14,13 @@ from . import voucher
 from .. import utils
 
 
+def get_current():
+    try:
+        return GroupedCommand.objects.exclude(state=PREPARED_STATE).first()
+    except ObjectDoesNotExist:
+        return None
+
+
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (

@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
 from django.utils.timezone import now
 
+from .site import admin_site
 from .. import models
 
 
@@ -39,7 +40,6 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                     level=messages.ERROR
                 )
 
-@admin.register(models.MemberCommand)
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price', 'payment_type', 'state',]
     actions = ['sell_by_check', 'sell_by_cash', 'add_for_bank_deposit',
@@ -86,7 +86,6 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                 )
 
 
-@admin.register(models.CommissionCommand)
 class CommissionCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',]
     actions = ['distribute',]
@@ -102,3 +101,7 @@ class CommissionCommandAdmin(IndividualCommandAdmin):
                     "La commande {} n'est pas dans le bon état pour être distribuée.".format(cmd),
                     level=messages.ERROR
                 )
+
+
+admin_site.register(models.MemberCommand, MemberCommandAdmin)
+admin_site.register(models.CommissionCommand, CommissionCommandAdmin)

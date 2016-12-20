@@ -1,10 +1,10 @@
 from django.contrib import admin
 
+from .site import admin_site
 from .. import models
 from .. import forms
 
 
-@admin.register(models.GroupedCommand)
 class GroupedCommandAdmin(admin.ModelAdmin):
     list_display = ['datetime_placed', 'placed_amount', 'received_amount',
                     'prepared_amount', 'state',]
@@ -58,3 +58,6 @@ class GroupedCommandAdmin(admin.ModelAdmin):
             return fields
 
         return self.fields or []
+
+
+admin_site.register(models.GroupedCommand, GroupedCommandAdmin)
