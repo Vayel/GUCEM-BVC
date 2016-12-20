@@ -13,6 +13,7 @@ from . import validators
 from . import voucher
 from .. import utils
 
+
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (
@@ -141,9 +142,11 @@ class GroupedCommand(models.Model):
         
         commission_commands = CommissionCommand.objects.filter(
             state=PLACED_STATE,
+            datetime_placed__lt=self.datetime_placed,
         ).order_by('datetime_placed')
         member_commands = MemberCommand.objects.filter(
             state=PLACED_STATE,
+            datetime_placed__lt=self.datetime_placed,
         ).order_by('datetime_placed')
 
         for cmd in chain(commission_commands, member_commands):
