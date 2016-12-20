@@ -17,11 +17,11 @@ from . import utils
 @require_http_methods(["POST"])
 @staff_member_required
 def place_grouped_command(request):
-    # Check if any grouped command was already placed
-    placed_grouped_cmd = models.GroupedCommand.objects.filter(
-        state=models.command.PLACED_STATE
+    # Check if any grouped command has not been prepared yet
+    unprepared_grouped_cmd = models.GroupedCommand.objects.exclude(
+        state=models.command.PREPARED_STATE
     )
-    if placed_grouped_cmd.count():
+    if unprepared_grouped_cmd.count():
         messages.error(
             request,
             'Une commande groupée est déjà en cours. Opération annulée.'
