@@ -5,6 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from django.core.mail import send_mail
 from django.conf import settings
 
 from . import models
@@ -13,6 +14,30 @@ from . import utils
 
 
 # Manager
+
+@staff_member_required
+@require_http_methods(["POST"])
+def contact_unsold_commands(request):
+    commands = models.MemberCommand.objects.filter(
+        state=models.command.PREPARED_STATE
+    )
+
+    for cmd in commands:
+        send_mail(
+            utils.format_mail_subject('Commande bientôt annulée'),
+            render_to_string(
+                'bvc/mails/cancel_command_soon.txt',
+                {'cmd': cmd,}
+            ),
+            settings.BVC_MANAGER_MAIL,
+            [cmd.email],
+        )
+
+    messages.success(
+        request,
+        'Les commandes non vendues ont reçu un mail de rappel.'
+    )
+    return redirect('bvcadmin:index')
 
 @staff_member_required
 def place_grouped_command(request):

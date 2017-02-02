@@ -69,6 +69,11 @@
                     </a>
                 </p>
         {% endif %}
+
+        <form method="POST" action="{% url 'bvc:contact_unsold_commands' %}">
+            {% csrf_token %}
+            <input type="submit" value="Envoyer un rappel aux membres" />
+        </form>
     </div>
     <div class="module" id="recent-actions-module">
         <h2>{% trans 'Recent actions' %}</h2>
