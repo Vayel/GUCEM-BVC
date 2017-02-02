@@ -55,12 +55,9 @@
         <h2>{% trans 'Tools' %}</h2>
 
         {% if current_grouped_command is None %}
-            <form method="POST" action="{% url 'bvc:place_grouped_command' %}">
-                {% csrf_token %}
-                <p>
-                    <input type="submit" value="Passer une commande groupée" />
-                </p>
-            </form>
+            <a href="{% url 'bvc:place_grouped_command' %}">
+                Passer une commande groupée
+            </a>
         {% else %}
                 <p>
                     <a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">

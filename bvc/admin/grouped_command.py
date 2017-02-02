@@ -50,12 +50,12 @@ class GroupedCommandAdmin(admin.ModelAdmin):
                 excluded = ['datetime_placed', 'received_amount',
                             'datetime_received', 'prepared_amount',
                             'datetime_prepared']
-                fields = [f for f in fields if f not in excluded]
             elif instance.datetime_received is None:
                 excluded = ['prepared_amount', 'datetime_prepared']
-                fields = [f for f in fields if f not in excluded]
+            else:
+                excluded = []
 
-            return fields
+            return [f for f in fields if f not in excluded]
 
         return self.fields or []
 

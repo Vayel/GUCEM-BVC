@@ -70,26 +70,12 @@ class GroupedCommand(models.Model):
         verbose_name_plural = 'Commandes groupées'
 
     def __str__(self):
+        dt = '-' if self.datetime_placed is None else self.datetime_placed.strftime('%d/%m/%Y')
         return '{} euros le {}'.format(
             self.placed_amount,
-            self.datetime_placed.strftime('%d/%m/%Y'),
+            dt,
         )
     
-    @staticmethod
-    def get_amount_to_place():
-        commission_commands = CommissionCommand.objects.filter(
-            state=PLACED_STATE,
-        ).order_by('datetime_placed')
-        member_commands = MemberCommand.objects.filter(
-            state=PLACED_STATE,
-        ).order_by('datetime_placed')
-
-        return (
-            sum(cmd.amount for cmd in chain(commission_commands, member_commands)) +
-            settings.VOUCHER_STOCK_MIN +
-            settings.GROUPED_COMMAND_EXTRA_AMOUNT
-        )
-        
     def place(self, amount):
         if self.datetime_placed != None:
             raise InvalidState()

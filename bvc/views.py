@@ -14,30 +14,51 @@ from . import utils
 
 # Manager
 
-@require_http_methods(["POST"])
 @staff_member_required
 def place_grouped_command(request):
-    # Check if any grouped command has not been prepared yet
-    unprepared_grouped_cmd = models.GroupedCommand.objects.exclude(
+    unprepared_cmd = models.GroupedCommand.objects.exclude(
         state=models.command.PREPARED_STATE
     )
-    if unprepared_grouped_cmd.count():
-        messages.error(
-            request,
-            'Une commande groupée est déjà en cours. Opération annulée.'
-        )
 
-        return redirect('admin:index')
+    if request.method == 'POST':
+        if unprepared_cmd.count():
+            messages.error(
+                request,
+                'Une commande groupée est déjà en cours. Opération annulée.'
+            )
 
-    models.individual_command.cancel_old_commands()
-    command = models.GroupedCommand()
-    command.place(models.GroupedCommand.get_amount_to_place())
+            return redirect('bvcadmin:index')
 
-    messages.success(request, 'Votre command a bien été passée.')
+        form = forms.command.PlaceGroupedCommand(request.POST)
+        if form.is_valid():
+            command = form.save(commit=False)
+            command.place(command.placed_amount)
 
-    return redirect('admin:index')
+            messages.success(request, 'Votre command a bien été passée.')
 
+            return redirect('bvcadmin:index')
 
+    context = {}
+    context['unprepared_cmd_count'] = unprepared_cmd.count()
+    context['remaining'] = models.voucher.get_stock()
+    context['placed_by_members'] = models.MemberCommand.get_total_amount([models.command.PLACED_STATE])
+    context['placed_by_commissions'] = models.CommissionCommand.get_total_amount([models.command.PLACED_STATE])
+    context['being_sold'] = (models.MemberCommand.get_total_amount([models.command.PREPARED_STATE]) + 
+                             models.CommissionCommand.get_total_amount([models.command.PREPARED_STATE]))
+    context['min_to_place'] = context['placed_by_members'] + context['placed_by_commissions'] - context['remaining']
+    context['extra_amount'] = settings.GROUPED_COMMAND_EXTRA_AMOUNT + settings.VOUCHER_STOCK_MIN 
+    context['recommended_to_place'] = context['min_to_place'] + context['extra_amount']
+
+    try:
+        context['form'] = form
+    except NameError: # The form does not exist
+        context['form'] = forms.command.PlaceGroupedCommand({
+            'placed_amount': max(0, context['recommended_to_place'])
+        })
+
+    return render(request, 'bvc/place_grouped_command.html', context)
+
+    
 # Users
 
 def home(request):
@@ -77,6 +98,8 @@ def place_member_command(request):
 
         if user_form.is_valid():
             user = user_form.save()
+            user.username = user.email
+            user.save()
 
             try:
                 member = models.user.Member.objects.get(user=user)

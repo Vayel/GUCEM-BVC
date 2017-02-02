@@ -51,6 +51,11 @@ class IndividualCommand(models.Model):
     def price(self):
         return (Decimal('1') - Decimal(str(self.discount))) * Decimal(str(self.amount))
 
+    @classmethod
+    def get_total_amount(cls, states):
+        total = cls.objects.filter(state__in=states).aggregate(models.Sum('amount'))['amount__sum']
+        return total or 0
+
     def prepare(self):
         if self.state != PLACED_STATE:
             raise InvalidState("La commande {} n'est pas dans le bon état pour être préparée.".format(self))

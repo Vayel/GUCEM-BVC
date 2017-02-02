@@ -1,0 +1,5 @@
+{% extends "bvc/mails/base.txt" %}
+
+{% block contents %}
+Il reste suffisamment de bons en réserve pour satisfaire les commandes faites. Il n'y a donc pas besoin d'en passer au Vieux Campeur.
+{% endblock %}
