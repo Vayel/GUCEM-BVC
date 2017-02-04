@@ -84,8 +84,8 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         treasury_ops = models.TreasuryOperation.objects.filter(
             bank_deposit=instance
         )
-        return (sum(cmd.amount for cmd in commands) +
-                sum(-op.amount for op in treasury_ops))
+        return (sum(cmd.amount for cmd in commands) -
+                sum(op.delta for op in treasury_ops))
 
 
 class TreasuryOperationAdmin(admin.ModelAdmin):

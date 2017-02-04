@@ -30,7 +30,11 @@ def get_treasury():
         return 0
 
 def treasury_op_from_delta(delta):
-    op = TreasuryOperation(stock=get_treasury()+delta)
+    stock = get_treasury() + delta
+    if stock < 0:
+        raise ValueError()
+
+    op = TreasuryOperation(stock=stock)
     op.save()
     return op
 
@@ -47,7 +51,7 @@ class BankDeposit(models.Model):
     REF_MAX_LEN = 20
 
     # If null, the deposit has not been done yet
-    datetime = models.DateTimeField()
+    datetime = models.DateField()
     ref = models.CharField(max_length=REF_MAX_LEN,)
 
     def __str__(self):
