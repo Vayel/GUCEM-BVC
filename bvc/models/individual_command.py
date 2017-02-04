@@ -32,12 +32,20 @@ def bank_commands(payment_type, bank_deposit):
     for cmd in commands:
         cmd.bank(bank_deposit)
 
+def get_available_cash_amount():
+    return money_stock.get_treasury() + sum(cmd.price
+        for cmd in MemberCommand.objects.filter(
+            state=TO_BE_BANKED_STATE,
+            payment_type=CASH_PAYMENT,
+        )
+    )
+
 
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
     amount = models.PositiveSmallIntegerField( # Amount before reduction
         default=0,
-        validators=[validators.validate_amount_multiple],
+        validators=[validators.validate_voucher_amount_multiple],
     )
     comments = models.TextField(default='', blank=True,)
     datetime_placed = models.DateTimeField(auto_now_add=True,)

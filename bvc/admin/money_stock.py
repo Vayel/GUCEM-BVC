@@ -6,18 +6,8 @@ from .. import models
 
 
 class BankDepositAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'datetime', 'ref']
-    fields = ['datetime', 'ref',]
-    
-    def has_delete_permission(self, request, obj=None):
+    def has_module_permission(self, request):
         return False
-
-    def get_actions(self, request):
-        # Remove delete action
-        actions = super().get_actions(request)
-        del actions['delete_selected']
-        return actions
-
 
 class CheckBankDepositAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'amount']
@@ -31,6 +21,26 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+    
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+
+        extra_context['to_be_banked_check_number'] = models.MemberCommand.objects.filter(
+            state=models.command.TO_BE_BANKED_STATE,
+            payment_type=models.command.CHECK_PAYMENT,
+        ).count()
+        extra_context['not_to_be_banked_check_number'] = models.MemberCommand.objects.filter(
+            state=models.command.SOLD_STATE,
+            payment_type=models.command.CHECK_PAYMENT,
+        ).count()
+        extra_context['to_be_banked_check_total_amount'] = sum(cmd.price
+            for cmd in models.MemberCommand.objects.filter(
+                state=models.command.TO_BE_BANKED_STATE,
+                payment_type=models.command.CHECK_PAYMENT,
+            )
+        )
+
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
     def amount(self, instance):
         commands = models.MemberCommand.objects.filter(
@@ -51,6 +61,21 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+    
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+
+        extra_context['current_treasury'] = models.money_stock.get_treasury()
+        extra_context['sold_cash_cmd_total_amount'] = sum(cmd.price
+            for cmd in models.MemberCommand.objects.filter(
+                state=models.command.TO_BE_BANKED_STATE,
+                payment_type=models.command.CASH_PAYMENT,
+            )
+        )
+        extra_context['total_available_cash_amount'] = (extra_context['current_treasury'] +
+                                                        extra_context['sold_cash_cmd_total_amount'])
+
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
     def amount(self, instance):
         commands = models.MemberCommand.objects.filter(

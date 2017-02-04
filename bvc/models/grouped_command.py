@@ -32,18 +32,18 @@ class GroupedCommand(models.Model):
     # Amounts in BVC value
     placed_amount = models.PositiveSmallIntegerField(
         default=0,
-        validators=[validators.validate_amount_multiple],
+        validators=[validators.validate_voucher_amount_multiple],
         verbose_name='Montant commandé',
     ) 
     received_amount = models.PositiveSmallIntegerField(
         default=0,
-        validators=[validators.validate_amount_multiple],
+        validators=[validators.validate_voucher_amount_multiple],
         verbose_name='Montant reçu',
     )
     # Can be different from received_amount in case of loss
     prepared_amount = models.PositiveSmallIntegerField(
         default=0,
-        validators=[validators.validate_amount_multiple],
+        validators=[validators.validate_voucher_amount_multiple],
         verbose_name='Montant préparé',
     )
     datetime_placed = models.DateTimeField(

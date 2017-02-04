@@ -40,7 +40,7 @@ class VoucherOperation(models.Model):
     command_id = models.PositiveIntegerField()
     stock = models.PositiveSmallIntegerField(
         default=0,
-        validators=[validators.validate_amount_multiple],
+        validators=[validators.validate_voucher_amount_multiple],
     )
 
     def __str__(self):

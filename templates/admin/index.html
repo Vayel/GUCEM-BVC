@@ -54,21 +54,21 @@
     <div class="module" id="recent-actions-module">
         <h2>{% trans 'Tools' %}</h2>
 
+        <p>
         {% if current_grouped_command is None %}
             <a href="{% url 'bvc:place_grouped_command' %}">
                 Passer une commande groupée
             </a>
         {% else %}
-                <p>
-                    <a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
-                    {% if current_grouped_command.state == 'placed' %}    
-                        Recevoir la commande groupée
-                    {% else %}
-                        Préparer la commande groupée
-                    {% endif %}
-                    </a>
-                </p>
+            <a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
+            {% if current_grouped_command.state == 'placed' %}    
+                Recevoir la commande groupée
+            {% else %}
+                Préparer la commande groupée
+            {% endif %}
+            </a>
         {% endif %}
+        </p>
 
         <form method="POST" action="{% url 'bvc:contact_unsold_commands' %}">
             {% csrf_token %}

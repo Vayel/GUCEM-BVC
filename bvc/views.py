@@ -1,3 +1,4 @@
+import django.db.models
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -83,7 +84,7 @@ def place_grouped_command(request):
 
     return render(request, 'bvc/place_grouped_command.html', context)
 
-    
+
 # Users
 
 def home(request):

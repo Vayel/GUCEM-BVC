@@ -29,6 +29,11 @@ def get_treasury():
     except ObjectDoesNotExist:
         return 0
 
+def treasury_op_from_delta(delta):
+    op = TreasuryOperation(stock=get_treasury()+delta)
+    op.save()
+    return op
+
 
 class TreasuryOperation(models.Model):
     stock = models.PositiveSmallIntegerField()

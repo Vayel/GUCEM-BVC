@@ -10,9 +10,7 @@ class BVCAdminSite(AdminSite):
     index_title = 'Accueil'
 
     def index(self, request, extra_context=None):
-        if extra_context is None:
-            extra_context = {}
-
+        extra_context = extra_context or {}
         extra_context['current_grouped_command'] = models.grouped_command.get_current()
 
         return super().index(request, extra_context)

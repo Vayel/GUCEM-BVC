@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.timezone import now
+from django.conf import settings
 
 from .. import models
 
@@ -26,7 +27,10 @@ class CheckBankDepositAdminForm(forms.ModelForm):
     
     def save(self, commit=True):
         instance = super().save(commit=False)
-        models.individual_command.bank_commands(models.command.CHECK_PAYMENT, self.cleaned_data['bank_deposit'])
+        models.individual_command.bank_commands(
+            models.command.CHECK_PAYMENT,
+            self.cleaned_data['bank_deposit']
+        )
 
         if commit:
             instance.save()
@@ -35,13 +39,28 @@ class CheckBankDepositAdminForm(forms.ModelForm):
 
 
 class CashBankDepositAdminForm(BankDepositAdminForm):
+    amount = forms.IntegerField(
+        min_value=settings.BANK_DEPOSIT_CASH_MULTIPLE,
+        max_value=models.individual_command.get_available_cash_amount(),
+        validators=[models.validators.validate_cash_amount_multiple],
+    )
+
     class Meta:
         model = models.CashBankDeposit
-        exclude = []
+        exclude = ['treasury_operation']
         
     def save(self, commit=True):
         instance = super().save(commit=False)
-        models.individual_command.bank_commands(models.command.CASH_PAYMENT, self.cleaned_data['bank_deposit'])
+
+        # Create the treasury operation
+        delta = (self.fields['amount'].max_value - models.money_stock.get_treasury() -
+                 self.cleaned_data['amount'])
+        instance.treasury_operation = models.money_stock.treasury_op_from_delta(delta)
+
+        models.individual_command.bank_commands(
+            models.command.CASH_PAYMENT,
+            self.cleaned_data['bank_deposit']
+        )
 
         if commit:
             instance.save()
