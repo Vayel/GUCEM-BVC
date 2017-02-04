@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 
 from .site import admin_site
 from .. import models
@@ -12,11 +13,13 @@ class GroupedCommandAdmin(admin.ModelAdmin):
     fields = forms.command.GroupedCommandAdminForm.Meta.fields
     form = forms.command.GroupedCommandAdminForm
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_add_permission(self, request, obj=None):
+        return not models.GroupedCommand.objects.exclude(
+            state=models.command.PREPARED_STATE
+        ).count()
 
     def get_actions(self, request):
         # Remove delete action
@@ -44,20 +47,53 @@ class GroupedCommandAdmin(admin.ModelAdmin):
 
     def get_fields(self, request, instance=None):
         if instance: # Editing an existing object
-            fields = self.fields
-
             if instance.datetime_placed is None:
-                excluded = ['datetime_placed', 'received_amount',
-                            'datetime_received', 'prepared_amount',
-                            'datetime_prepared']
+                excluded = ['datetime_placed', 'received_amount', 'datetime_received',
+                            'prepared_amount', 'datetime_prepared']
             elif instance.datetime_received is None:
                 excluded = ['prepared_amount', 'datetime_prepared']
             else:
                 excluded = []
+        else:
+            excluded = ['state', 'datetime_placed', 'received_amount',
+                        'datetime_received', 'prepared_amount', 'datetime_prepared']
 
-            return [f for f in fields if f not in excluded]
+        return [f for f in self.fields or [] if f not in excluded]
+    
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = extra_context or {}
 
-        return self.fields or []
+        extra_context['unprepared_cmd_count'] = models.GroupedCommand.objects.exclude(
+            state=models.command.PREPARED_STATE
+        ).count()
+        extra_context['being_sold_cmd_number'] = (models.MemberCommand.objects.filter(
+                                                     state=models.command.PREPARED_STATE
+                                                 ).count() +
+                                                 models.MemberCommand.objects.filter(
+                                                     state=models.command.PREPARED_STATE
+                                                 ).count())
+        extra_context['amount_being_sold'] = (models.MemberCommand.get_total_amount(
+                                                  [models.command.PREPARED_STATE]
+                                              ) + 
+                                              models.CommissionCommand.get_total_amount(
+                                                  [models.command.PREPARED_STATE]))
+
+        extra_context['placed_by_members'] = models.MemberCommand.get_total_amount(
+            [models.command.PLACED_STATE]
+        )
+        extra_context['placed_by_commissions'] = models.CommissionCommand.get_total_amount(
+            [models.command.PLACED_STATE]
+        )
+        extra_context['remaining'] = models.voucher.get_stock()
+        extra_context['min_to_place'] = (extra_context['placed_by_members'] +
+                                         extra_context['placed_by_commissions'] -
+                                         extra_context['remaining'])
+
+        extra_context['extra_amount'] = settings.GROUPED_COMMAND_EXTRA_AMOUNT
+        extra_context['recommended_to_place'] = (extra_context['min_to_place'] +
+                                                 extra_context['extra_amount'])
+
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
 
 admin_site.register(models.GroupedCommand, GroupedCommandAdmin)

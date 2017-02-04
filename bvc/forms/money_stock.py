@@ -69,11 +69,11 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
 
 
 class TreasuryOperationAdminForm(forms.ModelForm):
-    amount = forms.FloatField(initial=0)
+    delta = forms.FloatField(initial=0)
 
     class Meta:
         model = models.TreasuryOperation
-        fields = ['amount']
+        fields = ['delta']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,22 +81,22 @@ class TreasuryOperationAdminForm(forms.ModelForm):
         if self.instance.id is None:
             return
 
-        self.fields['amount'].initial = self.instance.amount
-        self.fields['amount'].disabled = True
+        self.fields['delta'].initial = self.instance.delta
+        self.fields['delta'].disabled = True
 
-    def clean_amount(self):
+    def clean_delta(self):
         treasury = models.money_stock.get_treasury()
-        amount = self.cleaned_data['amount']
+        delta = self.cleaned_data['delta']
 
-        if treasury + amount < 0:
+        if treasury + delta < 0:
             raise forms.ValidationError("Il n'y a pas autant d'argent dans la caisse.")
 
-        return amount
+        return delta
 
     def save(self, commit=True):
         instance = super().save(commit=False)
 
-        instance.stock = models.money_stock.get_treasury() + self.cleaned_data['amount']
+        instance.stock = models.money_stock.get_treasury() + self.cleaned_data['delta']
 
         if commit:
             instance.save()

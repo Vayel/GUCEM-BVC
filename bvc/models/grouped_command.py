@@ -1,8 +1,8 @@
 from itertools import chain
 
 from django.db import models
-from django.utils.timezone import now
 from django.core.mail import send_mail
+from django.utils.timezone import now
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -76,11 +76,18 @@ class GroupedCommand(models.Model):
             dt,
         )
     
-    def place(self, amount):
+    def place(self, amount, datetime=None):
         if self.datetime_placed != None:
             raise InvalidState()
 
+        self.placed_amount = amount
+        self.datetime_placed = datetime or now()
+        self.save()
+
         if amount <= 0:
+            self.receive(0, self.datetime_placed)
+            self.prepare_(0, self.datetime_placed)
+
             send_mail(
                 utils.format_mail_subject('Commande groupée non nécessaire'),
                 render_to_string('bvc/mails/no_grouped_command.txt',),
@@ -88,10 +95,6 @@ class GroupedCommand(models.Model):
                 [settings.TREASURER_MAIL],
             )
             return
-
-        self.placed_amount = amount
-        self.datetime_placed = now()
-        self.save()
 
         send_mail(
             utils.format_mail_subject('Commande groupée'),
@@ -144,7 +147,7 @@ class GroupedCommand(models.Model):
 
         for cmd in chain(commission_commands, member_commands):
             # Not enough vouchers to prepare current command
-            if voucher.get_stock() - cmd.amount < settings.VOUCHER_STOCK_MIN:
+            if voucher.get_stock() - cmd.amount < 0:
                 send_mail(
                     utils.format_mail_subject('Commande indisponible'),
                     render_to_string(

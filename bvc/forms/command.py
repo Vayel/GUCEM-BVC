@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.timezone import now
 
 from .. import models
 
@@ -56,15 +57,22 @@ class GroupedCommandAdminForm(forms.ModelForm):
 
         self.callback = callback
 
+    def clean_placed_amount(self):
+        unprepared_cmd = models.GroupedCommand.objects.exclude(
+            state=models.command.PREPARED_STATE
+        )
+        if unprepared_cmd.count():
+            raise forms.ValidationError("Une commande groupée est déjà en cours.")
+        
+        self.callback = self.instance.place
+        self.date = now()
+        self.amount = self.cleaned_data['placed_amount']
+
+        return self.amount
+
     def clean_received_amount(self):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
-        amount = self.cleaned_data['received_amount']
-
-        if not amount:
-            raise forms.ValidationError('The amount cannot be zero.')
-
-        self.amount = amount
-        return amount
+        return self.clean_amount_field('received', 'placed')
 
     def clean_datetime_received(self):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
@@ -86,12 +94,6 @@ class GroupedCommandAdminForm(forms.ModelForm):
             instance.save()
 
         return instance
-
-
-class PlaceGroupedCommand(forms.ModelForm):
-    class Meta:
-        model = models.GroupedCommand
-        fields = ['placed_amount',]
 
 
 class PlaceMemberCommand(forms.ModelForm):

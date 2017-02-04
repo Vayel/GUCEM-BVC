@@ -91,7 +91,7 @@ class CashBankDepositAdmin(admin.ModelAdmin):
 class TreasuryOperationAdmin(admin.ModelAdmin):
     list_display = ['stock']
     form = forms.money_stock.TreasuryOperationAdminForm
-    fields = ['amount']
+    fields = ['delta']
 
     def has_delete_permission(self, request, obj=None):
         return False

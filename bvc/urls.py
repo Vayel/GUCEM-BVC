@@ -9,8 +9,6 @@ urlpatterns = [
         name='place_member_command'),
     url(r'^commande-commission$', views.place_commission_command,
         name='place_commission_command'),
-    url(r'^commande-groupee$', views.place_grouped_command,
-        name='place_grouped_command'),
     url(r'^rappel-annulation-commande$', views.contact_unsold_commands,
         name='contact_unsold_commands'),
 ]

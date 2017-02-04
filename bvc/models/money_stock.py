@@ -39,7 +39,7 @@ class TreasuryOperation(models.Model):
     stock = models.PositiveSmallIntegerField()
 
     @property
-    def amount(self):
+    def delta(self):
         return self.stock - get_previous_treasury(self.id)
 
 

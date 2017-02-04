@@ -1,0 +1,55 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block object-tools %}
+
+{% if add %}
+  <p>Bons encore en vente : {{ being_sold_cmd_number }} commandes, soit {{ amount_being_sold }} euros</p>
+  <p>Montant à commander :</p>
+  
+  <table style="margin-bottom: 40px;">
+        <tr>
+            <td></td>
+            <td>{{ placed_by_members }}</td>
+            <td>euros pour les membres</td>
+        </tr>
+        <tr>
+            <td>+</td>
+            <td>{{ placed_by_commissions }}</td>
+            <td>euros pour les commissions</td>
+        </tr>
+        <tr>
+            <td>-</td>
+            <td>{{ remaining }}</td>
+            <td>euros restants</td>
+        </tr>
+        <tr>
+            <td>=</td>
+            <td><strong>{{ min_to_place }}</strong></td>
+            <td>euros nécessaires</td>
+        </tr>
+        <tr>
+            <td>+</td>
+            <td>{{ extra_amount }}</td>
+            <td>euros de marge</td>
+        </tr>
+        <tr>
+            <td>=</td>
+            <td><strong>{{ recommended_to_place }}</strong></td>
+            <td>euros recommandés</td>
+        </tr>
+    </table>
+{% endif %}
+
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li>
+        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+        <a href="{% add_preserved_filters history_url %}" class="historylink">{% trans "History" %}</a>
+    </li>
+    {% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif %}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}

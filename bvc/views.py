@@ -40,50 +40,6 @@ def contact_unsold_commands(request):
     )
     return redirect('bvcadmin:index')
 
-@staff_member_required
-def place_grouped_command(request):
-    unprepared_cmd = models.GroupedCommand.objects.exclude(
-        state=models.command.PREPARED_STATE
-    )
-
-    if request.method == 'POST':
-        if unprepared_cmd.count():
-            messages.error(
-                request,
-                'Une commande groupée est déjà en cours. Opération annulée.'
-            )
-
-            return redirect('bvcadmin:index')
-
-        form = forms.command.PlaceGroupedCommand(request.POST)
-        if form.is_valid():
-            command = form.save(commit=False)
-            command.place(command.placed_amount)
-
-            messages.success(request, 'Votre command a bien été passée.')
-
-            return redirect('bvcadmin:index')
-
-    context = {}
-    context['unprepared_cmd_count'] = unprepared_cmd.count()
-    context['remaining'] = models.voucher.get_stock()
-    context['placed_by_members'] = models.MemberCommand.get_total_amount([models.command.PLACED_STATE])
-    context['placed_by_commissions'] = models.CommissionCommand.get_total_amount([models.command.PLACED_STATE])
-    context['being_sold'] = (models.MemberCommand.get_total_amount([models.command.PREPARED_STATE]) + 
-                             models.CommissionCommand.get_total_amount([models.command.PREPARED_STATE]))
-    context['min_to_place'] = context['placed_by_members'] + context['placed_by_commissions'] - context['remaining']
-    context['extra_amount'] = settings.GROUPED_COMMAND_EXTRA_AMOUNT + settings.VOUCHER_STOCK_MIN 
-    context['recommended_to_place'] = context['min_to_place'] + context['extra_amount']
-
-    try:
-        context['form'] = form
-    except NameError: # The form does not exist
-        context['form'] = forms.command.PlaceGroupedCommand({
-            'placed_amount': max(0, context['recommended_to_place'])
-        })
-
-    return render(request, 'bvc/place_grouped_command.html', context)
-
 
 # Users
 
