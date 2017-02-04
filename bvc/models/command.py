@@ -11,3 +11,4 @@ CASH_PAYMENT = 'cash'
 
 
 class InvalidState(Exception): pass
+class InvalidPaymentType(Exception): pass

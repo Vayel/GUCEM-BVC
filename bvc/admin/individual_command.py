@@ -84,6 +84,12 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                     "La commande {} n'est pas dans le bon état pour être retirée d'un dépôt en banque.".format(cmd),
                     level=messages.ERROR
                 )
+            except models.command.InvalidPaymentType:
+                self.message_user(
+                    request,
+                    "La commande {} ne peut être retirée du dépôt en banque du fait de son type de paiment ({}).".format(cmd, cmd.payment_type),
+                    level=messages.ERROR
+                )
 
 
 class CommissionCommandAdmin(IndividualCommandAdmin):

@@ -122,6 +122,8 @@ class MemberCommand(IndividualCommand):
         (CASH_PAYMENT, 'Espèces'),
     )
 
+    AUTO_BANKED_PAYMENT_TYPES = [CASH_PAYMENT]
+
     member = models.ForeignKey(user.Member, related_name='commands', on_delete=models.CASCADE,)
     datetime_sold = models.DateTimeField(null=True, blank=True,)
     payment_type = models.CharField(
@@ -170,7 +172,7 @@ class MemberCommand(IndividualCommand):
         if self.state != PREPARED_STATE:
             raise InvalidState()
 
-        self.state = SOLD_STATE
+        self.state = TO_BE_BANKED_STATE if payment_type in self.AUTO_BANKED_PAYMENT_TYPES else SOLD_STATE
         self.datetime_sold = now()
         self.payment_type = payment_type
         self.save()
@@ -185,6 +187,8 @@ class MemberCommand(IndividualCommand):
     def remove_from_bank_deposit(self):
         if self.state != TO_BE_BANKED_STATE:
             raise InvalidState()
+        if self.payment_type in self.AUTO_BANKED_PAYMENT_TYPES:
+            raise InvalidPaymentType()
 
         self.state = SOLD_STATE
         self.save()
