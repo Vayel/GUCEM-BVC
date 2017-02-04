@@ -42,7 +42,12 @@ class GroupedCommandAdminForm(forms.ModelForm):
         date = self.cleaned_data['datetime_' + state]
 
         prev = self.instance.__dict__['datetime_' + prev_state]
-        if date <= prev:
+        try:
+            prev_date = prev.date()
+        except AttributeError:
+            prev_date = prev
+
+        if date < prev_date:
             raise forms.ValidationError(
                 'The {} date cannot be older than '
                 'the {} date.'.format(state, prev_state)

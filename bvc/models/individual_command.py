@@ -49,8 +49,8 @@ class IndividualCommand(models.Model):
     )
     comments = models.TextField(default='', blank=True,)
     datetime_placed = models.DateTimeField(auto_now_add=True,)
-    datetime_prepared = models.DateTimeField(null=True, blank=True,)
-    datetime_cancelled = models.DateTimeField(null=True, blank=True,)
+    datetime_prepared = models.DateField(null=True, blank=True,)
+    datetime_cancelled = models.DateField(null=True, blank=True,)
 
     class Meta:
         abstract = True

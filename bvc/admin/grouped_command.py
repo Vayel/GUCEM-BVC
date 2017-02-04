@@ -47,10 +47,10 @@ class GroupedCommandAdmin(admin.ModelAdmin):
 
     def get_fields(self, request, instance=None):
         if instance: # Editing an existing object
-            if instance.datetime_placed is None:
+            if instance.state == None:
                 excluded = ['datetime_placed', 'received_amount', 'datetime_received',
                             'prepared_amount', 'datetime_prepared']
-            elif instance.datetime_received is None:
+            elif instance.state == models.command.PLACED_STATE:
                 excluded = ['prepared_amount', 'datetime_prepared']
             else:
                 excluded = []

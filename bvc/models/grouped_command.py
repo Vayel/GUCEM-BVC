@@ -50,11 +50,11 @@ class GroupedCommand(models.Model):
         null=True, blank=True,
         verbose_name='Date de commande',
     )
-    datetime_received = models.DateTimeField(
+    datetime_received = models.DateField(
         null=True, blank=True,
         verbose_name='Date de réception',
     )
-    datetime_prepared = models.DateTimeField(
+    datetime_prepared = models.DateField(
         null=True, blank=True,
         verbose_name='Date de préparation',
     )
@@ -82,7 +82,6 @@ class GroupedCommand(models.Model):
 
         self.placed_amount = amount
         self.datetime_placed = datetime or now()
-        self.save()
 
         if amount <= 0:
             self.receive(0, self.datetime_placed)
@@ -106,14 +105,13 @@ class GroupedCommand(models.Model):
             [settings.TREASURER_MAIL],
         )
 
-    def receive(self, amount, datetime):
+    def receive(self, amount, date):
         if self.state != PLACED_STATE:
             raise InvalidState()
 
         self.state = RECEIVED_STATE
-        self.datetime_received = datetime
+        self.datetime_received = date
         self.received_amount = amount
-        self.save()
         
         send_mail(
             utils.format_mail_subject('Réception de commande groupée'),
@@ -125,14 +123,13 @@ class GroupedCommand(models.Model):
             [settings.BVC_MANAGER_MAIL],
         )
 
-    def prepare_(self, amount, datetime):
+    def prepare_(self, amount, date):
         if self.state != RECEIVED_STATE:
             raise InvalidState()
 
         self.state = PREPARED_STATE
-        self.datetime_prepared = datetime
+        self.datetime_prepared = date
         self.prepared_amount = amount
-        self.save()
 
         voucher.update_stock(voucher.VoucherOperation.GROUPED_COMMAND, self.id, amount)        
         
