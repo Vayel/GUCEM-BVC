@@ -236,7 +236,7 @@ class CommissionCommand(IndividualCommand):
     def __str__(self):
         return '{} ({})'.format(
             self.id,
-            self.commission.type,
+            self.commission.user.username,
         )
 
     @property
