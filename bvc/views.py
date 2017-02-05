@@ -53,9 +53,17 @@ def place_commission_command(request):
         form = forms.command.PlaceCommissionCommand(request.POST) 
 
         if form.is_valid():
-            form.save()
+            cmd = form.save()
+            cmd.commission.user.email_user(
+                utils.format_mail_subject('Récapitulatif de tes commandes'),
+                render_to_string(
+                    'bvc/mails/command_summary.txt',
+                    {'commands': cmd.commission.commands.all()}
+                ),
+                settings.BVC_MANAGER_MAIL
+            )
 
-            messages.success(request, 'Votre command a bien été passée.')
+            messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
             return redirect('bvc:place_commission_command')
     else:
         form = forms.command.PlaceCommissionCommand() 

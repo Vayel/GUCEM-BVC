@@ -6,4 +6,4 @@ def format_mail_subject(subject):
     for tag in settings.BVC_MAIL_TAGS:
         tags += '[{}]'.format(tag)
 
-    return tags + subject
+    return tags + ' ' + subject
