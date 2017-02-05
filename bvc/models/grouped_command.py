@@ -83,13 +83,20 @@ class GroupedCommand(models.Model):
         self.placed_amount = amount
         self.datetime_placed = datetime or now()
 
+        placed_commission_cmd = CommissionCommand.objects.filter(state=PLACED_STATE)
+        commission_cmd = {cmd.commission.user.username: cmd.amount
+                          for cmd in placed_commission_cmd}
+
         if amount <= 0:
             self.receive(0, self.datetime_placed)
             self.prepare_(0, self.datetime_placed)
 
             send_mail(
                 utils.format_mail_subject('Commande groupée non nécessaire'),
-                render_to_string('bvc/mails/no_grouped_command.txt',),
+                render_to_string(
+                    'bvc/mails/no_grouped_command.txt',
+                    {'commission_cmd': commission_cmd,}
+                ),
                 settings.BVC_MANAGER_MAIL,
                 [settings.TREASURER_MAIL],
             )
@@ -99,7 +106,10 @@ class GroupedCommand(models.Model):
             utils.format_mail_subject('Commande groupée'),
             render_to_string(
                 'bvc/mails/place_grouped_command.txt',
-                {'amount': amount}
+                {
+                    'amount': amount,
+                    'commission_cmd': commission_cmd, 
+                }
             ),
             settings.BVC_MANAGER_MAIL,
             [settings.TREASURER_MAIL],
