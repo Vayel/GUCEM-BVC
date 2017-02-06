@@ -86,7 +86,10 @@ class GroupedCommand(models.Model):
         placed_commission_cmd = CommissionCommand.objects.filter(state=PLACED_STATE)
         commission_cmd = {cmd.commission.user.username: cmd.amount
                           for cmd in placed_commission_cmd}
-
+        
+        MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+        placed_commission_cmd.update(state=TO_BE_PREPARED_STATE)
+        
         if amount <= 0:
             self.receive(0, self.datetime_placed)
             self.prepare_(0, self.datetime_placed)
@@ -144,12 +147,10 @@ class GroupedCommand(models.Model):
         voucher.update_stock(voucher.VoucherOperation.GROUPED_COMMAND, self.id, amount)        
         
         commission_commands = CommissionCommand.objects.filter(
-            state=PLACED_STATE,
-            datetime_placed__lt=self.datetime_placed,
+            state=TO_BE_PREPARED_STATE,
         ).order_by('datetime_placed')
         member_commands = MemberCommand.objects.filter(
-            state=PLACED_STATE,
-            datetime_placed__lt=self.datetime_placed,
+            state=TO_BE_PREPARED_STATE,
         ).order_by('datetime_placed')
 
         for cmd in chain(commission_commands, member_commands):

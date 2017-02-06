@@ -44,9 +44,9 @@ def get_voucher_distribution(amount):
 
     if amount >= VOUCHER_SUBPACKET_AMOUNT:
         subpacket_distrib = get_voucher_distribution(amount - VOUCHER_SUBPACKET_AMOUNT)
-        subpacket_distrib['10'] += 10
-        subpacket_distrib['20'] += 5
-        subpacket_distrib['50'] += 6
+        subpacket_distrib[10] += 10
+        subpacket_distrib[20] += 5
+        subpacket_distrib[50] += 6
         return subpacket_distrib
     elif amount <= 100:
         return {10: amount // 10, 20: 0, 50: 0,}
@@ -153,12 +153,13 @@ class MemberCommand(IndividualCommand):
     VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.MEMBER_COMMAND
     
     STATE_CHOICES = (
-        (PLACED_STATE, 'Commande effectuée'),
-        (PREPARED_STATE, 'Commande préparée'),
-        (SOLD_STATE, 'Commande vendue'),
-        (TO_BE_BANKED_STATE, 'Commande à encaisser'),
-        (BANKED_STATE, 'Commande encaissée'),
-        (CANCELLED_STATE, 'Commande annulée'),
+        (PLACED_STATE, 'Passée'),
+        (TO_BE_PREPARED_STATE, 'À préparer'),
+        (PREPARED_STATE, 'Préparée'),
+        (SOLD_STATE, 'Vendue'),
+        (TO_BE_BANKED_STATE, 'À encaisser'),
+        (BANKED_STATE, 'Encaissée'),
+        (CANCELLED_STATE, 'Annulée'),
     )
 
     PAYMENT_TYPE_CHOICES = (
@@ -250,10 +251,11 @@ class CommissionCommand(IndividualCommand):
     VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.COMMISSION_COMMAND
 
     STATE_CHOICES = (
-        (PLACED_STATE, 'Commande effectuée'),
-        (PREPARED_STATE, 'Commande préparée'),
-        (GIVEN_STATE, 'Commande distribuée'),
-        (CANCELLED_STATE, 'Commande annulée'),
+        (PLACED_STATE, 'Passée'),
+        (TO_BE_PREPARED_STATE, 'À préparer'),
+        (PREPARED_STATE, 'Préparée'),
+        (GIVEN_STATE, 'Distribuée'),
+        (CANCELLED_STATE, 'Annulée'),
     )
 
     commission = models.ForeignKey(user.Commission, related_name='commands', on_delete=models.CASCADE,)

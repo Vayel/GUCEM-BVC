@@ -1,4 +1,5 @@
 PLACED_STATE = 'placed'
+TO_BE_PREPARED_STATE = 'to_be_prepared'
 PREPARED_STATE = 'prepared'
 CANCELLED_STATE = 'cancelled'
 RECEIVED_STATE = 'received'
