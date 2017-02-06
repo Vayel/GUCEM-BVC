@@ -104,9 +104,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
@@ -144,3 +144,4 @@ ESMUG_DISCOUNT = 0.15
 GUCEM_DISCOUNT = 0.18
 VIP_DISCOUNT = 0.2
 BANK_DEPOSIT_CASH_MULTIPLE = 5
+DATE_FORMAT = 'd/m/Y'

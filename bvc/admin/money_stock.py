@@ -10,7 +10,7 @@ class BankDepositAdmin(admin.ModelAdmin):
         return False
 
 class CheckBankDepositAdmin(admin.ModelAdmin):
-    list_display = ['id', '__str__', 'amount']
+    list_display = ['id', 'date', 'amount']
     form = forms.money_stock.CheckBankDepositAdminForm
  
     def has_delete_permission(self, request, obj=None):
@@ -48,9 +48,12 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         )
         return sum(cmd.amount for cmd in commands)
 
+    def date(self, instance):
+        return instance.bank_deposit.datetime
+
 
 class CashBankDepositAdmin(admin.ModelAdmin):
-    list_display = ['id', '__str__', 'amount']
+    list_display = ['id', 'date', 'amount']
     form = forms.money_stock.CashBankDepositAdminForm
  
     def has_delete_permission(self, request, obj=None):
@@ -86,6 +89,9 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         )
         return (sum(cmd.amount for cmd in commands) -
                 sum(op.delta for op in treasury_ops))
+
+    def date(self, instance):
+        return instance.bank_deposit.datetime
 
 
 class TreasuryOperationAdmin(admin.ModelAdmin):
