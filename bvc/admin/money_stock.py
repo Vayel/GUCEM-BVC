@@ -10,7 +10,7 @@ class BankDepositAdmin(admin.ModelAdmin):
         return False
 
 class CheckBankDepositAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'amount']
+    list_display = ['id', '__str__', 'amount']
     form = forms.money_stock.CheckBankDepositAdminForm
  
     def has_delete_permission(self, request, obj=None):
@@ -50,7 +50,7 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
 
 
 class CashBankDepositAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'amount']
+    list_display = ['id', '__str__', 'amount']
     form = forms.money_stock.CashBankDepositAdminForm
  
     def has_delete_permission(self, request, obj=None):
@@ -89,9 +89,9 @@ class CashBankDepositAdmin(admin.ModelAdmin):
 
 
 class TreasuryOperationAdmin(admin.ModelAdmin):
-    list_display = ['stock']
+    list_display = ['delta', 'reason',]
     form = forms.money_stock.TreasuryOperationAdminForm
-    fields = ['delta']
+    fields = forms.money_stock.TreasuryOperationAdminForm.Meta.fields
 
     def has_delete_permission(self, request, obj=None):
         return False

@@ -65,7 +65,8 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
 
         # Create the treasury operation
         instance.treasury_operation = models.money_stock.treasury_op_from_delta(
-            self.get_delta()
+            self.get_delta(),
+            'BVE {}'.format(models.CashBankDeposit.objects.last().id + 1),
         )
 
         models.individual_command.bank_commands(
@@ -84,7 +85,7 @@ class TreasuryOperationAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.TreasuryOperation
-        fields = ['delta']
+        fields = ['reason', 'delta',]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

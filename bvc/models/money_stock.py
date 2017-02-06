@@ -29,18 +29,21 @@ def get_treasury():
     except ObjectDoesNotExist:
         return 0
 
-def treasury_op_from_delta(delta):
+def treasury_op_from_delta(delta, reason):
     stock = get_treasury() + delta
     if stock < 0:
         raise ValueError()
 
-    op = TreasuryOperation(stock=stock)
+    op = TreasuryOperation(stock=stock, reason=reason)
     op.save()
     return op
 
 
 class TreasuryOperation(models.Model):
+    REASON_MAX_LEN = 200
+
     stock = models.PositiveSmallIntegerField()
+    reason = models.CharField(max_length=REASON_MAX_LEN,)
 
     @property
     def delta(self):
