@@ -14,7 +14,6 @@ from . import money_stock
 from . import voucher
 from .. import utils
 
-
 getcontext().prec = 6
 
 
@@ -40,6 +39,39 @@ def get_available_cash_amount():
         )
     )
 
+def get_voucher_distribution(amount):
+    VOUCHER_SUBPACKET_AMOUNT = 500
+
+    if amount >= VOUCHER_SUBPACKET_AMOUNT:
+        subpacket_distrib = get_voucher_distribution(amount - VOUCHER_SUBPACKET_AMOUNT)
+        subpacket_distrib['10'] += 10
+        subpacket_distrib['20'] += 5
+        subpacket_distrib['50'] += 6
+        return subpacket_distrib
+    elif amount <= 100:
+        return {10: amount // 10, 20: 0, 50: 0,}
+    elif amount <= 200:
+        # 10 * 10, the rest with 20 then 10
+        default_10 = 10
+        remaining = amount - 10 * default_10
+
+        return {
+            10: default_10 + (remaining % 20) // 10,
+            20: remaining // 20,
+            50: 0,
+        }
+    else:
+        # 10 * 10, 5 * 20, the rest with 50, 20 then 10
+        default_10 = 10
+        default_20 = 5
+        remaining = amount - 10 * default_10 - 20 * default_20
+
+        return {
+            10: 10 + ((remaining % 50) % 20) // 10,
+            20: 5 + (remaining % 50) // 20,
+            50: remaining // 50, 
+        }
+
 
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
@@ -63,6 +95,10 @@ class IndividualCommand(models.Model):
     def get_total_amount(cls, states):
         total = cls.objects.filter(state__in=states).aggregate(models.Sum('amount'))['amount__sum']
         return total or 0
+
+    @property
+    def voucher_distribution(self):
+        return get_voucher_distribution(self.amount)
 
     def prepare(self):
         if self.state != PLACED_STATE:
