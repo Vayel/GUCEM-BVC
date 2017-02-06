@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from .command import *
-from .individual_command import CommissionCommand, MemberCommand
+from .individual_command import CommissionCommand, MemberCommand, get_voucher_distribution
 from . import user
 from . import validators
 from . import voucher
@@ -83,11 +83,13 @@ class GroupedCommand(models.Model):
         self.placed_amount = amount
         self.datetime_placed = datetime or now()
 
+        # Change the state of placed commands
+        placed_member_cmd = MemberCommand.objects.filter(state=PLACED_STATE)
         placed_commission_cmd = CommissionCommand.objects.filter(state=PLACED_STATE)
         commission_cmd = {cmd.commission.user.username: cmd.amount
                           for cmd in placed_commission_cmd}
         
-        MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+        placed_member_cmd.update(state=TO_BE_PREPARED_STATE)
         placed_commission_cmd.update(state=TO_BE_PREPARED_STATE)
         
         if amount <= 0:
@@ -105,6 +107,17 @@ class GroupedCommand(models.Model):
             )
             return
 
+        # Determine the quantity of each type of voucher
+        placed_member_cmd = MemberCommand.objects.filter(state=TO_BE_PREPARED_STATE)
+        placed_commission_cmd = CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE)
+        cmd_amount = (MemberCommand.get_total_amount([TO_BE_PREPARED_STATE]) +
+                      CommissionCommand.get_total_amount([TO_BE_PREPARED_STATE]))
+        voucher_distribution = get_voucher_distribution(amount - cmd_amount)
+
+        for cmd in chain(placed_member_cmd, placed_commission_cmd):
+            for k in voucher_distribution:
+                voucher_distribution[k] += cmd.voucher_distribution[k]
+
         send_mail(
             utils.format_mail_subject('Commande groupée'),
             render_to_string(
@@ -112,6 +125,7 @@ class GroupedCommand(models.Model):
                 {
                     'amount': amount,
                     'commission_cmd': commission_cmd, 
+                    'voucher_distribution': voucher_distribution,
                 }
             ),
             settings.BVC_MANAGER_MAIL,
