@@ -6,7 +6,7 @@ from .. import models
 
 
 class IndividualCommandAdmin(admin.ModelAdmin):
-    actions = ['prepare', 'cancel',]
+    actions = ['prepare', 'cancel', 'uncancel',]
     list_filter = ['state',]
 
     def has_delete_permission(self, request, obj=None):
@@ -39,6 +39,18 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                     str(e),
                     level=messages.ERROR
                 )
+    
+    def uncancel(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.uncancel()
+            except models.command.InvalidState as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.ERROR
+                )
+
 
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price',

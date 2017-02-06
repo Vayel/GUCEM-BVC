@@ -125,7 +125,7 @@ class IndividualCommand(models.Model):
         )
 
     def cancel(self):
-        if self.state not in [PLACED_STATE, PREPARED_STATE]:
+        if self.state not in [PLACED_STATE, TO_BE_PREPARED_STATE, PREPARED_STATE]:
             raise InvalidState("La commande {} n'est pas dans le bon état pour être annulée.".format(self))
 
         if self.state == PREPARED_STATE:
@@ -142,6 +142,28 @@ class IndividualCommand(models.Model):
                 {
                     'amount': self.amount,
                     'date': self.datetime_placed,
+                }
+            ),
+            settings.BVC_MANAGER_MAIL,
+            [self.email],
+        )
+    
+    def uncancel(self):
+        if self.state not in [CANCELLED_STATE]:
+            raise InvalidState("La commande {} n'est pas dans le bon état pour être désannulée.".format(self))
+
+        self.state = PLACED_STATE
+        datetime_cancelled = self.datetime_cancelled
+        self.datetime_cancelled = None
+        self.save()
+        
+        send_mail(
+            utils.format_mail_subject('Commande désannulée'),
+            render_to_string(
+                'bvc/mails/uncancel_command.txt',
+                {
+                    'amount': self.amount,
+                    'cancel_date': datetime_cancelled,
                 }
             ),
             settings.BVC_MANAGER_MAIL,
