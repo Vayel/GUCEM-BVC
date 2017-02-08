@@ -1,0 +1,4 @@
+{% extends "bvc/mails/base.txt" %}
+{% block contents %}
+Ci-joint le résumé du dépôt en banque {{ name }}.
+{% endblock %}

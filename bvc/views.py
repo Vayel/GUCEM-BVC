@@ -50,7 +50,7 @@ def place_commission_command(request):
     context = {}
 
     if request.method == 'POST':
-        form = forms.command.PlaceCommissionCommand(request.POST) 
+        form = forms.commission_command.PlaceCommissionCommand(request.POST) 
 
         if form.is_valid():
             cmd = form.save()
@@ -66,7 +66,7 @@ def place_commission_command(request):
             messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
             return redirect('bvc:place_commission_command')
     else:
-        form = forms.command.PlaceCommissionCommand() 
+        form = forms.commission_command.PlaceCommissionCommand() 
 
     context['form'] = form
 
@@ -78,7 +78,7 @@ def place_member_command(request):
     if request.method == 'POST':
         user_form = forms.user.MemberUserCommand(request.POST)
         member_form = forms.user.MemberCommand(request.POST)
-        command_form = forms.command.PlaceMemberCommand(request.POST)
+        command_form = forms.member_command.PlaceMemberCommand(request.POST)
 
         try:
             user = User.objects.get(email=request.POST['email'])
@@ -121,7 +121,7 @@ def place_member_command(request):
     else:
         user_form = forms.user.MemberUserCommand() 
         member_form = forms.user.MemberCommand() 
-        command_form = forms.command.PlaceMemberCommand() 
+        command_form = forms.member_command.PlaceMemberCommand() 
 
     context['user_form'] = user_form
     context['member_form'] = member_form

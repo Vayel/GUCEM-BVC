@@ -7,8 +7,9 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from .command import *
-from .individual_command import CommissionCommand, MemberCommand, get_voucher_distribution
-from . import user
+from .individual_command import get_voucher_distribution
+from .member_command import MemberCommand
+from .commission_command import CommissionCommand
 from . import validators
 from . import voucher
 from .. import utils

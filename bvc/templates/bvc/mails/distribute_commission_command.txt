@@ -1,0 +1,3 @@
+{% extends "bvc/mails/base.txt" %}
+{% block contents %}
+J'ai distribué {{ amount }} euros de bons à la commission {{ commission }}.{% endblock %}

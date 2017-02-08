@@ -1,9 +1,13 @@
 from . import command
 from .grouped_command import GroupedCommand
-from .individual_command import MemberCommand, CommissionCommand
+from .commission_command import CommissionCommand
+from .member_command import MemberCommand
 
 from . import voucher
 from .voucher import VoucherOperation
 
-from . import money_stock
-from .money_stock import BankDeposit, CashBankDeposit, CheckBankDeposit, TreasuryOperation
+from . import bank_deposit
+from .bank_deposit import BankDeposit, CashBankDeposit, CheckBankDeposit
+
+from . import treasury
+from .treasury import TreasuryOperation

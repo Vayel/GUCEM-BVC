@@ -99,20 +99,3 @@ class GroupedCommandAdminForm(forms.ModelForm):
             instance.save()
 
         return instance
-
-
-class PlaceMemberCommand(forms.ModelForm):
-    class Meta:
-        model = models.MemberCommand
-        fields = ['amount', 'comments',]
-
-
-class PlaceCommissionCommand(forms.ModelForm):
-    commission = forms.ModelChoiceField(
-        queryset=models.user.Commission.objects,
-        empty_label=None,
-    )
-
-    class Meta:
-        model = models.CommissionCommand
-        fields = ['commission', 'amount', 'reason', 'comments',]

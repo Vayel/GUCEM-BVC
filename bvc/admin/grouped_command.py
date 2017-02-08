@@ -10,8 +10,8 @@ class GroupedCommandAdmin(admin.ModelAdmin):
     list_display = ['datetime_placed', 'placed_amount', 'received_amount',
                     'prepared_amount', 'state',]
     list_filter = ['state',]
-    fields = forms.command.GroupedCommandAdminForm.Meta.fields
-    form = forms.command.GroupedCommandAdminForm
+    fields = forms.grouped_command.GroupedCommandAdminForm.Meta.fields
+    form = forms.grouped_command.GroupedCommandAdminForm
 
     def has_delete_permission(self, request, obj=None):
         return False

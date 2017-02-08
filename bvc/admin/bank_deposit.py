@@ -11,7 +11,7 @@ class BankDepositAdmin(admin.ModelAdmin):
 
 class CheckBankDepositAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'amount']
-    form = forms.money_stock.CheckBankDepositAdminForm
+    form = forms.bank_deposit.CheckBankDepositAdminForm
  
     def has_delete_permission(self, request, obj=None):
         return False
@@ -54,7 +54,7 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
 
 class CashBankDepositAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'amount']
-    form = forms.money_stock.CashBankDepositAdminForm
+    form = forms.bank_deposit.CashBankDepositAdminForm
  
     def has_delete_permission(self, request, obj=None):
         return False
@@ -68,7 +68,7 @@ class CashBankDepositAdmin(admin.ModelAdmin):
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
 
-        extra_context['current_treasury'] = models.money_stock.get_treasury()
+        extra_context['current_treasury'] = models.treasury.get_treasury()
         extra_context['sold_cash_cmd_total_amount'] = sum(cmd.price
             for cmd in models.MemberCommand.objects.filter(
                 state=models.command.TO_BE_BANKED_STATE,
@@ -94,36 +94,7 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         return instance.bank_deposit.datetime
 
 
-class TreasuryOperationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'stock', 'delta', 'reason',]
-    list_display_links = None
-    list_editable = ['reason',]
-    form = forms.money_stock.TreasuryOperationAdminForm
-    fields = forms.money_stock.TreasuryOperationAdminForm.Meta.fields
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_actions(self, request):
-        # Remove delete action
-        actions = super().get_actions(request)
-        del actions['delete_selected']
-        return actions
-
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['treasury'] = models.money_stock.get_treasury()
-
-        return super().changelist_view(request, extra_context=extra_context)
-
-    def add_view(self, request, form_url='', extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['treasury'] = models.money_stock.get_treasury()
-
-        return super().add_view(request, form_url=form_url, extra_context=extra_context)
-
 
 admin_site.register(models.BankDeposit, BankDepositAdmin)
 admin_site.register(models.CheckBankDeposit, CheckBankDepositAdmin)
 admin_site.register(models.CashBankDeposit, CashBankDepositAdmin)
-admin_site.register(models.TreasuryOperation, TreasuryOperationAdmin)

@@ -1,14 +1,11 @@
 {% extends "bvc/mails/base.txt" %}
-
 {% block contents %}
 Ta commande de bons Vieux Campeur est disponible. Tu peux venir la 
 récupérer à la permanence le mardi de 18h30 à 20h.
 
 Montant BVC : {{ amount }}
-{% if paid_command %}
 Montant à payer : {{ price }}
-
-Merci de payer par chèque ou de préparer l'appoint, il est difficile pour nous
+{% if price > 0 %}
+Merci de payer par chèque (ordre : GUCEM) ou de préparer l'appoint, il est difficile pour nous
 de rendre de la monnaie.
-{% endif %}
-{% endblock %}
+{% endif %}{% endblock %}

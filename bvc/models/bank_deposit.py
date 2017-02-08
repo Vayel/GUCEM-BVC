@@ -2,14 +2,16 @@ import io
 import csv
 
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save
-from django.utils.text import slugify
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.utils.text import slugify
+from django.core.exceptions import ObjectDoesNotExist
 
 from .command import *
+from .treasury import TreasuryOperation
+
 from .. import utils
 
 
@@ -26,26 +28,6 @@ def get_current_bank_deposit(type_):
     except ObjectDoesNotExist:
         return model.objects.create()
 
-def get_previous_treasury(id_):
-    try:
-        return TreasuryOperation.objects.get(id=id_-1).stock
-    except ObjectDoesNotExist:
-        return 0
-
-def get_treasury():
-    try:
-        return TreasuryOperation.objects.latest('id').stock
-    except ObjectDoesNotExist:
-        return 0
-
-def treasury_op_from_delta(delta, reason):
-    stock = get_treasury() + delta
-    if stock < 0:
-        raise ValueError()
-
-    op = TreasuryOperation(stock=stock, reason=reason)
-    op.save()
-    return op
 
 def fill_deposit_file_header(writer, deposit):
     writer.writerow([str(deposit)])
@@ -53,6 +35,7 @@ def fill_deposit_file_header(writer, deposit):
     writer.writerow(['Numéro de remise', deposit.bank_deposit.ref])
     writer.writerow(['Date', deposit.bank_deposit.datetime])
     writer.writerow([])
+
 
 def fill_deposit_file_commands(writer, deposit):
     writer.writerow(['Nom', 'Prénom', 'Type', 'License', 'Bons', 'Prix'])
@@ -62,6 +45,7 @@ def fill_deposit_file_commands(writer, deposit):
                          cmd.member.type, cmd.member.license, cmd.amount, cmd.price])
 
     writer.writerow([])
+
 
 def send_deposit_file(func):
     def wrapper(deposit, *args, **kwargs):
@@ -87,15 +71,18 @@ def send_deposit_file(func):
 
     return wrapper
 
+
 @send_deposit_file
 def send_check_deposit_file(writer, deposit):
     writer.writerow(['', '', '', '', 'Total déposé', deposit.total_price])
 
+
 @send_deposit_file
 def send_cash_deposit_file(writer, deposit):
     writer.writerow(['', '', '', '', 'Total commandes', deposit.total_command_price])
-    writer.writerow(['', '', '', '', 'Delta trésorerie', deposit.treasury_operation.delta ])
+    writer.writerow(['', '', '', '', 'Delta trésorerie', deposit.treasury_operation.delta])
     writer.writerow(['', '', '', '', 'Total déposé', deposit.total_price])
+
 
 def send_deposit_file_callback(sender, instance, created, raw, using, update_fields, **kwargs):
     if created:
@@ -104,24 +91,13 @@ def send_deposit_file_callback(sender, instance, created, raw, using, update_fie
         elif sender == CheckBankDeposit:
             send_check_deposit_file(instance)
 
+
 post_save.connect(send_deposit_file_callback)
-
-
-class TreasuryOperation(models.Model):
-    REASON_MAX_LEN = 200
-
-    stock = models.PositiveSmallIntegerField()
-    reason = models.CharField(max_length=REASON_MAX_LEN,)
-
-    @property
-    def delta(self):
-        return self.stock - get_previous_treasury(self.id)
 
 
 class BankDeposit(models.Model):
     REF_MAX_LEN = 20
 
-    # If null, the deposit has not been done yet
     datetime = models.DateField()
     ref = models.CharField(max_length=REF_MAX_LEN,)
 
@@ -157,4 +133,4 @@ class CashBankDeposit(models.Model):
 
     @property
     def total_price(self):
-        return self.total_command_price - self.treasury_operation.delta 
+        return self.total_command_price - self.treasury_operation.delta
