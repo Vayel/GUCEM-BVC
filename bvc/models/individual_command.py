@@ -27,9 +27,12 @@ def bank_commands(payment_type, bank_deposit):
         state=TO_BE_BANKED_STATE,
         payment_type=payment_type,
     )
+    list_cmd = list(commands)
 
     for cmd in commands:
         cmd.bank(bank_deposit)
+
+    return list_cmd
 
 def get_available_cash_amount():
     return money_stock.get_treasury() + sum(cmd.price
@@ -101,7 +104,7 @@ class IndividualCommand(models.Model):
         return get_voucher_distribution(self.amount)
 
     def prepare(self):
-        if self.state != PLACED_STATE:
+        if self.state != TO_BE_PREPARED_STATE:
             raise InvalidState("La commande {} n'est pas dans le bon état pour être préparée.".format(self))
 
         voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        

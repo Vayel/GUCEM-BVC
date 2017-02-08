@@ -21,6 +21,7 @@ class IndividualCommandAdmin(admin.ModelAdmin):
     def prepare(self, request, queryset):
         for cmd in queryset:
             try:
+                cmd.state = models.command.TO_BE_PREPARED_STATE
                 cmd.prepare()
             except (ValueError, models.command.InvalidState) as e:
                 self.message_user(
