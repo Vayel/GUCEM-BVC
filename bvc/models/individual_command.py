@@ -27,12 +27,9 @@ def bank_commands(payment_type, bank_deposit):
         state=TO_BE_BANKED_STATE,
         payment_type=payment_type,
     )
-    list_cmd = list(commands)
 
     for cmd in commands:
         cmd.bank(bank_deposit)
-
-    return list_cmd
 
 def get_available_cash_amount():
     return money_stock.get_treasury() + sum(cmd.price
@@ -205,6 +202,7 @@ class MemberCommand(IndividualCommand):
         money_stock.BankDeposit,
         on_delete=models.CASCADE,
         null=True,
+        related_name='commands',
     )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),

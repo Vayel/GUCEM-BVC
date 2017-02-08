@@ -26,6 +26,13 @@ class Member(models.Model):
             self.user.last_name,
         )
 
+    @property
+    def type(self):
+        if self.vip:
+            return 'VIP'
+        else:
+            return self.club
+
 class Commission(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
