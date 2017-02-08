@@ -5,7 +5,7 @@ from .. import models
 
 
 class VoucherOperationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'stock',]
+    list_display = ['id', 'stock', 'command_type', 'command_id',]
     readonly_fields = ['command_type', 'command_id', 'stock',]
 
     def has_delete_permission(self, request, obj=None):
