@@ -85,13 +85,8 @@ class GroupedCommand(models.Model):
         self.datetime_placed = datetime or now()
 
         # Change the state of placed commands
-        placed_member_cmd = MemberCommand.objects.filter(state=PLACED_STATE)
-        placed_commission_cmd = CommissionCommand.objects.filter(state=PLACED_STATE)
-        commission_cmd = {cmd.commission.user.username: cmd.amount
-                          for cmd in placed_commission_cmd}
-        
-        placed_member_cmd.update(state=TO_BE_PREPARED_STATE)
-        placed_commission_cmd.update(state=TO_BE_PREPARED_STATE)
+        MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+        CommissionCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
         
         if amount <= 0:
             self.receive(0, self.datetime_placed)
@@ -125,7 +120,7 @@ class GroupedCommand(models.Model):
                 'bvc/mails/place_grouped_command.txt',
                 {
                     'amount': amount,
-                    'commission_cmd': commission_cmd, 
+                    'commission_cmd': CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE), 
                     'voucher_distribution': voucher_distribution,
                 }
             ),

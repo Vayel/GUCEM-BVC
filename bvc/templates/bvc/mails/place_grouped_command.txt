@@ -5,6 +5,7 @@ Je souhaiterais passer commande de {{ amount }} euros auprès du Vieux Campeur, 
 * {{ v }} bons de {{ k }} euros
 {% endfor %}{% if commission_cmd %}
 Des commissions ont demandé des bons :
-{% for k, v in commission_cmd.items %}
-* {{ k }} : {{ v }} euros de bons
+{% for cmd in commission_cmd %}
+* {{ cmd.commission.user.username }} : {{ cmd.amount }} euros de bons. Raison :
+{{ cmd.reason }}
 {% endfor %}{% endif %}{% endblock %}

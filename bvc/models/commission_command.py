@@ -67,12 +67,13 @@ class CommissionCommand(IndividualCommand):
         self.save()
 
         send_mail(
-            utils.format_mail_subject('Commande commission'),
+            utils.format_mail_subject('Commande commission distribuée'),
             render_to_string(
                 'bvc/mails/distribute_commission_command.txt',
                 {
                     'amount': self.amount,
                     'commission': self.commission.user.username,
+                    'reason': self.reason,
                 }
             ),
             settings.BVC_MANAGER_MAIL,
