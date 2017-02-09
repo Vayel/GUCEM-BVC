@@ -14,12 +14,6 @@ from . import voucher
 getcontext().prec = 6
 
 
-def cancel_old_commands():
-    old_commands = MemberCommand.objects.filter(state=PREPARED_STATE)
-    for cmd in old_commands:
-        cmd.cancel()
-
-
 def bank_commands(payment_type, bank_deposit):
     commands = MemberCommand.objects.filter(
         state=TO_BE_BANKED_STATE,
