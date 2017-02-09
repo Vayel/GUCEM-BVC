@@ -14,6 +14,7 @@ from .. import utils
 
 class CommissionCommand(IndividualCommand):
     VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.COMMISSION_COMMAND
+    REASON_MAX_LEN = 250
 
     STATE_CHOICES = (
         (PLACED_STATE, 'Passée'),
@@ -34,7 +35,7 @@ class CommissionCommand(IndividualCommand):
         default=PLACED_STATE,
     )
     datetime_given = models.DateTimeField(null=True, blank=True)
-    reason = models.TextField()
+    reason = models.CharField(max_length=REASON_MAX_LEN)
 
     class Meta:
         verbose_name = 'Commande commission'

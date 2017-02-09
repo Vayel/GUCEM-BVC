@@ -1,4 +1,4 @@
 {% extends "bvc/mails/base.txt" %}
 {% block contents %}
-J'ai distribué {{ amount }} euros de bons à la commission {{ commission }}. Le motif de sa commande était :
-{{ reason }}{% endblock %}
+J'ai distribué {{ amount }} euros de bons à la commission {{ commission }}. Le motif de sa commande était : {{ reason }}
+{% endblock %}

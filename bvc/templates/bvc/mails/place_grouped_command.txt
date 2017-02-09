@@ -6,6 +6,7 @@ Je souhaiterais passer commande de {{ amount }} euros auprès du Vieux Campeur, 
 {% endfor %}{% if commission_cmd %}
 Des commissions ont demandé des bons :
 {% for cmd in commission_cmd %}
-* {{ cmd.commission.user.username }} : {{ cmd.amount }} euros de bons. Raison :
-{{ cmd.reason }}
-{% endfor %}{% endif %}{% endblock %}
+* {{ cmd.commission.user.username }} : {{ cmd.amount }} euros de bons pour la raison suivante : {{ cmd.reason }}
+{% endfor %}{% endif %}{% if has_distributed_commission_cmd %}
+En pièce jointe, un récapitulatif des commandes de commission distribuées depuis la dernière commande.
+{% endif %}{% endblock %}

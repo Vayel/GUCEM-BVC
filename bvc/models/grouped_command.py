@@ -1,7 +1,9 @@
+import io
+import csv
 from itertools import chain
 
 from django.db import models
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.utils.timezone import now
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -18,6 +20,13 @@ from .. import utils
 def get_current():
     try:
         return GroupedCommand.objects.exclude(state=PREPARED_STATE).first()
+    except ObjectDoesNotExist:
+        return None
+
+
+def get_last():
+    try:
+        return GroupedCommand.objects.filter(state=PREPARED_STATE).last()
     except ObjectDoesNotExist:
         return None
 
@@ -83,24 +92,61 @@ class GroupedCommand(models.Model):
 
         self.placed_amount = amount
         self.datetime_placed = datetime or now()
+        self.save()
 
         # Change the state of placed commands
         MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
         CommissionCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+
+        # List distributed commission commands
+        last_cmd = get_last()
+
+        if last_cmd is None:
+            distributed_commission_cmd = CommissionCommand.objects.filter(state=GIVEN_STATE)
+        else:
+            distributed_commission_cmd = CommissionCommand.objects.filter(
+                state=GIVEN_STATE,
+                datetime_given__gt=last_cmd.datetime_placed,
+            )
+
+        distributed_commission_cmd = list(distributed_commission_cmd) 
+
+        if len(distributed_commission_cmd):
+            csvfile = io.StringIO()
+            total = 0
+            writer = csv.writer(csvfile)
+            writer.writerow(['Commission', 'Date', 'Raison', 'Bons',])
+            for cmd in distributed_commission_cmd: 
+                total += cmd.amount
+                writer.writerow([cmd.commission.user.username, cmd.datetime_given.date(),
+                                 cmd.reason, cmd.amount,])
+            writer.writerow([])
+            writer.writerow(['', '', 'Total', total,])
         
+        mail_context = {
+            'amount': amount,
+            'commission_cmd': CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE), 
+            'has_distributed_commission_cmd': len(distributed_commission_cmd),
+        }
+
         if amount <= 0:
             self.receive(0, self.datetime_placed)
             self.prepare_(0, self.datetime_placed)
 
-            send_mail(
-                utils.format_mail_subject('Commande groupée non nécessaire'),
-                render_to_string(
-                    'bvc/mails/no_grouped_command.txt',
-                    {'commission_cmd': commission_cmd,}
-                ),
+            email = EmailMessage(
+                utils.format_mail_subject('Commande groupée n°{} non nécessaire'.format(self.id)),
+                render_to_string('bvc/mails/no_grouped_command.txt', mail_context),
                 settings.BVC_MANAGER_MAIL,
                 [settings.TREASURER_MAIL],
+                [],
             )
+            if len(distributed_commission_cmd):
+                email.attach(
+                    'commandes_commissions_{}.csv'.format(1 if last_cmd is None else last_cmd.id), 
+                    csvfile.getvalue(),
+                    'text/csv'
+                )
+            email.send()
             return
 
         # Determine the quantity of each type of voucher
@@ -113,20 +159,22 @@ class GroupedCommand(models.Model):
         for cmd in chain(placed_member_cmd, placed_commission_cmd):
             for k in voucher_distribution:
                 voucher_distribution[k] += cmd.voucher_distribution[k]
+        mail_context['voucher_distribution'] = voucher_distribution
 
-        send_mail(
-            utils.format_mail_subject('Commande groupée'),
-            render_to_string(
-                'bvc/mails/place_grouped_command.txt',
-                {
-                    'amount': amount,
-                    'commission_cmd': CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE), 
-                    'voucher_distribution': voucher_distribution,
-                }
-            ),
+        # Send the email to the treasurer
+        email = EmailMessage(
+            utils.format_mail_subject('Commande groupée n°{}'.format(self.id)),
+            render_to_string('bvc/mails/place_grouped_command.txt', mail_context),
             settings.BVC_MANAGER_MAIL,
             [settings.TREASURER_MAIL],
         )
+        if len(distributed_commission_cmd):
+            email.attach(
+                'commandes_commissions_{}.csv'.format(1 if last_cmd is None else last_cmd.id), 
+                csvfile.getvalue(),
+                'text/csv'
+            )
+        email.send()
 
     def receive(self, amount, date):
         if self.state != PLACED_STATE:
@@ -136,15 +184,16 @@ class GroupedCommand(models.Model):
         self.datetime_received = date
         self.received_amount = amount
         
-        send_mail(
-            utils.format_mail_subject('Réception de commande groupée'),
-            render_to_string(
-                'bvc/mails/receive_grouped_command.txt',
-                {'command': self}
-            ),
-            settings.TREASURER_MAIL,
-            [settings.BVC_MANAGER_MAIL],
-        )
+        if amount > 0:
+            send_mail(
+                utils.format_mail_subject('Réception de commande groupée n°{}'.format(self.id)),
+                render_to_string(
+                    'bvc/mails/receive_grouped_command.txt',
+                    {'command': self}
+                ),
+                settings.TREASURER_MAIL,
+                [settings.BVC_MANAGER_MAIL],
+            )
 
     def prepare_(self, amount, date):
         if self.state != RECEIVED_STATE:
