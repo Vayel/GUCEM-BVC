@@ -7,26 +7,11 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.utils.text import slugify
-from django.core.exceptions import ObjectDoesNotExist
 
 from .command import *
 from .treasury import TreasuryOperation
 
 from .. import utils
-
-
-def get_current_bank_deposit(type_):
-    if type_ == CASH_PAYMENT:
-        model = CashBankDeposit
-    elif type_ == CHECK_PAYMENT:
-        model = CheckBankDeposit
-    else:
-        raise ValueError()
-
-    try:
-        return model.objects.filter(datetime__isnull=True).latest('id')
-    except ObjectDoesNotExist:
-        return model.objects.create()
 
 
 def fill_deposit_file_header(writer, deposit):
