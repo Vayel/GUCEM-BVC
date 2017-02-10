@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils.timezone import now
 
 from .command import *
+from .configuration import get_config
 from .individual_command import IndividualCommand
 from . import bank_deposit
 from . import treasury
@@ -94,11 +95,11 @@ class MemberCommand(IndividualCommand):
     @property
     def discount(self):
         if self.member.vip:
-            return settings.VIP_DISCOUNT
+            return get_config().vip_percentage_discount / 100
         elif self.member.club == user.Member.ESMUG:
-            return settings.ESMUG_DISCOUNT
+            return get_config().esmug_percentage_discount / 100
         elif self.member.club == user.Member.GUCEM: 
-            return settings.GUCEM_DISCOUNT
+            return get_config().gucem_percentage_discount / 100
 
         raise ValueError()
 

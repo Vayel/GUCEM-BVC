@@ -69,7 +69,7 @@ class GroupedCommandAdmin(admin.ModelAdmin):
         extra_context['being_sold_cmd_number'] = (models.MemberCommand.objects.filter(
                                                      state=models.command.PREPARED_STATE
                                                  ).count() +
-                                                 models.MemberCommand.objects.filter(
+                                                 models.CommissionCommand.objects.filter(
                                                      state=models.command.PREPARED_STATE
                                                  ).count())
         extra_context['amount_being_sold'] = (models.MemberCommand.get_total_amount(
@@ -89,7 +89,7 @@ class GroupedCommandAdmin(admin.ModelAdmin):
                                          extra_context['placed_by_commissions'] -
                                          extra_context['remaining'])
 
-        extra_context['extra_amount'] = settings.GROUPED_COMMAND_EXTRA_AMOUNT
+        extra_context['extra_amount'] = models.get_config().grouped_command_extra_amount
         extra_context['recommended_to_place'] = (extra_context['min_to_place'] +
                                                  extra_context['extra_amount'])
 

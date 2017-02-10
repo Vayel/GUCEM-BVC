@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from .command import *
+from .configuration import get_config
 from .individual_command import get_voucher_distribution
 from .member_command import MemberCommand
 from .commission_command import CommissionCommand
@@ -136,8 +137,8 @@ class GroupedCommand(models.Model):
             email = EmailMessage(
                 utils.format_mail_subject('Commande groupée n°{} non nécessaire'.format(self.id)),
                 render_to_string('bvc/mails/no_grouped_command.txt', mail_context),
-                settings.BVC_MANAGER_MAIL,
-                [settings.TREASURER_MAIL],
+                get_config().bvc_manager_mail,
+                [get_config().treasurer_mail],
                 [],
             )
             if len(distributed_commission_cmd):
@@ -165,8 +166,8 @@ class GroupedCommand(models.Model):
         email = EmailMessage(
             utils.format_mail_subject('Commande groupée n°{}'.format(self.id)),
             render_to_string('bvc/mails/place_grouped_command.txt', mail_context),
-            settings.BVC_MANAGER_MAIL,
-            [settings.TREASURER_MAIL],
+            get_config().bvc_manager_mail,
+            [get_config().treasurer_mail],
         )
         if len(distributed_commission_cmd):
             email.attach(
@@ -191,8 +192,8 @@ class GroupedCommand(models.Model):
                     'bvc/mails/receive_grouped_command.txt',
                     {'command': self}
                 ),
-                settings.TREASURER_MAIL,
-                [settings.BVC_MANAGER_MAIL],
+                get_config().treasurer_mail,
+                [get_config().bvc_manager_mail],
             )
 
     def prepare_(self, amount, date):
@@ -221,7 +222,7 @@ class GroupedCommand(models.Model):
                         'bvc/mails/command_unprepared.txt',
                         {'command': cmd,}
                     ),
-                    settings.BVC_MANAGER_MAIL,
+                    get_config().bvc_manager_mail,
                     [cmd.email],
                 )
 

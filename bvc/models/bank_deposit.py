@@ -9,6 +9,7 @@ from django.db.models.signals import post_save
 from django.utils.text import slugify
 
 from .command import *
+from .configuration import get_config
 from .treasury import TreasuryOperation
 
 from .. import utils
@@ -47,8 +48,8 @@ def send_deposit_file(func):
                 'bvc/mails/bank_deposit_summary.txt',
                 {'name': str(deposit),},
             ),
-            settings.BVC_MANAGER_MAIL,
-            [settings.TREASURER_MAIL],
+            get_config().bvc_manager_mail,
+            [get_config().treasurer_mail],
             [],
         )
         email.attach(slugify(str(deposit)) + '.csv', csvfile.getvalue(), 'text/csv')

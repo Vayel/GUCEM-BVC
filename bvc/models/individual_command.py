@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
 from .command import *
+from .configuration import get_config
 from . import validators
 from . import voucher
 
@@ -87,7 +88,7 @@ class IndividualCommand(models.Model):
                     'price': self.price,
                 }
             ),
-            settings.BVC_MANAGER_MAIL,
+            get_config().bvc_manager_mail,
             [self.email],
         )
 
@@ -111,7 +112,7 @@ class IndividualCommand(models.Model):
                     'date': self.datetime_placed,
                 }
             ),
-            settings.BVC_MANAGER_MAIL,
+            get_config().bvc_manager_mail,
             [self.email],
         )
 
@@ -133,6 +134,6 @@ class IndividualCommand(models.Model):
                     'cancel_date': datetime_cancelled,
                 }
             ),
-            settings.BVC_MANAGER_MAIL,
+            get_config().bvc_manager_mail,
             [self.email],
         )

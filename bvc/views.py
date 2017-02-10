@@ -30,7 +30,7 @@ def contact_unsold_commands(request):
                 'bvc/mails/cancel_command_soon.txt',
                 {'cmd': cmd,}
             ),
-            settings.BVC_MANAGER_MAIL,
+            models.get_config().bvc_manager_mail,
             [cmd.email],
         )
 
@@ -60,7 +60,7 @@ def place_commission_command(request):
                     'bvc/mails/command_summary.txt',
                     {'commands': cmd.commission.commands.all()}
                 ),
-                settings.BVC_MANAGER_MAIL
+                models.get_config().bvc_manager_mail
             )
 
             messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
@@ -113,7 +113,7 @@ def place_member_command(request):
                             'bvc/mails/command_summary.txt',
                             {'commands': member.commands.all()}
                         ),
-                        settings.BVC_MANAGER_MAIL
+                        models.get_config().bvc_manager_mail
                     )
 
                     messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')

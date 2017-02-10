@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
 from .command import *
+from .configuration import get_config
 from .individual_command import IndividualCommand
 from . import user
 from . import voucher
@@ -57,7 +58,7 @@ class CommissionCommand(IndividualCommand):
 
     @property
     def discount(self):
-        return settings.VIP_DISCOUNT
+        return get_config().vip_percentage_discount / 100
 
     def distribute(self):
         if self.state != PREPARED_STATE:
@@ -77,6 +78,6 @@ class CommissionCommand(IndividualCommand):
                     'reason': self.reason,
                 }
             ),
-            settings.BVC_MANAGER_MAIL,
-            [settings.TREASURER_MAIL],
+            get_config().bvc_manager_mail,
+            [get_config().treasurer_mail],
         )
