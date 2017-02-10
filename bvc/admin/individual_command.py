@@ -66,7 +66,7 @@ class IndividualCommandAdmin(admin.ModelAdmin):
 
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price',
-                    'payment_type', 'state', 'voucher_distribution',]
+                    'payment_type', 'state', 'voucher_distribution', 'comments',]
     actions = ['sell_by_check', 'sell_by_cash', 'add_for_bank_deposit',
                'remove_from_bank_deposit']
     ordering = ['datetime_placed']
@@ -118,7 +118,8 @@ class MemberCommandAdmin(IndividualCommandAdmin):
 
 
 class CommissionCommandAdmin(IndividualCommandAdmin):
-    list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state', 'voucher_distribution',]
+    list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',
+                    'voucher_distribution', 'reason', 'comments']
     actions = ['distribute',]
     ordering = ['datetime_placed']
 
