@@ -8,5 +8,4 @@ Des commissions ont demandé des bons :
 {% for cmd in commission_cmd %}
 * {{ cmd.commission.user.username }} : {{ cmd.amount }} euros de bons pour la raison suivante : {{ cmd.reason }}
 {% endfor %}{% endif %}{% if has_distributed_commission_cmd %}
-En pièce jointe, un récapitulatif des commandes de commission distribuées depuis la dernière commande.
-{% endif %}{% endblock %}
+En pièce jointe, un récapitulatif des commandes de commission distribuées depuis la dernière commande.{% else %}Aucune commande de commission n'a été distribuée depuis la dernière commande groupée.{% endif %}{% endblock %}

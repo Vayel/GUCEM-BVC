@@ -7,7 +7,7 @@
   <p>Bons encore en vente : {{ being_sold_cmd_number }} commandes, soit {{ amount_being_sold }} euros</p>
   {% if being_sold_cmd_number > 0 %}
   <p>
-    <a href="{% url 'bvcadmin:bvc_membercommand_changelist' %}?state__exact=to_be_prepared">Annuler les commandes non vendues</a>
+    <a href="{% url 'bvcadmin:bvc_membercommand_changelist' %}?state__exact=prepared">Annuler les commandes non vendues</a>
   </p>
   {% endif %}
   <p>Montant à commander :</p>

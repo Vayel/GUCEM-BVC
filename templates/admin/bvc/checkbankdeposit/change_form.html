@@ -6,6 +6,12 @@
 {% if add %}
   <p>Nombre de chèques à déposer : {{ to_be_banked_check_number }}</p>
   <p>Nombre de chèques non inclus dans le dépôt : {{ not_to_be_banked_check_number }}</p>
+  {% if not_to_be_banked_check_number > 0 %}
+  <p>
+    <a href="{% url 'bvcadmin:bvc_membercommand_changelist' %}?state__exact=sold">Ajouter les chèques manquants</a>
+  </p>
+  {% endif %}
+
   <p>Montant total à déposer : {{ to_be_banked_check_total_amount }}</p>
 {% endif %}
 
