@@ -24,10 +24,10 @@ def fill_deposit_file_header(writer, deposit):
 
 
 def fill_deposit_file_commands(writer, deposit):
-    writer.writerow(['Nom', 'Prénom', 'Type', 'License', 'Bons', 'Prix'])
+    writer.writerow(['Id', 'Nom', 'Prénom', 'Type', 'License', 'Bons', 'Prix'])
 
     for cmd in deposit.bank_deposit.commands.all():
-        writer.writerow([cmd.member.user.last_name, cmd.member.user.first_name,
+        writer.writerow([cmd.id, cmd.member.user.last_name, cmd.member.user.first_name,
                          cmd.member.type, cmd.member.license, cmd.amount, cmd.price])
 
     writer.writerow([])
@@ -60,14 +60,14 @@ def send_deposit_file(func):
 
 @send_deposit_file
 def send_check_deposit_file(writer, deposit):
-    writer.writerow(['', '', '', '', 'Total déposé', deposit.total_price])
+    writer.writerow(['', '', '', '', '', 'Total déposé', deposit.total_price])
 
 
 @send_deposit_file
 def send_cash_deposit_file(writer, deposit):
-    writer.writerow(['', '', '', '', 'Total commandes', deposit.total_command_price])
-    writer.writerow(['', '', '', '', 'Delta trésorerie', deposit.treasury_operation.delta])
-    writer.writerow(['', '', '', '', 'Total déposé', deposit.total_price])
+    writer.writerow(['', '', '', '', '', 'Total commandes', deposit.total_command_price])
+    writer.writerow(['', '', '', '', '', 'Delta trésorerie', deposit.treasury_operation.delta])
+    writer.writerow(['', '', '', '', '', 'Total déposé', deposit.total_price])
 
 
 def send_deposit_file_callback(sender, instance, created, raw, using, update_fields, **kwargs):

@@ -116,13 +116,14 @@ class GroupedCommand(models.Model):
             csvfile = io.StringIO()
             total = 0
             writer = csv.writer(csvfile)
-            writer.writerow(['Commission', 'Date', 'Raison', 'Bons',])
+            writer.writerow(['Id', 'Commission', 'Date de commande', 'Date de distribution', 'Raison', 'Bons',])
             for cmd in distributed_commission_cmd: 
                 total += cmd.amount
-                writer.writerow([cmd.commission.user.username, cmd.datetime_given.date(),
+                writer.writerow([cmd.id, cmd.commission.user.username,
+                                 cmd.datetime_placed.date(), cmd.datetime_given.date(),
                                  cmd.reason, cmd.amount,])
             writer.writerow([])
-            writer.writerow(['', '', 'Total', total,])
+            writer.writerow(['', '', '', '', 'Total', total,])
         
         mail_context = {
             'amount': amount,
