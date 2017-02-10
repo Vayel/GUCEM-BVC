@@ -92,6 +92,20 @@ class IndividualCommand(models.Model):
             [self.email],
         )
 
+    def warn_about_cancellation(self):
+        if self.state != PREPARED_STATE:
+            raise InvalidState("La commande {} n'est pas dans le bon état pour être annulée.".format(self))
+
+        send_mail(
+            utils.format_mail_subject('Commande bientôt annulée'),
+            render_to_string(
+                'bvc/mails/cancel_command_soon.txt',
+                {'cmd': self, 'grouped_command_day': get_config().grouped_command_day}
+            ),
+            get_config().bvc_manager_mail,
+            [self.email],
+        )
+
     def cancel(self):
         if self.state not in [PLACED_STATE, TO_BE_PREPARED_STATE, PREPARED_STATE]:
             raise InvalidState("La commande {} n'est pas dans le bon état pour être annulée.".format(self))

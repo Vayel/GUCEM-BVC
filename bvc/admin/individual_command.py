@@ -6,7 +6,7 @@ from .. import models
 
 
 class IndividualCommandAdmin(admin.ModelAdmin):
-    actions = ['prepare', 'cancel', 'uncancel',]
+    actions = ['prepare', 'cancel', 'uncancel', 'warn_about_cancellation',]
     list_filter = ['state',]
 
     def has_delete_permission(self, request, obj=None):
@@ -45,6 +45,17 @@ class IndividualCommandAdmin(admin.ModelAdmin):
         for cmd in queryset:
             try:
                 cmd.uncancel()
+            except models.command.InvalidState as e:
+                self.message_user(
+                    request,
+                    str(e),
+                    level=messages.ERROR
+                )
+    
+    def warn_about_cancellation(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.warn_about_cancellation()
             except models.command.InvalidState as e:
                 self.message_user(
                     request,

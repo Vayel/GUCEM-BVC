@@ -3,5 +3,5 @@
 {% block contents %}
 Ta commande de bons Vieux Campeur de {{ cmd.amount }} euros (prix : {{ cmd.price}} euros) sera annulée si tu ne la récupéres pas à la prochaine permanence du mardi.
 
-Si jamais tu ne peux pas passer, tu peux réitérer ta commande sur le site avant le 21. Elle sera alors disponible comme les autres dès le début du mois prochain (un mail te sera envoyé).
+Si jamais tu ne peux pas passer, tu peux réitérer ta commande sur le site avant le {{ grouped_command_day }}. Elle sera alors disponible comme les autres environ une semaine après (un mail te sera envoyé).
 {% endblock %}

@@ -24,15 +24,7 @@ def contact_unsold_commands(request):
     )
 
     for cmd in commands:
-        send_mail(
-            utils.format_mail_subject('Commande bientôt annulée'),
-            render_to_string(
-                'bvc/mails/cancel_command_soon.txt',
-                {'cmd': cmd,}
-            ),
-            models.get_config().bvc_manager_mail,
-            [cmd.email],
-        )
+        cmd.warn_about_cancellation() 
 
     messages.success(
         request,
