@@ -11,17 +11,14 @@ from . import voucher
 
 from .. import utils
 
+VOUCHER_SUBPACKET_AMOUNT = 500
+
 
 def get_voucher_distribution(amount):
-    VOUCHER_SUBPACKET_AMOUNT = 500
-
-    if amount >= VOUCHER_SUBPACKET_AMOUNT:
-        subpacket_distrib = get_voucher_distribution(amount - VOUCHER_SUBPACKET_AMOUNT)
-        subpacket_distrib[10] += 10
-        subpacket_distrib[20] += 5
-        subpacket_distrib[50] += 6
-        return subpacket_distrib
+    if amount <= 0:
+        return {10: 0, 20: 0, 50: 0,}
     elif amount <= 100:
+        # Only 10
         return {10: amount // 10, 20: 0, 50: 0,}
     elif amount <= 200:
         # 10 * 10, the rest with 20 then 10
@@ -33,7 +30,7 @@ def get_voucher_distribution(amount):
             20: remaining // 20,
             50: 0,
         }
-    else:
+    elif amount < VOUCHER_SUBPACKET_AMOUNT:
         # 10 * 10, 5 * 20, the rest with 50, 20 then 10
         default_10 = 10
         default_20 = 5
@@ -44,6 +41,22 @@ def get_voucher_distribution(amount):
             20: 5 + (remaining % 50) // 20,
             50: remaining // 50,
         }
+    else:
+        subpacket_distrib = get_voucher_distribution(amount - VOUCHER_SUBPACKET_AMOUNT)
+        subpacket_distrib[10] += 10
+        subpacket_distrib[20] += 5
+        subpacket_distrib[50] += 6
+
+        return subpacket_distrib
+
+
+def get_commands_voucher_distribution(commands):
+    distribution = get_voucher_distribution(0)
+
+    for cmd in commands:
+        voucher.add_voucher_distribs(distribution, cmd.voucher_distribution)
+
+    return distribution
 
 
 class IndividualCommand(models.Model):

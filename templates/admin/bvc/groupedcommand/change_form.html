@@ -12,7 +12,7 @@
   {% endif %}
   <p>Montant à commander :</p>
   
-  <table style="margin-bottom: 40px;">
+    <table style="margin-bottom: 20px;">
         <tr>
             <td></td>
             <td>{{ placed_by_members }}</td>
@@ -24,6 +24,11 @@
             <td>euros pour les commissions</td>
         </tr>
         <tr>
+            <td>=</td>
+            <td><strong>{{ placed_amount }}</strong></td>
+            <td><strong>euros pour les commandes</strong></td>
+        </tr>
+        <tr>
             <td>-</td>
             <td>{{ remaining }}</td>
             <td>euros restants</td>
@@ -31,7 +36,7 @@
         <tr>
             <td>=</td>
             <td><strong>{{ min_to_place }}</strong></td>
-            <td>euros nécessaires</td>
+            <td><strong>euros nécessaires</strong></td>
         </tr>
         <tr>
             <td>+</td>
@@ -41,7 +46,7 @@
         <tr>
             <td>=</td>
             <td><strong>{{ recommended_to_place }}</strong></td>
-            <td>euros recommandés</td>
+            <td><strong>euros recommandés</strong></td>
         </tr>
     </table>
 {% endif %}

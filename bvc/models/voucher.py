@@ -3,11 +3,13 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from . import validators
 
+
 def get_stock():
     try:
         return VoucherOperation.objects.latest('id').stock
     except ObjectDoesNotExist:
         return 0
+
 
 def update_stock(type, id, delta):
     stock = get_stock() + delta
@@ -20,6 +22,19 @@ def update_stock(type, id, delta):
         command_id=id, 
         stock=stock,
     ).save()
+
+
+def voucher_distrib_to_amount(distribution):
+    amount = 0
+    for k, v in distribution.items():
+        amount += k * v
+    return amount
+
+
+def add_voucher_distribs(d1, d2):
+    for k, v in d2.items():
+        d1[k] += v
+
 
 class VoucherOperation(models.Model):
     MEMBER_COMMAND = 'member'

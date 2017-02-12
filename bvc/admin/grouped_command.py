@@ -84,10 +84,10 @@ class GroupedCommandAdmin(admin.ModelAdmin):
         extra_context['placed_by_commissions'] = models.CommissionCommand.get_total_amount(
             [models.command.PLACED_STATE]
         )
+        extra_context['placed_amount'] = (extra_context['placed_by_members'] +
+                                          extra_context['placed_by_commissions'])
         extra_context['remaining'] = models.voucher.get_stock()
-        extra_context['min_to_place'] = (extra_context['placed_by_members'] +
-                                         extra_context['placed_by_commissions'] -
-                                         extra_context['remaining'])
+        extra_context['min_to_place'] = models.grouped_command.min_amount_to_place()
 
         extra_context['extra_amount'] = models.get_config().grouped_command_extra_amount
         extra_context['recommended_to_place'] = (extra_context['min_to_place'] +

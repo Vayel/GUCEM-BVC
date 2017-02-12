@@ -10,7 +10,7 @@ from django.conf import settings
 
 from .command import *
 from .configuration import get_config
-from .individual_command import get_voucher_distribution
+from .individual_command import get_voucher_distribution, get_commands_voucher_distribution
 from .member_command import MemberCommand
 from .commission_command import CommissionCommand
 from . import validators
@@ -25,11 +25,59 @@ def get_current():
         return None
 
 
-def get_last():
+def get_last_prepared():
     try:
         return GroupedCommand.objects.filter(state=PREPARED_STATE).last()
     except ObjectDoesNotExist:
         return None
+
+
+def get_cancelled_cmd_after_date(datetime=None):
+    member_cmd = MemberCommand.objects.filter(
+        state=CANCELLED_STATE,
+    )
+    commission_cmd = CommissionCommand.objects.filter(
+        state=CANCELLED_STATE,
+    )
+
+    if datetime is not None:
+        member_cmd = member_cmd.filter(datetime_cancelled__gt=datetime)
+        commission_cmd = commission_cmd.filter(datetime_cancelled__gt=datetime)
+
+    return chain(member_cmd, commission_cmd)
+
+
+def min_amount_to_place():
+    return max(0, MemberCommand.get_total_amount([PLACED_STATE, TO_BE_PREPARED_STATE]) +
+               CommissionCommand.get_total_amount([PLACED_STATE, TO_BE_PREPARED_STATE]) -
+               voucher.get_stock())
+
+
+def placed_voucher_distrib():
+    member_cmd = MemberCommand.objects.filter(state__in=[PLACED_STATE, TO_BE_PREPARED_STATE])
+    commission_cmd = CommissionCommand.objects.filter(state__in=[PLACED_STATE, TO_BE_PREPARED_STATE])
+    return get_commands_voucher_distribution(
+        chain(member_cmd, commission_cmd)
+    )
+
+
+def cancelled_voucher_distrib():
+    grouped_cmd = get_last_prepared()
+    return get_commands_voucher_distribution(
+        get_cancelled_cmd_after_date(
+            None if grouped_cmd is None else grouped_cmd.datetime_prepared
+        )
+    )
+
+
+def voucher_distrib_to_place():
+    placed = placed_voucher_distrib()
+    cancelled = cancelled_voucher_distrib()
+
+    for k, v in cancelled.items():
+        placed[k] = placed[k] - v
+
+    return placed
 
 
 class GroupedCommand(models.Model):
@@ -39,13 +87,13 @@ class GroupedCommand(models.Model):
         (RECEIVED_STATE, 'Commande disponible en magasin'),
         (PREPARED_STATE, 'Commande préparée'),
     )
-    
+
     # Amounts in BVC value
     placed_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
         verbose_name='Montant commandé',
-    ) 
+    )
     received_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
@@ -86,7 +134,53 @@ class GroupedCommand(models.Model):
             self.placed_amount,
             dt,
         )
-    
+
+    def get_voucher_distribution_to_place(self):
+        """Determine the quantity of each type of voucher. We should have the correct
+        distribution for every command, but maybe some vouchers are taken from
+        cancelled commands, so we cannot choose their type.
+        """
+
+        amount = self.placed_amount
+
+        member_cmd = MemberCommand.objects.filter(state=TO_BE_PREPARED_STATE)
+        commission_cmd = CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE)
+        cmd_voucher_distrib = get_commands_voucher_distribution(
+            chain(member_cmd, commission_cmd)
+        )
+
+        # First, we reuse old vouchers, i.e. from cancelled commands
+        previous_cmd = get_last_prepared()
+        cancelled_cmd_voucher_distrib = get_commands_voucher_distribution(
+            get_cancelled_cmd_after_date(
+                None if previous_cmd is None else previous_cmd.datetime_prepared
+            )
+        )
+
+        for k, v in cancelled_cmd_voucher_distrib.items():
+            cmd_voucher_distrib[k] = max(0, cmd_voucher_distrib[k] - v)
+
+        # cmd_voucher_distrib is now the number of vouchers of each type missing
+        # i.e. the ones we need to order. But maybe the command is not big enough to
+        # buy them all, so we start with lower vouchers because we do not want
+        # to lack them afterwards.
+
+        voucher_distrib = get_voucher_distribution(0)
+
+        for voucher_value, voucher_number in sorted(cmd_voucher_distrib.items()):
+            for _ in range(voucher_number):
+                if amount - voucher_value < 0:
+                    break
+
+                amount -= voucher_value
+                voucher_distrib[voucher_value] += 1
+
+        # amount is now the amount remaning to place
+
+        voucher.add_voucher_distribs(voucher_distrib, get_voucher_distribution(amount))
+
+        return voucher_distrib
+
     def place(self, amount, datetime=None):
         if self.datetime_placed != None:
             raise InvalidState()
@@ -95,87 +189,73 @@ class GroupedCommand(models.Model):
         self.datetime_placed = datetime or now()
         self.save()
 
+        email = EmailMessage(
+            '',
+            '',
+            get_config().bvc_manager_mail,
+            [get_config().treasurer_mail],
+            [],
+        )
+
         # Change the state of placed commands
         MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
         CommissionCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
 
         # List distributed commission commands
-        last_cmd = get_last()
+        previous_cmd = get_last_prepared()
 
-        if last_cmd is None:
+        if previous_cmd is None:
             distributed_commission_cmd = CommissionCommand.objects.filter(state=GIVEN_STATE)
         else:
             distributed_commission_cmd = CommissionCommand.objects.filter(
                 state=GIVEN_STATE,
-                datetime_given__gt=last_cmd.datetime_placed,
+                datetime_given__gt=previous_cmd.datetime_placed,
             )
 
-        distributed_commission_cmd = list(distributed_commission_cmd) 
+        distributed_commission_cmd = list(distributed_commission_cmd)
 
         if len(distributed_commission_cmd):
             csvfile = io.StringIO()
             total = 0
             writer = csv.writer(csvfile)
-            writer.writerow(['Id', 'Commission', 'Date de commande', 'Date de distribution', 'Raison', 'Bons',])
-            for cmd in distributed_commission_cmd: 
+            writer.writerow(['Id', 'Commission', 'Date de commande',
+                             'Date de distribution', 'Raison', 'Bons',])
+            for cmd in distributed_commission_cmd:
                 total += cmd.amount
                 writer.writerow([cmd.id, cmd.commission.user.username,
                                  cmd.datetime_placed.date(), cmd.datetime_given.date(),
                                  cmd.reason, cmd.amount,])
             writer.writerow([])
             writer.writerow(['', '', '', '', 'Total', total,])
-        
+
+            email.attach(
+                'commandes_commissions_{}.csv'.format(
+                    1 if previous_cmd is None else previous_cmd.id
+                ),
+                csvfile.getvalue(),
+                'text/csv'
+            )
+
+        # Send mail to treasurer
         mail_context = {
             'amount': amount,
             'commission_cmd': CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE), 
             'has_distributed_commission_cmd': len(distributed_commission_cmd),
+            'voucher_distribution': self.get_voucher_distribution_to_place(),
         }
 
         if amount <= 0:
             self.receive(0, self.datetime_placed)
             self.prepare_(0, self.datetime_placed)
 
-            email = EmailMessage(
-                utils.format_mail_subject('Commande groupée n°{} non nécessaire'.format(self.id)),
-                render_to_string('bvc/mails/no_grouped_command.txt', mail_context),
-                get_config().bvc_manager_mail,
-                [get_config().treasurer_mail],
-                [],
+            email.subject = utils.format_mail_subject(
+                'Commande groupée n°{} non nécessaire'.format(self.id)
             )
-            if len(distributed_commission_cmd):
-                email.attach(
-                    'commandes_commissions_{}.csv'.format(1 if last_cmd is None else last_cmd.id), 
-                    csvfile.getvalue(),
-                    'text/csv'
-                )
-            email.send()
-            return
+            email.body = render_to_string('bvc/mails/no_grouped_command.txt', mail_context)
+        else:
+            email.subject = utils.format_mail_subject('Commande groupée n°{}'.format(self.id))
+            email.body = render_to_string('bvc/mails/place_grouped_command.txt', mail_context)
 
-        # Determine the quantity of each type of voucher
-        placed_member_cmd = MemberCommand.objects.filter(state=TO_BE_PREPARED_STATE)
-        placed_commission_cmd = CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE)
-        cmd_amount = (MemberCommand.get_total_amount([TO_BE_PREPARED_STATE]) +
-                      CommissionCommand.get_total_amount([TO_BE_PREPARED_STATE]))
-        voucher_distribution = get_voucher_distribution(amount - cmd_amount)
-
-        for cmd in chain(placed_member_cmd, placed_commission_cmd):
-            for k in voucher_distribution:
-                voucher_distribution[k] += cmd.voucher_distribution[k]
-        mail_context['voucher_distribution'] = voucher_distribution
-
-        # Send the email to the treasurer
-        email = EmailMessage(
-            utils.format_mail_subject('Commande groupée n°{}'.format(self.id)),
-            render_to_string('bvc/mails/place_grouped_command.txt', mail_context),
-            get_config().bvc_manager_mail,
-            [get_config().treasurer_mail],
-        )
-        if len(distributed_commission_cmd):
-            email.attach(
-                'commandes_commissions_{}.csv'.format(1 if last_cmd is None else last_cmd.id), 
-                csvfile.getvalue(),
-                'text/csv'
-            )
         email.send()
 
     def receive(self, amount, date):
@@ -185,7 +265,7 @@ class GroupedCommand(models.Model):
         self.state = RECEIVED_STATE
         self.datetime_received = date
         self.received_amount = amount
-        
+
         if amount > 0:
             send_mail(
                 utils.format_mail_subject('Réception de commande groupée n°{}'.format(self.id)),
@@ -205,8 +285,8 @@ class GroupedCommand(models.Model):
         self.datetime_prepared = date
         self.prepared_amount = amount
 
-        voucher.update_stock(voucher.VoucherOperation.GROUPED_COMMAND, self.id, amount)        
-        
+        voucher.update_stock(voucher.VoucherOperation.GROUPED_COMMAND, self.id, amount)
+
         commission_commands = CommissionCommand.objects.filter(
             state=TO_BE_PREPARED_STATE,
         ).order_by('datetime_placed')

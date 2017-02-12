@@ -68,10 +68,15 @@ class GroupedCommandAdminForm(forms.ModelForm):
         )
         if unprepared_cmd.count():
             raise forms.ValidationError("Une commande groupée est déjà en cours.")
-        
+
+        amount = self.cleaned_data['placed_amount']
+        if amount < models.grouped_command.min_amount_to_place():
+            raise forms.ValidationError("Le montant ne permet pas de satisfaire "
+                                        "toutes les commandes.")
+
         self.callback = self.instance.place
         self.date = now()
-        self.amount = self.cleaned_data['placed_amount']
+        self.amount = amount
 
         return self.amount
 
