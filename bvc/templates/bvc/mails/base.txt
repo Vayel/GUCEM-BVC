@@ -1,5 +1,3 @@
 Bonjour,
-
 {% block contents %}{% endblock %}
-
 Le responsable des bons

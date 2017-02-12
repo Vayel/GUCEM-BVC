@@ -1,9 +1,3 @@
-{% extends "bvc/mails/base.txt" %}
-{% block contents %}
-Il reste suffisamment de bons en réserve pour satisfaire les commandes. Il n'y a donc pas besoin d'en passer au Vieux Campeur.{% if commission_cmd %}
-Des commissions ont demandé des bons :
-{% for k, v in commission_cmd.items %}
-* {{ k }} : {{ v }} euros de bons
-{% endfor %}{% endif %}{% if has_distributed_commission_cmd %}
-En pièce jointe, un récapitulatif des commandes de commission distribuées depuis la dernière commande.
-{% endif %}{% endblock %}
+{% extends "bvc/mails/grouped_command.txt" %}
+{% block vouchers %}
+Il reste suffisamment de bons en réserve pour satisfaire les commandes. Il n'y a donc pas besoin d'en passer au Vieux Campeur.{% endblock %}
