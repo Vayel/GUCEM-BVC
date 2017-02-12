@@ -281,7 +281,11 @@ class GroupedCommand(models.Model):
         self.datetime_prepared = date
         self.prepared_amount = amount
 
-        voucher.update_stock(amount, str(self))
+        if self.prepared_amount == self.received_amount:
+            voucher.update_stock(self.prepared_amount, str(self))
+        else:
+            voucher.update_stock(self.received_amount, str(self))
+            voucher.update_stock(amount - self.received_amount, 'Perte dans ' + str(self))
 
         commission_commands = CommissionCommand.objects.filter(
             state=TO_BE_PREPARED_STATE,
