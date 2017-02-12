@@ -5,8 +5,8 @@ from .. import models
 
 
 class VoucherOperationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'stock', 'command_type', 'command_id',]
-    readonly_fields = ['command_type', 'command_id', 'stock',]
+    list_display = ['id', 'stock', 'delta', 'reason',]
+    readonly_fields = ['stock',]
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -16,6 +16,12 @@ class VoucherOperationAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+
+    def get_readonly_fields(self, request, instance=None):
+        if instance is None:
+            return []
+
+        return self.readonly_fields or []
     
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}

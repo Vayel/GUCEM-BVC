@@ -14,7 +14,6 @@ from .. import utils
 
 
 class CommissionCommand(IndividualCommand):
-    VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.COMMISSION_COMMAND
     REASON_MAX_LEN = 250
 
     STATE_CHOICES = (
@@ -43,10 +42,7 @@ class CommissionCommand(IndividualCommand):
         verbose_name_plural = 'Commandes commissions'
 
     def __str__(self):
-        return '{} ({})'.format(
-            self.id,
-            self.commission.user.username,
-        )
+        return 'Commande commission n°{}'.format(self.id)
 
     @property
     def email(self):

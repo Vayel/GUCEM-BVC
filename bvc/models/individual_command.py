@@ -86,7 +86,7 @@ class IndividualCommand(models.Model):
         if self.state != TO_BE_PREPARED_STATE:
             raise InvalidState("La commande {} n'est pas dans le bon état pour être préparée.".format(self))
 
-        voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, -self.amount)        
+        voucher.update_stock(-self.amount, str(self))        
 
         self.state = PREPARED_STATE
         self.datetime_prepared = now()
@@ -124,7 +124,7 @@ class IndividualCommand(models.Model):
             raise InvalidState("La commande {} n'est pas dans le bon état pour être annulée.".format(self))
 
         if self.state == PREPARED_STATE:
-            voucher.update_stock(self.VOUCHER_COMMAND_TYPE, self.id, self.amount)
+            voucher.update_stock(self.amount, str(self))
 
         self.state = CANCELLED_STATE
         self.datetime_cancelled = now()

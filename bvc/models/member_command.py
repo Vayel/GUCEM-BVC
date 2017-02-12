@@ -35,8 +35,6 @@ def get_available_cash_amount():
 
 
 class MemberCommand(IndividualCommand):
-    VOUCHER_COMMAND_TYPE = voucher.VoucherOperation.MEMBER_COMMAND
-    
     STATE_CHOICES = (
         (PLACED_STATE, 'Passée'),
         (TO_BE_PREPARED_STATE, 'À préparer'),
@@ -78,11 +76,7 @@ class MemberCommand(IndividualCommand):
         verbose_name_plural = 'Commandes adhérents'
 
     def __str__(self):
-        return '{} ({} {})'.format(
-            self.id,
-            self.member.user.first_name,
-            self.member.user.last_name,
-        )
+        return 'Commande adhérent n°{}'.format(self.id)
 
     @property
     def email(self):

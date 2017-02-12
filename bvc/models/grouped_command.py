@@ -129,11 +129,7 @@ class GroupedCommand(models.Model):
         verbose_name_plural = 'Commandes groupées'
 
     def __str__(self):
-        dt = '-' if self.datetime_placed is None else self.datetime_placed.strftime('%d/%m/%Y')
-        return '{} euros le {}'.format(
-            self.placed_amount,
-            dt,
-        )
+        return 'Commande groupée n°{}'.format(self.id)
 
     def get_voucher_distribution_to_place(self):
         """Determine the quantity of each type of voucher. We should have the correct
@@ -285,7 +281,7 @@ class GroupedCommand(models.Model):
         self.datetime_prepared = date
         self.prepared_amount = amount
 
-        voucher.update_stock(voucher.VoucherOperation.GROUPED_COMMAND, self.id, amount)
+        voucher.update_stock(amount, str(self))
 
         commission_commands = CommissionCommand.objects.filter(
             state=TO_BE_PREPARED_STATE,
