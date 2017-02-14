@@ -11,53 +11,6 @@ from . import voucher
 
 from .. import utils
 
-VOUCHER_SUBPACKET_AMOUNT = 500
-
-
-def get_voucher_distribution(amount):
-    if amount <= 0:
-        return {10: 0, 20: 0, 50: 0,}
-    elif amount <= 100:
-        # Only 10
-        return {10: amount // 10, 20: 0, 50: 0,}
-    elif amount <= 200:
-        # 10 * 10, the rest with 20 then 10
-        default_10 = 10
-        remaining = amount - 10 * default_10
-
-        return {
-            10: default_10 + (remaining % 20) // 10,
-            20: remaining // 20,
-            50: 0,
-        }
-    elif amount < VOUCHER_SUBPACKET_AMOUNT:
-        # 10 * 10, 5 * 20, the rest with 50, 20 then 10
-        default_10 = 10
-        default_20 = 5
-        remaining = amount - 10 * default_10 - 20 * default_20
-
-        return {
-            10: 10 + ((remaining % 50) % 20) // 10,
-            20: 5 + (remaining % 50) // 20,
-            50: remaining // 50,
-        }
-    else:
-        subpacket_distrib = get_voucher_distribution(amount - VOUCHER_SUBPACKET_AMOUNT)
-        subpacket_distrib[10] += 10
-        subpacket_distrib[20] += 5
-        subpacket_distrib[50] += 6
-
-        return subpacket_distrib
-
-
-def get_commands_voucher_distribution(commands):
-    distribution = get_voucher_distribution(0)
-
-    for cmd in commands:
-        voucher.add_voucher_distribs(distribution, cmd.voucher_distribution)
-
-    return distribution
-
 
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
@@ -80,11 +33,13 @@ class IndividualCommand(models.Model):
 
     @property
     def voucher_distribution(self):
-        return get_voucher_distribution(self.amount)
+        return voucher.get_voucher_distribution(self.amount)
 
     def prepare(self):
         if self.state != TO_BE_PREPARED_STATE:
-            raise InvalidState("La commande {} n'est pas dans le bon état pour être préparée.".format(self))
+            raise InvalidState(
+                "La commande {} n'est pas dans le bon état pour être préparée.".format(self)
+            )
 
         voucher.update_stock(-self.amount, str(self))        
 

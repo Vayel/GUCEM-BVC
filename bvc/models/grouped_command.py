@@ -6,11 +6,11 @@ from django.db import models
 from django.core.mail import send_mail, EmailMessage
 from django.utils.timezone import now
 from django.template.loader import render_to_string
+from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from .command import *
 from .configuration import get_config
-from .individual_command import get_voucher_distribution, get_commands_voucher_distribution
 from .member_command import MemberCommand
 from .commission_command import CommissionCommand
 from . import validators
@@ -51,33 +51,6 @@ def min_amount_to_place():
     return max(0, MemberCommand.get_total_amount([PLACED_STATE, TO_BE_PREPARED_STATE]) +
                CommissionCommand.get_total_amount([PLACED_STATE, TO_BE_PREPARED_STATE]) -
                voucher.get_stock())
-
-
-def placed_voucher_distrib():
-    member_cmd = MemberCommand.objects.filter(state__in=[PLACED_STATE, TO_BE_PREPARED_STATE])
-    commission_cmd = CommissionCommand.objects.filter(state__in=[PLACED_STATE, TO_BE_PREPARED_STATE])
-    return get_commands_voucher_distribution(
-        chain(member_cmd, commission_cmd)
-    )
-
-
-def cancelled_voucher_distrib():
-    grouped_cmd = get_last_prepared()
-    return get_commands_voucher_distribution(
-        get_cancelled_cmd_after_date(
-            None if grouped_cmd is None else grouped_cmd.datetime_prepared
-        )
-    )
-
-
-def voucher_distrib_to_place():
-    placed = placed_voucher_distrib()
-    cancelled = cancelled_voucher_distrib()
-
-    for k, v in cancelled.items():
-        placed[k] = placed[k] - v
-
-    return placed
 
 
 class GroupedCommand(models.Model):
@@ -141,13 +114,13 @@ class GroupedCommand(models.Model):
 
         member_cmd = MemberCommand.objects.filter(state=TO_BE_PREPARED_STATE)
         commission_cmd = CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE)
-        cmd_voucher_distrib = get_commands_voucher_distribution(
+        cmd_voucher_distrib = voucher.get_commands_voucher_distribution(
             chain(member_cmd, commission_cmd)
         )
 
         # First, we reuse old vouchers, i.e. from cancelled commands
         previous_cmd = get_last_prepared()
-        cancelled_cmd_voucher_distrib = get_commands_voucher_distribution(
+        cancelled_cmd_voucher_distrib = voucher.get_commands_voucher_distribution(
             get_cancelled_cmd_after_date(
                 None if previous_cmd is None else previous_cmd.datetime_prepared
             )
@@ -161,7 +134,7 @@ class GroupedCommand(models.Model):
         # buy them all, so we start with lower vouchers because we do not want
         # to lack them afterwards.
 
-        voucher_distrib = get_voucher_distribution(0)
+        voucher_distrib = voucher.get_voucher_distribution(0)
 
         for voucher_value, voucher_number in sorted(cmd_voucher_distrib.items()):
             for _ in range(voucher_number):
@@ -173,7 +146,7 @@ class GroupedCommand(models.Model):
 
         # amount is now the amount remaning to place
 
-        voucher.add_voucher_distribs(voucher_distrib, get_voucher_distribution(amount))
+        voucher.add_voucher_distribs(voucher_distrib, voucher.get_voucher_distribution(amount))
 
         return voucher_distrib
 
