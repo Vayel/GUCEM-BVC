@@ -38,7 +38,18 @@ def distrib_to_amount(distribution):
     return amount
 
 
-def get_distrib(amount):
+def get_distrib(amount, sold_at_once=False):
+    if sold_at_once:
+        # Give one 10 then 50, then 20, then 10
+        default_10 = 1
+        remaining = amount - default_10 * 10
+
+        return {
+            10: default_10 + ((remaining % 50) % 20) // 10,
+            20: (remaining % 50) // 20,
+            50: remaining // 50,
+        }
+
     if amount <= 0:
         return {10: 0, 20: 0, 50: 0,}
     if amount <= 100:
@@ -61,8 +72,8 @@ def get_distrib(amount):
         remaining = amount - 10 * default_10 - 20 * default_20
 
         return {
-            10: 10 + ((remaining % 50) % 20) // 10,
-            20: 5 + (remaining % 50) // 20,
+            10: default_10 + ((remaining % 50) % 20) // 10,
+            20: default_20 + (remaining % 50) // 20,
             50: remaining // 50,
         }
 

@@ -22,6 +22,10 @@ class IndividualCommand(models.Model):
     datetime_placed = models.DateTimeField(auto_now_add=True,)
     datetime_prepared = models.DateField(null=True, blank=True,)
     datetime_cancelled = models.DateField(null=True, blank=True,)
+    # To make packets with high-value vouchers only.
+    # For intance, if a member places a command to buy a 500-euro object, we can
+    # give him 10 vouchers of 50 euros (he does not need 10-euro or 20-euro vouchers).
+    spent_at_once = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -33,7 +37,7 @@ class IndividualCommand(models.Model):
 
     @property
     def voucher_distrib(self):
-        return voucher.get_distrib(self.amount)
+        return voucher.get_distrib(self.amount, self.spent_at_once)
 
     def prepare(self):
         if self.state != TO_BE_PREPARED_STATE:

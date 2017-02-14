@@ -11,4 +11,4 @@ class PlaceCommissionCommand(forms.ModelForm):
 
     class Meta:
         model = models.CommissionCommand
-        fields = ['commission', 'amount', 'reason', 'comments',]
+        fields = ['commission', 'amount', 'reason', 'spent_at_once', 'comments',]
