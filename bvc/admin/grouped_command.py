@@ -90,8 +90,7 @@ class GroupedCommandAdmin(admin.ModelAdmin):
         extra_context['min_to_place'] = models.grouped_command.min_amount_to_place()
 
         extra_context['extra_amount'] = models.get_config().grouped_command_extra_amount
-        extra_context['recommended_to_place'] = (extra_context['min_to_place'] +
-                                                 extra_context['extra_amount'])
+        extra_context['recommended_to_place'] = models.grouped_command.min_amount_to_place(extra_context['extra_amount'])
 
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 

@@ -47,10 +47,10 @@ def get_cancelled_cmd_after_date(datetime=None):
     return chain(member_cmd, commission_cmd)
 
 
-def min_amount_to_place():
+def min_amount_to_place(margin=0):
     return max(0, MemberCommand.get_total_amount([PLACED_STATE, TO_BE_PREPARED_STATE]) +
                CommissionCommand.get_total_amount([PLACED_STATE, TO_BE_PREPARED_STATE]) -
-               voucher.get_stock())
+               voucher.get_stock() + margin)
 
 
 class GroupedCommand(models.Model):
