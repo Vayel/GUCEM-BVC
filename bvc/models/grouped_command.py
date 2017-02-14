@@ -104,7 +104,7 @@ class GroupedCommand(models.Model):
     def __str__(self):
         return 'Commande groupée n°{}'.format(self.id)
 
-    def get_voucher_distribution_to_place(self):
+    def voucher_distrib_to_place(self):
         """Determine the quantity of each type of voucher. We should have the correct
         distribution for every command, but maybe some vouchers are taken from
         cancelled commands, so we cannot choose their type.
@@ -114,13 +114,13 @@ class GroupedCommand(models.Model):
 
         member_cmd = MemberCommand.objects.filter(state=TO_BE_PREPARED_STATE)
         commission_cmd = CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE)
-        cmd_voucher_distrib = voucher.get_commands_voucher_distribution(
+        cmd_voucher_distrib = voucher.get_commands_distrib(
             chain(member_cmd, commission_cmd)
         )
 
         # First, we reuse old vouchers, i.e. from cancelled commands
         previous_cmd = get_last_prepared()
-        cancelled_cmd_voucher_distrib = voucher.get_commands_voucher_distribution(
+        cancelled_cmd_voucher_distrib = voucher.get_commands_distrib(
             get_cancelled_cmd_after_date(
                 None if previous_cmd is None else previous_cmd.datetime_prepared
             )
@@ -134,7 +134,7 @@ class GroupedCommand(models.Model):
         # buy them all, so we start with lower vouchers because we do not want
         # to lack them afterwards.
 
-        voucher_distrib = voucher.get_voucher_distribution(0)
+        voucher_distrib = voucher.get_distrib(0)
 
         for voucher_value, voucher_number in sorted(cmd_voucher_distrib.items()):
             for _ in range(voucher_number):
@@ -146,7 +146,7 @@ class GroupedCommand(models.Model):
 
         # amount is now the amount remaning to place
 
-        voucher.add_voucher_distribs(voucher_distrib, voucher.get_voucher_distribution(amount))
+        voucher.add_distribs(voucher_distrib, voucher.get_distrib(amount))
 
         return voucher_distrib
 
@@ -210,7 +210,7 @@ class GroupedCommand(models.Model):
             'amount': amount,
             'commission_cmd': CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE), 
             'has_distributed_commission_cmd': len(distributed_commission_cmd),
-            'voucher_distribution': self.get_voucher_distribution_to_place(),
+            'voucher_distribution': self.voucher_distrib_to_place(),
         }
 
         if amount <= 0:

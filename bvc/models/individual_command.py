@@ -32,8 +32,8 @@ class IndividualCommand(models.Model):
         return total or 0
 
     @property
-    def voucher_distribution(self):
-        return voucher.get_voucher_distribution(self.amount)
+    def voucher_distrib(self):
+        return voucher.get_distrib(self.amount)
 
     def prepare(self):
         if self.state != TO_BE_PREPARED_STATE:

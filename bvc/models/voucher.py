@@ -31,14 +31,14 @@ def update_stock(delta, reason):
     return op
 
 
-def voucher_distrib_to_amount(distribution):
+def distrib_to_amount(distribution):
     amount = 0
     for k, v in distribution.items():
         amount += k * v
     return amount
 
 
-def get_voucher_distribution(amount):
+def get_distrib(amount):
     if amount <= 0:
         return {10: 0, 20: 0, 50: 0,}
     if amount <= 100:
@@ -66,7 +66,7 @@ def get_voucher_distribution(amount):
             50: remaining // 50,
         }
 
-    subpacket_distrib = get_voucher_distribution(amount - VOUCHER_SUBPACKET_AMOUNT)
+    subpacket_distrib = get_distrib(amount - VOUCHER_SUBPACKET_AMOUNT)
     subpacket_distrib[10] += 10
     subpacket_distrib[20] += 5
     subpacket_distrib[50] += 6
@@ -74,16 +74,16 @@ def get_voucher_distribution(amount):
     return subpacket_distrib
 
 
-def get_commands_voucher_distribution(commands):
-    distribution = get_voucher_distribution(0)
+def get_commands_distrib(commands):
+    distribution = get_distrib(0)
 
     for cmd in commands:
-        add_voucher_distribs(distribution, cmd.voucher_distribution)
+        add_distribs(distribution, cmd.voucher_distrib)
 
     return distribution
 
 
-def add_voucher_distribs(d1, d2):
+def add_distribs(d1, d2):
     for k, v in d2.items():
         d1[k] += v
 
