@@ -8,6 +8,17 @@
 
 <p>
   Questions : <strong>bvc@gucem.fr</strong>
+  
+<p>
+  Vous pouvez recevoir par mail la liste de vos commandes en cours en remplissant
+  ce formulaire :
+</p>
+
+<form action="{% url 'bvc:send_command_summary' %}" method="POST">
+  {% csrf_token %}
+  {{ command_summary_form }}
+  <input type="submit" value="Envoyer" />
+</form>
 </p>
 
 <h3>Modalités</h3>
@@ -61,6 +72,8 @@
 </p>
 
 <h3>Passer commande</h3>
+
+
 
 <p>
   Si vous êtes une <strong>commission</strong>, merci de commander sur

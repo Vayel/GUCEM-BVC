@@ -1,8 +1,27 @@
 from django.db import models
 from django.conf import settings
+from django.template.loader import render_to_string
+
+from .configuration import get_config
+from .. import utils
 
 
-class Member(models.Model):
+class AbstractUser(models.Model):
+    class Meta:
+        abstract = True
+
+    def send_command_summary(self):
+        self.user.email_user(
+            utils.format_mail_subject('Récapitulatif des commandes'),
+            render_to_string(
+                'bvc/mails/command_summary.txt',
+                {'commands': self.commands.all()}
+            ),
+            get_config().bvc_manager_mail
+        )
+
+
+class Member(AbstractUser):
     ESMUG = 'esmug'
     GUCEM = 'gucem'
 
@@ -26,7 +45,7 @@ class Member(models.Model):
         )
 
 
-class Commission(models.Model):
+class Commission(AbstractUser):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
     def __str__(self):

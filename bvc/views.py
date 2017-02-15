@@ -35,6 +35,25 @@ def contact_unsold_commands(request):
 
 # Users
 
+@require_http_methods(["POST"])
+def send_command_summary(request):
+    form = forms.user.CommandSummary(request.POST) 
+
+    if form.is_valid():
+        try:
+            user = User.objects.get(email=form.cleaned_data['email'])
+            member = models.user.Member.objects.get(user=user)
+        except ObjectDoesNotExist:
+            messages.error(request, 'Tu ne sembles pas avoir déjà passé commande.')
+        else:
+            member.send_command_summary()
+            messages.success(request, 'Votre demande a bien été prise en compte, un mail vous a été envoyé.')
+    else:
+        messages.error(request, 'Merci de fournir une adresse mail.')
+
+    return redirect('bvc:home')
+
+
 def place_commission_command(request):
     context = {}
 
@@ -43,14 +62,7 @@ def place_commission_command(request):
 
         if form.is_valid():
             cmd = form.save()
-            cmd.commission.user.email_user(
-                utils.format_mail_subject('Récapitulatif de tes commandes'),
-                render_to_string(
-                    'bvc/mails/command_summary.txt',
-                    {'commands': cmd.commission.commands.all()}
-                ),
-                models.get_config().bvc_manager_mail
-            )
+            cmd.commission.send_command_summary()
 
             messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
             return redirect('bvc:place_commission_command')
@@ -61,6 +73,7 @@ def place_commission_command(request):
 
     return render(request, 'bvc/place_commission_command.html', context)
 
+
 def home(request):
     context = {}
 
@@ -70,7 +83,7 @@ def home(request):
         command_form = forms.member_command.PlaceMemberCommand(request.POST)
 
         try:
-            user = User.objects.get(email=request.POST['email'])
+            user = User.objects.get(email=user_form.cleaned_data['email'])
             user_form = forms.user.MemberUserCommand(request.POST, instance=user)
         except ObjectDoesNotExist:
             pass
@@ -96,14 +109,7 @@ def home(request):
                     command.member = member
                     command.save()
 
-                    user.email_user(
-                        utils.format_mail_subject('Récapitulatif de tes commandes'),
-                        render_to_string(
-                            'bvc/mails/command_summary.txt',
-                            {'commands': member.commands.all()}
-                        ),
-                        models.get_config().bvc_manager_mail
-                    )
+                    member.send_command_summary()
 
                     messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
                     return redirect('bvc:home')
@@ -115,5 +121,6 @@ def home(request):
     context['user_form'] = user_form
     context['member_form'] = member_form
     context['command_form'] = command_form
+    context['command_summary_form'] = forms.user.CommandSummary() 
 
     return render(request, 'bvc/home.html', context)

@@ -25,3 +25,9 @@ class MemberCommand(forms.ModelForm):
     class Meta:
         model = models.user.Member
         fields = ['license', 'club']
+
+
+class CommandSummary(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email',]
