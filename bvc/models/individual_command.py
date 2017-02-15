@@ -39,6 +39,12 @@ class IndividualCommand(models.Model):
     def voucher_distrib(self):
         return voucher.get_distrib(self.amount, self.spent_at_once)
 
+    # Define this property in the abstract class to have a common interface for
+    # the templates
+    @property
+    def price(self):
+        return 0
+
     def prepare(self):
         if self.state != TO_BE_PREPARED_STATE:
             raise InvalidState(

@@ -48,14 +48,6 @@ class CommissionCommand(IndividualCommand):
     def email(self):
         return self.commission.user.email
 
-    @property
-    def price(self):
-        return 0
-
-    @property
-    def discount(self):
-        return get_config().vip_percentage_discount / 100
-
     def distribute(self):
         if self.state != PREPARED_STATE:
             raise InvalidState()

@@ -13,9 +13,6 @@ class Configuration(models.Model):
     gucem_percentage_discount = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(100)],
     )
-    vip_percentage_discount = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(100)],
-    )
 
     bvc_manager_mail = models.EmailField()
     treasurer_mail = models.EmailField()

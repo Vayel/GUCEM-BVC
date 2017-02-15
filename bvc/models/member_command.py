@@ -88,9 +88,7 @@ class MemberCommand(IndividualCommand):
 
     @property
     def discount(self):
-        if self.member.vip:
-            return get_config().vip_percentage_discount / 100
-        elif self.member.club == user.Member.ESMUG:
+        if self.member.club == user.Member.ESMUG:
             return get_config().esmug_percentage_discount / 100
         elif self.member.club == user.Member.GUCEM: 
             return get_config().gucem_percentage_discount / 100
