@@ -3,8 +3,8 @@ from django.conf import settings
 
 
 class Member(models.Model):
-    ESMUG = 'esmug' # -15%
-    GUCEM = 'gucem' # -18%
+    ESMUG = 'esmug'
+    GUCEM = 'gucem'
 
     CLUB_CHOICES = (
         (GUCEM, 'GUCEM'),
