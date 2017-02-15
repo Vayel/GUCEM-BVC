@@ -35,9 +35,6 @@ def contact_unsold_commands(request):
 
 # Users
 
-def home(request):
-    return render(request, 'bvc/home.html')
-
 def place_commission_command(request):
     context = {}
 
@@ -64,7 +61,7 @@ def place_commission_command(request):
 
     return render(request, 'bvc/place_commission_command.html', context)
 
-def place_member_command(request):
+def home(request):
     context = {}
 
     if request.method == 'POST':
@@ -109,7 +106,7 @@ def place_member_command(request):
                     )
 
                     messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
-                    return redirect('bvc:place_member_command')
+                    return redirect('bvc:home')
     else:
         user_form = forms.user.MemberUserCommand() 
         member_form = forms.user.MemberCommand() 
@@ -119,4 +116,4 @@ def place_member_command(request):
     context['member_form'] = member_form
     context['command_form'] = command_form
 
-    return render(request, 'bvc/place_member_command.html', context)
+    return render(request, 'bvc/home.html', context)

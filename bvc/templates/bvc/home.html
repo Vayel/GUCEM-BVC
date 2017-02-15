@@ -4,9 +4,79 @@
 {% block title %}BVC{% endblock %}
 
 {% block contents %}
-<p>Page d'accueil des BVC</p>
+<h2>Bons Vieux Campeur au GUCEM</h2>
 
-<a href="{% url 'bvc:place_member_command' %}">Commandes adhérents</a>
-<br/>
-<a href="{% url 'bvc:place_commission_command' %}">Commandes commissions</a>
+<p>
+  Questions : <strong>bvc@gucem.fr</strong>
+</p>
+
+<h3>Modalités</h3>
+
+<p>
+  Pour commander des bons Vieux Campeur (BVC) il suffit de
+  remplir le formulaire en bas de page.
+  Vous recevrez alors un mail lorsqu'elle sera
+  disponible.
+</p>
+
+<p>
+  La <strong>distribution</strong> des bons se fait
+  durant la <strong>permanence du mardi</strong>. Vous réglez en chèque (plus simple pour nous) ou espèces (merci
+  de préparer l'appoint) le montant après réduction et
+  récupérez des bons que vous pouvez donner directement au magasin en guise de
+  paiement. Si vous prévenez au préalable par mail le responsable des bons, une
+  personne <strong>autre que vous peut récupérer</strong> vos bons.
+</p>
+
+<p>
+  Le magasin <strong>ne rend pas la monnaie</strong>. Nous dosons donc
+  les bons de 10, 20 et 50 euros pour que vous puissiez approcher au plus près du prix de votre achat
+  sans pour autant avoir des paquets (de bons) énormes. Néanmoins,
+  si vous connaissez d'avance les <strong>dépenses faites
+  en une seule fois</strong> au magasin, merci de passer une commande pour chacune
+  et de cocher
+  la case correspondante dans le formulaire. Ainsi, nous savons que nous pouvons
+  vous donner 8 bons de 50 plutôt que 40 bons de 10 pour une dépense de 400 euros, ce qui est bien sûr plus
+  pratique. Exemples :
+  <ul>
+    <li>Je commande pour acheter <strong>en une fois</strong> un ou plusieurs objet(s), je passe <strong>une</strong> commande et <strong>coche</strong> la case</li>
+    <li>Je commande pour acheter <strong>en plusieurs fois</strong> deux objets (donc un à chaque fois), je passe <strong>deux</strong> commandes et <strong>coche</strong> la case pour chacune</li>
+    <li>Je commande mais ignore comment je vais dépenser mes bons, je passe <strong>une</strong> commande et <strong>ne coche pas</strong> la case</li>
+  </ul>
+
+  Dans le doute, <strong>ne cochez pas</strong> la case. Elle sert « juste » à nous
+  simplifier le travail.
+</p>
+
+<p>
+  Les commandes sont <strong>mensuelles</strong> : si vous commandez vos bons <strong>avant le 21 au soir</strong> du
+  mois n (par exemple, novembre), vous les recevrez au début du mois n+1
+  (décembre). Les commandes du mois n non récupérées avant le 21 du mois n+1
+  sont <strong>annulées</strong>. Exemples :
+  <ul>
+    <li>Je commande le <strong>12 septembre</strong>, je reçois mes bons début <strong>octobre</strong></li>
+    <li>Je commande le <strong>22 septembre</strong>, je reçois mes bons début <strong>novembre</strong></li>
+    <li>Je commande le <strong>20 septembre</strong> et <strong>ne passe pas</strong> chercher mes bons <strong>avant le 21 octobre</strong>, ma commande est <strong>annulée</strong></li>
+  </ul>
+</p>
+
+<h3>Passer commande</h3>
+
+<p>
+  Si vous êtes une <strong>commission</strong>, merci de commander sur
+  <a href="{% url 'bvc:place_commission_command' %}">cette page</a>.
+  Pour les <strong>adhérents</strong>, c'est ici :
+</p>
+
+<form action="{% url 'bvc:home' %}" method="POST">
+  {% csrf_token %}
+  
+  <table>
+    {{ user_form.as_table }}
+    {{ member_form.as_table }}
+    {{ command_form.as_table }}
+  </table>
+  
+  <input type="submit" value="Commander" />
+</form>
 {% endblock %}

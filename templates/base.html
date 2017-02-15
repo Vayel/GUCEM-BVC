@@ -9,16 +9,6 @@
   {% block style %}{% endblock %}
 </head>
 <body>
-  <header>
-    Un header commun
-
-    <nav>
-      <ul>
-        <li><a href="{% url 'bvc:home' %}">BVC</a></li>
-      </ul>
-    </nav>
-  </header>
-    
   {% if messages %}
   <ul class="messages">
       {% for message in messages %}
