@@ -27,22 +27,24 @@ class CommissionCommand(IndividualCommand):
     commission = models.ForeignKey(
         user.Commission,
         related_name='commands',
+        verbose_name='commission',
         on_delete=models.CASCADE,
     )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
         default=PLACED_STATE,
+        verbose_name='state',
     )
-    datetime_given = models.DateTimeField(null=True, blank=True)
-    reason = models.CharField(max_length=REASON_MAX_LEN)
+    datetime_given = models.DateTimeField(null=True, blank=True, verbose_name='date de distribution')
+    reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison')
 
     class Meta:
-        verbose_name = 'Commande commission'
-        verbose_name_plural = 'Commandes commissions'
+        verbose_name = 'Commande de commission'
+        verbose_name_plural = 'Commandes des commissions'
 
     def __str__(self):
-        return 'Commande commission n°{}'.format(self.id)
+        return 'Commande de commission n°{}'.format(self.id)
 
     @property
     def email(self):

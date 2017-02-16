@@ -56,45 +56,45 @@ def min_amount_to_place(margin=0):
 class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (
-        (PLACED_STATE, 'Commande passée au trésorier'),
-        (RECEIVED_STATE, 'Commande disponible en magasin'),
-        (PREPARED_STATE, 'Commande préparée'),
+        (PLACED_STATE, 'Passée au trésorier'),
+        (RECEIVED_STATE, 'Disponible en magasin'),
+        (PREPARED_STATE, 'Préparée'),
     )
 
     # Amounts in BVC value
     placed_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
-        verbose_name='Montant commandé',
+        verbose_name='montant commandé',
     )
     received_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
-        verbose_name='Montant reçu',
+        verbose_name='montant reçu',
     )
     # Can be different from received_amount in case of loss
     prepared_amount = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
-        verbose_name='Montant préparé',
+        verbose_name='montant préparé',
     )
     datetime_placed = models.DateTimeField(
         null=True, blank=True,
-        verbose_name='Date de commande',
+        verbose_name='date de commande',
     )
     datetime_received = models.DateField(
         null=True, blank=True,
-        verbose_name='Date de réception',
+        verbose_name='date de réception',
     )
     datetime_prepared = models.DateField(
         null=True, blank=True,
-        verbose_name='Date de préparation',
+        verbose_name='date de préparation',
     )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
         default=PLACED_STATE,
-        verbose_name='Etat',
+        verbose_name='état',
     )
 
     class Meta:

@@ -42,6 +42,7 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
     amount = forms.IntegerField(
         min_value=settings.BANK_DEPOSIT_CASH_MULTIPLE,
         validators=[models.validators.validate_cash_amount_multiple],
+        label='Montant',
     )
 
     class Meta:

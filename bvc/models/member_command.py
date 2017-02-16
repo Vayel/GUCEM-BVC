@@ -52,28 +52,36 @@ class MemberCommand(IndividualCommand):
 
     AUTO_BANKED_PAYMENT_TYPES = [CASH_PAYMENT]
 
-    member = models.ForeignKey(user.Member, related_name='commands', on_delete=models.CASCADE,)
+    member = models.ForeignKey(
+        user.Member,
+        related_name='commands',
+        on_delete=models.CASCADE,
+        verbose_name='membre',
+    )
     state = models.CharField(
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
         default=PLACED_STATE,
+        verbose_name='état',
     )
-    datetime_sold = models.DateTimeField(null=True, blank=True,)
+    datetime_sold = models.DateTimeField(null=True, blank=True, verbose_name='date de vente',)
     payment_type = models.CharField(
         null=True, blank=True,
         max_length=max(len(choice[0]) for choice in PAYMENT_TYPE_CHOICES),
         choices=PAYMENT_TYPE_CHOICES,
+        verbose_name='type de paiement',
     )
     bank_deposit = models.ForeignKey(
         bank_deposit.BankDeposit,
         on_delete=models.CASCADE,
         null=True,
         related_name='commands',
+        verbose_name='dépôt en banque',
     )
 
     class Meta:
-        verbose_name = 'Commande adhérent'
-        verbose_name_plural = 'Commandes adhérents'
+        verbose_name = "Commande d'adhérent"
+        verbose_name_plural = 'Commandes des adhérents'
 
     def __str__(self):
         return 'Commande adhérent n°{}'.format(self.id)

@@ -105,8 +105,13 @@ class VoucherOperation(models.Model):
     stock = models.PositiveSmallIntegerField(
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
+        verbose_name='stock',
     )
-    reason = models.CharField(max_length=REASON_MAX_LEN,)
+    reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison',)
+
+    class Meta:
+        verbose_name = 'opération de bons'
+        verbose_name_plural = 'opérations de bons'
 
     def __str__(self):
         return str(self.id)

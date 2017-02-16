@@ -29,8 +29,12 @@ def treasury_op_from_delta(delta, reason):
 class TreasuryOperation(models.Model):
     REASON_MAX_LEN = 200
 
-    stock = models.PositiveSmallIntegerField()
-    reason = models.CharField(max_length=REASON_MAX_LEN,)
+    stock = models.PositiveSmallIntegerField(verbose_name='stock',)
+    reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison',)
+
+    class Meta:
+        verbose_name = 'Opération de trésorerie'
+        verbose_name_plural = 'Opérations de trésorerie'
 
     @property
     def delta(self):

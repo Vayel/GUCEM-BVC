@@ -30,13 +30,17 @@ class Member(AbstractUser):
         (ESMUG, 'ESMUG'),
     )
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
-    license = models.CharField(max_length=12, unique=True,)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur',)
+    license = models.CharField(max_length=12, unique=True, verbose_name='licence',)
     club = models.CharField(
         max_length=max(len(choice[0]) for choice in CLUB_CHOICES),
         choices=CLUB_CHOICES,
         default=GUCEM,
+        verbose_name='club',
     )
+
+    class Meta:
+        verbose_name = 'adhérent'
 
     def __str__(self):
         return '{} {}'.format(
@@ -46,7 +50,10 @@ class Member(AbstractUser):
 
 
 class Commission(AbstractUser):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur',)
+
+    class Meta:
+        verbose_name = 'commission'
 
     def __str__(self):
         return self.user.username

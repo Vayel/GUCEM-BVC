@@ -17,15 +17,16 @@ class IndividualCommand(models.Model):
     amount = models.PositiveSmallIntegerField( # Amount before reduction
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
+        verbose_name='montant',
     )
-    comments = models.TextField(default='', blank=True,)
-    datetime_placed = models.DateTimeField(auto_now_add=True,)
-    datetime_prepared = models.DateField(null=True, blank=True,)
-    datetime_cancelled = models.DateField(null=True, blank=True,)
+    comments = models.TextField(default='', blank=True, verbose_name='commentaires',)
+    datetime_placed = models.DateTimeField(auto_now_add=True, verbose_name='date')
+    datetime_prepared = models.DateField(null=True, blank=True, verbose_name='date de préparation',)
+    datetime_cancelled = models.DateField(null=True, blank=True, verbose_name="date d'annulation",)
     # To make packets with high-value vouchers only.
     # For intance, if a member places a command to buy a 500-euro object, we can
     # give him 10 vouchers of 50 euros (he does not need 10-euro or 20-euro vouchers).
-    spent_at_once = models.BooleanField(default=False)
+    spent_at_once = models.BooleanField(default=False, verbose_name='dépensée en une fois',)
 
     class Meta:
         abstract = True

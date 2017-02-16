@@ -84,8 +84,8 @@ post_save.connect(send_deposit_file_callback)
 class BankDeposit(models.Model):
     REF_MAX_LEN = 20
 
-    datetime = models.DateField()
-    ref = models.CharField(max_length=REF_MAX_LEN,)
+    datetime = models.DateField(verbose_name='date')
+    ref = models.CharField(max_length=REF_MAX_LEN, verbose_name='référence')
 
     def __str__(self):
         if self.datetime is None:
@@ -96,7 +96,15 @@ class BankDeposit(models.Model):
 
 class CheckBankDeposit(models.Model):
     # Use OneToOneField to be able to refer to bank deposit by a foreign key
-    bank_deposit = models.OneToOneField(BankDeposit, related_name='check_deposit')
+    bank_deposit = models.OneToOneField(
+        BankDeposit,
+        related_name='check_deposit',
+        verbose_name='dépôt',
+    )
+
+    class Meta:
+        verbose_name = 'Dépôt de chèques'
+        verbose_name_plural = "Dépôts de chèques"
 
     def __str__(self):
         return 'BVC {}'.format(self.id)
@@ -107,8 +115,20 @@ class CheckBankDeposit(models.Model):
 
 
 class CashBankDeposit(models.Model):
-    bank_deposit = models.OneToOneField(BankDeposit, related_name='cash_deposit')
-    treasury_operation = models.OneToOneField(TreasuryOperation, related_name='bank_deposit',)
+    bank_deposit = models.OneToOneField(
+        BankDeposit,
+        related_name='cash_deposit',
+        verbose_name='dépôt',
+    )
+    treasury_operation = models.OneToOneField(
+        TreasuryOperation,
+        related_name='bank_deposit',
+        verbose_name='opération sur la trésorerie',
+    )
+
+    class Meta:
+        verbose_name = "Dépôt d'espèces"
+        verbose_name_plural = "Dépôts d'espèces"
 
     def __str__(self):
         return 'BVE {}'.format(self.id)
