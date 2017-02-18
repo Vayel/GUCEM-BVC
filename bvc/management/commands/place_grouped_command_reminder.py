@@ -9,4 +9,5 @@ class Command(ReminderCommand):
             'bvc/mails/place_grouped_command_reminder.txt',
             {},
             'Rappel : commande groupée',
+            *args, **options
         )

@@ -8,5 +8,6 @@ class Command(ReminderCommand):
         super().handle(
             'bvc/mails/warn_about_cancellation_reminder.txt',
             {},
-            'Rappel : commandes bientôt annulées'
+            'Rappel : commandes bientôt annulées',
+            *args, **options
         )

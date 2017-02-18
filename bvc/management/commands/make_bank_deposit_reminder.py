@@ -8,5 +8,6 @@ class Command(ReminderCommand):
         super().handle(
             'bvc/mails/make_bank_deposit_reminder.txt',
             {},
-            'Rappel : dépôt en banque'
+            'Rappel : dépôt en banque',
+            *args, **options
         )

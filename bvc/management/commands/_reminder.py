@@ -13,4 +13,4 @@ class ReminderCommand(BaseCommand):
             render_to_string(template, context),
             get_config().bvc_manager_mail,
             to or [get_config().bvc_manager_mail],
-)
+        )
