@@ -1,0 +1,5 @@
+{% extends "bvc/mails/base.txt" %}
+
+{% block contents %}
+Rappel : faire un dépôt en banque.
+{% endblock %}

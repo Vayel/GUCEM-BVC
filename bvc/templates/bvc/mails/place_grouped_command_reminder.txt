@@ -1,0 +1,5 @@
+{% extends "bvc/mails/base.txt" %}
+
+{% block contents %}
+Rappel : passer une commande groupée.
+{% endblock %}

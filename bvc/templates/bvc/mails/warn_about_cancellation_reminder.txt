@@ -1,0 +1,5 @@
+{% extends "bvc/mails/base.txt" %}
+
+{% block contents %}
+Rappel : envoyer le mail de rappel des commandes bientôt annulées via l'interface d'administration.
+{% endblock %}
