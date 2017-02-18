@@ -7,5 +7,5 @@ from .. import models
 
 admin_site.register(User)
 admin_site.register(Group)
-admin_site.register(models.user.Member)
-admin_site.register(models.user.Commission)
+admin_site.register(models.Member)
+admin_site.register(models.Commission)

@@ -25,6 +25,9 @@ class Configuration(models.Model):
         verbose_name='marge des commandes groupées',
     )
     grouped_command_day = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(MAX_DAY_NUMBER)],
+        # The minimum is 2 because the day before is the last one to place commands
+        # and it must be fixed. If grouped_command_day == 1, the last day to
+        # order vouchers can be 30, 31, 28, 29, and it is not convenient.
+        validators=[MinValueValidator(2), MaxValueValidator(MAX_DAY_NUMBER)],
         verbose_name='jour de commande groupée',
     )

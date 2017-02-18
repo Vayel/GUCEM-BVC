@@ -7,6 +7,11 @@ from .. import utils
 
 
 class AbstractUser(models.Model):
+    receive_reminder = models.BooleanField(
+        default=False,
+        verbose_name='reçoit le mail de rappel',
+    )
+
     class Meta:
         abstract = True
 
@@ -16,6 +21,16 @@ class AbstractUser(models.Model):
             render_to_string(
                 'bvc/mails/command_summary.txt',
                 {'commands': self.commands.all()}
+            ),
+            get_config().bvc_manager_mail
+        )
+
+    def remind_next_grouped_command(self):
+        self.user.email_user(
+            utils.format_mail_subject('La date limite de commande approche'),
+            render_to_string(
+                'bvc/mails/remind_next_grouped_command.txt',
+                {'day': get_config().grouped_command_day - 1}
             ),
             get_config().bvc_manager_mail
         )

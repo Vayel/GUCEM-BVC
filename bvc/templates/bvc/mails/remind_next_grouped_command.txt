@@ -1,0 +1,7 @@
+{% extends "bvc/mails/base.txt" %}
+
+{% block contents %}
+La date limite pour commander des bons ce mois-ci approche. Si tu commandes avant le {{ day }} au soir, tu les recevras environ une semaine après. Sinon, il te faudra attendre la distribution suivante, dans un peu plus d'un mois.
+
+Tu peux te désabonner de ces notifications sur la page de commande des bons.
+{% endblock %}

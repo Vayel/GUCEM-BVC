@@ -14,3 +14,6 @@ from .bank_deposit import BankDeposit, CashBankDeposit, CheckBankDeposit
 
 from . import treasury
 from .treasury import TreasuryOperation
+
+from . import user
+from .user import Commission, Member
