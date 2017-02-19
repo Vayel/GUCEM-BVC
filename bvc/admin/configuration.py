@@ -7,8 +7,11 @@ from .. import models
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = ['id',]
 
-    def has_add_permission(self, request, obj=None):
-        return not models.configuration.Configuration.objects.all().count()
+    def get_readonly_fields(self, request, instance=None):
+        if instance is None:
+            return []
+
+        return [f.name for f in self.model._meta.fields]
 
     def has_delete_permission(self, request, obj=None):
         return False
