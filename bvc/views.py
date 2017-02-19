@@ -90,11 +90,22 @@ def send_command_summary(request):
     if form.is_valid():
         try:
             user = User.objects.get(email=form.cleaned_data['email'])
-            member = models.user.Member.objects.get(user=user)
         except ObjectDoesNotExist:
+            club_user = None
+        else:
+            try:
+                club_user = models.user.Member.objects.get(user=user)
+            except ObjectDoesNotExist:
+                try:
+                    club_user = models.user.Commission.objects.get(user=user)
+                except ObjectDoesNotExist:
+                    club_user = None
+
+        try:
+            club_user.send_command_summary()
+        except AttributeError:
             messages.error(request, 'Tu ne sembles pas avoir déjà passé commande.')
         else:
-            member.send_command_summary()
             messages.success(request, 'Votre demande a bien été prise en compte, un mail vous a été envoyé.')
     else:
         messages.error(request, 'Merci de fournir une adresse mail.')
