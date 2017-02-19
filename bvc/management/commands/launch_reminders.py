@@ -7,6 +7,7 @@ from bvc.models import get_config, BankDeposit, GroupedCommand
 
 from . import make_bank_deposit_reminder
 from . import place_grouped_command_reminder
+from . import remind_next_grouped_command
 from . import warn_about_cancellation_reminder
 
 
@@ -47,3 +48,8 @@ class Command(BaseCommand):
         if now.day == (grouped_cmd_date - timedelta(days=8)).day:
             self.stdout.write('Warn about cancellation')
             warn_about_cancellation_reminder.Command().handle()
+
+        # Warn about last day to order approaching
+        if now.day == (grouped_cmd_date - timedelta(days=8)).day:
+            self.stdout.write('Remind next grouped command')
+            remind_next_grouped_command.Command().handle()
