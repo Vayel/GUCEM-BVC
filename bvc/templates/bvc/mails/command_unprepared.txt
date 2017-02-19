@@ -1,4 +1,4 @@
 {% extends "bvc/mails/base.txt" %}
 {% block contents %}
-Ta commande de {{ cmd.amount }} euros de bons Vieux Campeur n'a malheureusement pas pu être satisfaite ce mois-ci. Elle passe donc prioritaire et devrait être disponible le mois prochain.
+Votre commande de {{ cmd.amount }} euros de bons Vieux Campeur n'a malheureusement pas pu être satisfaite ce mois-ci. Elle passe donc prioritaire et devrait être disponible le mois prochain.
 {% endblock %}

@@ -1,11 +1,11 @@
 {% extends "bvc/mails/base.txt" %}
 
 {% block contents %}
-Tu as actuellement les commandes de bons suivantes :
+Vous avez actuellement les commandes de bons suivantes :
 {% for cmd in commands %}{% if cmd.state == 'placed' or cmd.state == 'prepared' %}
 Montant : {{ cmd.amount }} euros
 Prix : {{ cmd.price }} euros
 Disponible : {% if cmd.state == 'placed' %}non{% elif cmd.state == 'prepared' %}oui{% endif %}
 {% endif %}{% endfor %}
-Tu recevras un mail pour chaque commande quand elle sera disponible.
+Vous recevrez un mail pour chaque commande quand elle sera disponible.
 {% endblock %}

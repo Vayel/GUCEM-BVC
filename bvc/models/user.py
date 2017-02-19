@@ -17,7 +17,7 @@ class AbstractUser(models.Model):
 
     def send_command_summary(self):
         self.user.email_user(
-            utils.format_mail_subject('Récapitulatif des commandes'),
+            utils.format_mail_subject('Vos commandes en cours'),
             render_to_string(
                 'bvc/mails/command_summary.txt',
                 {'commands': self.commands.all()}
