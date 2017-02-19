@@ -31,3 +31,9 @@ class CommandSummary(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email',]
+
+
+class GroupedCommandReminder(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email',]

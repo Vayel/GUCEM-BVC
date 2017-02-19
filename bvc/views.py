@@ -36,6 +36,54 @@ def contact_unsold_commands(request):
 # Users
 
 @require_http_methods(["POST"])
+def subscribe_to_reminder(request):
+    form = forms.user.GroupedCommandReminder(request.POST) 
+
+    if form.is_valid():
+        try:
+            user = User.objects.get(email=form.cleaned_data['email'])
+        except ObjectDoesNotExist:
+            user = form.save()
+            user.username = user.email
+            user.last_name = 'Inconnu'
+            user.first_name = 'Inconnu'
+            user.save()
+
+            # If the user does not exist, it is necessary a member, not a commission
+            club_user = models.Member(
+                user=user,
+                license='',
+            )
+        else:
+            try:
+                club_user = models.user.Member.objects.get(user=user)
+            except ObjectDoesNotExist:
+                try:
+                    club_user = models.user.Commission.objects.get(user=user)
+                except ObjectDoesNotExist:
+                    # The user exists but not the club user
+                    club_user = models.Member(
+                        user=user,
+                        license='',
+                    )
+
+        club_user.receive_reminder = not club_user.receive_reminder
+        club_user.save()
+
+        if club_user.receive_reminder:
+            msg = ("Vous recevrez un rappel par mail à l'approche de la date "
+                   "limite de commande.")
+        else:
+            msg = ("Vous ne recevrez plus de rappel par mail à l'approche de "
+                   "la date limite de commande.")
+        messages.success(request, msg)
+    else:
+        messages.error(request, 'Merci de fournir une adresse mail.')
+
+    return redirect('bvc:home')
+
+
+@require_http_methods(["POST"])
 def send_command_summary(request):
     form = forms.user.CommandSummary(request.POST) 
 
@@ -122,5 +170,9 @@ def home(request):
     context['member_form'] = member_form
     context['command_form'] = command_form
     context['command_summary_form'] = forms.user.CommandSummary() 
+    context['grouped_cmd_reminder_form'] = forms.user.GroupedCommandReminder() 
+    context['grouped_command_day'] = models.get_config().grouped_command_day
+    context['last_day_to_command'] = models.get_config().grouped_command_day - 1
+    context['bvc_manager_mail'] = models.get_config().bvc_manager_mail
 
     return render(request, 'bvc/home.html', context)
