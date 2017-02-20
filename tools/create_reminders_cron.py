@@ -6,6 +6,14 @@ JOB_COMMENT = 'BVC reminders'
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
+def bold(txt):
+    return "\033[1m" + txt + "\033[0m"
+
+
+def red(txt):
+    return "\033[31m" + txt + "\033[0m"
+
+
 def create():
     cron = CronTab(user=True)
 
@@ -20,7 +28,10 @@ def create():
         job.hour.on(1)
         job.minute.on(0)
     else:
-        print('A job with the comment {} already exists.'.format(JOB_COMMENT))
+        print(bold(red(
+            "A job with the comment '{}' already exists. See it with 'crontab "
+            "-e'.".format(JOB_COMMENT)
+        )))
         return
 
     cron.write_to_user(user=True)
