@@ -18,6 +18,6 @@ from django.conf.urls import include, url
 from bvc.admin.site import admin_site
 
 urlpatterns = [
-    url(r'^bvc/', include('bvc.urls')),
+    url(r'^', include('bvc.urls')),
     url(r'^admin/', admin_site.urls),
 ]
