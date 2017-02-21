@@ -10,11 +10,11 @@
 </head>
 <body>
   {% if messages %}
-  <ul class="messages">
+  <div class="messages">
       {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        <div{% if message.tags %} class="message {{ message.tags }}"{% endif %}>{{ message }}</div><br/>
       {% endfor %}
-  </ul>
+  </div>
   {% endif %}
 
   <div id="contents">{% block contents %}{% endblock %}</div>
