@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 MAX_DAY_NUMBER = 28  # February has only 28 days
@@ -12,12 +11,12 @@ def get_config():
 
 
 def get_config_val(key):
-    try:
-        cfg = get_config()
-    except ObjectDoesNotExist:
+    cfg = get_config()
+
+    if cfg is None:
         return None
-    else:
-        return cfg.__dict__.get(key, None)
+
+    return cfg.__dict__.get(key, None)
 
 
 # One row is created each time the configuration is modified to keep an history
