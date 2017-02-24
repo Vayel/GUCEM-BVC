@@ -1,6 +1,5 @@
 #!/bin/sh
 
-DIR=$(cd "$(dirname "$0")" && pwd)
-
-source "$DIR/bvc/bin/activate"
-source "$1"
+# The working dir must be the tools dir
+source ./bvc/bin/activate
+source ./vars.sh
