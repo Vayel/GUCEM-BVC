@@ -73,7 +73,8 @@ class IndividualCommand(models.Model):
 
     def warn_about_cancellation(self):
         if self.state != PREPARED_STATE:
-            raise InvalidState("La commande {} n'est pas dans le bon état pour être annulée.".format(self))
+            raise InvalidState("La commande {} n'est pas préparée, impossible "
+                               "de prévenir son annulation.".format(self))
 
         send_mail(
             utils.format_mail_subject('Commande bientôt annulée'),

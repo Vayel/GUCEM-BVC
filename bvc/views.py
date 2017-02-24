@@ -1,3 +1,6 @@
+import logging
+from smtplib import SMTPException
+
 import django.db.models
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -13,6 +16,8 @@ from . import models
 from . import forms
 from . import utils
 
+logger = logging.getLogger(__name__)
+
 
 # Manager
 
@@ -24,7 +29,7 @@ def contact_unsold_commands(request):
     )
 
     for cmd in commands:
-        cmd.warn_about_cancellation() 
+        cmd.warn_about_cancellation()
 
     messages.success(
         request,
@@ -37,7 +42,7 @@ def contact_unsold_commands(request):
 
 @require_http_methods(["POST"])
 def subscribe_to_reminder(request):
-    form = forms.user.GroupedCommandReminder(request.POST) 
+    form = forms.user.GroupedCommandReminder(request.POST)
 
     if form.is_valid():
         try:
@@ -85,7 +90,7 @@ def subscribe_to_reminder(request):
 
 @require_http_methods(["POST"])
 def send_command_summary(request):
-    form = forms.user.CommandSummary(request.POST) 
+    form = forms.user.CommandSummary(request.POST)
 
     if form.is_valid():
         try:
@@ -104,9 +109,13 @@ def send_command_summary(request):
         try:
             club_user.send_command_summary()
         except AttributeError:
-            messages.error(request, 'Tu ne sembles pas avoir déjà passé commande.')
+            messages.error(request, 'Vous ne semblez pas avoir déjà passé commande.')
+        except SMTPException:
+            logger.exception('Cannot send command summary mail.')
+            messages.error(request, "L'envoi du mail a échoué.")
         else:
-            messages.success(request, 'Votre demande a bien été prise en compte, un mail vous a été envoyé.')
+            messages.success(request, 'Votre demande a bien été prise en compte, '
+                                      'un mail vous a été envoyé.')
     else:
         messages.error(request, 'Merci de fournir une adresse mail.')
 
@@ -117,16 +126,24 @@ def place_commission_command(request):
     context = {}
 
     if request.method == 'POST':
-        form = forms.commission_command.PlaceCommissionCommand(request.POST) 
+        form = forms.commission_command.PlaceCommissionCommand(request.POST)
 
         if form.is_valid():
             cmd = form.save()
-            cmd.commission.send_command_summary()
 
-            messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
+            try:
+                cmd.commission.send_command_summary()
+            except SMTPException:
+                logger.exception('Cannot send command summary mail after commission command.')
+                messages.error(request, "Votre commande a bien été passée mais "
+                                        "l'envoi du mail a provoqué une erreur.")
+            else:
+                messages.success(request, 'Votre commande a bien été '
+                                          'passée. Un mail vous a été envoyé.')
+
             return redirect('bvc:place_commission_command')
     else:
-        form = forms.commission_command.PlaceCommissionCommand() 
+        form = forms.commission_command.PlaceCommissionCommand()
 
     context['form'] = form
 
@@ -141,13 +158,13 @@ def home(request):
         member_form = forms.user.MemberCommand(request.POST)
         command_form = forms.member_command.PlaceMemberCommand(request.POST)
 
-        try:
-            user = User.objects.get(email=user_form.cleaned_data['email'])
-            user_form = forms.user.MemberUserCommand(request.POST, instance=user)
-        except ObjectDoesNotExist:
-            pass
-
         if user_form.is_valid():
+            try:
+                user = User.objects.get(email=user_form.cleaned_data['email'])
+                user_form = forms.user.MemberUserCommand(request.POST, instance=user)
+            except ObjectDoesNotExist:
+                pass
+
             user = user_form.save()
             user.username = user.email
             user.save()
@@ -168,20 +185,27 @@ def home(request):
                     command.member = member
                     command.save()
 
-                    member.send_command_summary()
+                    try:
+                        member.send_command_summary()
+                    except SMTPException:
+                        logger.exception('Cannot send command summary mail after member command.')
+                        messages.error(request, "Votre commande a bien été passée mais "
+                                                "l'envoi du mail a provoqué une erreur.")
+                    else:
+                        messages.success(request, 'Votre commande a bien été '
+                                                  'passée. Un mail vous a été envoyé.')
 
-                    messages.success(request, 'Votre command a bien été passée. Un mail vous a été envoyé.')
                     return redirect('bvc:home')
     else:
-        user_form = forms.user.MemberUserCommand() 
-        member_form = forms.user.MemberCommand() 
-        command_form = forms.member_command.PlaceMemberCommand() 
+        user_form = forms.user.MemberUserCommand()
+        member_form = forms.user.MemberCommand()
+        command_form = forms.member_command.PlaceMemberCommand()
 
     context['user_form'] = user_form
     context['member_form'] = member_form
     context['command_form'] = command_form
-    context['command_summary_form'] = forms.user.CommandSummary() 
-    context['grouped_cmd_reminder_form'] = forms.user.GroupedCommandReminder() 
+    context['command_summary_form'] = forms.user.CommandSummary()
+    context['grouped_cmd_reminder_form'] = forms.user.GroupedCommandReminder()
     context['grouped_command_day'] = models.get_config().grouped_command_day
     context['last_day_to_command'] = models.get_config().grouped_command_day - 1
     context['bvc_manager_mail'] = models.get_config().bvc_manager_mail

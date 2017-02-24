@@ -1,3 +1,5 @@
+from smtplib import SMTPException
+
 from django.contrib import admin, messages
 from django.utils.timezone import now
 
@@ -29,6 +31,12 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                     str(e),
                     level=messages.ERROR
                 )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
+                    level=messages.ERROR
+                )
 
     def cancel(self, request, queryset):
         for cmd in queryset:
@@ -38,6 +46,12 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                 self.message_user(
                     request,
                     str(e),
+                    level=messages.ERROR
+                )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
                     level=messages.ERROR
                 )
     
@@ -51,6 +65,12 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                     str(e),
                     level=messages.ERROR
                 )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
+                    level=messages.ERROR
+                )
     
     def warn_about_cancellation(self, request, queryset):
         for cmd in queryset:
@@ -60,6 +80,12 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                 self.message_user(
                     request,
                     str(e),
+                    level=messages.ERROR
+                )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
                     level=messages.ERROR
                 )
 
@@ -81,6 +107,12 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                     "La commande {} n'est pas dans le bon état pour être vendue.".format(cmd),
                     level=messages.ERROR
                 )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
+                    level=messages.ERROR
+                )
 
     def sell_by_check(self, request, queryset):
         self.sell(request, queryset, models.command.CHECK_PAYMENT)
@@ -96,6 +128,12 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                 self.message_user(
                     request,
                     "La commande {} n'est pas dans le bon état pour être déposée en banque.".format(cmd),
+                    level=messages.ERROR
+                )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
                     level=messages.ERROR
                 )
     
@@ -115,6 +153,12 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                     "La commande {} ne peut être retirée du dépôt en banque du fait de son type de paiment ({}).".format(cmd, cmd.payment_type),
                     level=messages.ERROR
                 )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
+                    level=messages.ERROR
+                )
 
 
 class CommissionCommandAdmin(IndividualCommandAdmin):
@@ -131,6 +175,12 @@ class CommissionCommandAdmin(IndividualCommandAdmin):
                 self.message_user(
                     request,
                     "La commande {} n'est pas dans le bon état pour être distribuée.".format(cmd),
+                    level=messages.ERROR
+                )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
                     level=messages.ERROR
                 )
 

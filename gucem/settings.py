@@ -158,6 +158,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Emails
 
+EMAIL_BACKEND = 'bvc.backends.email.EmailBackend'
 EMAIL_HOST = os.environ['GUCEM_MAIL_HOST']
 EMAIL_PORT = os.environ['GUCEM_MAIL_PORT']
 EMAIL_HOST_USER = os.environ['GUCEM_MAIL_USER']

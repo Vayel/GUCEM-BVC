@@ -12,7 +12,7 @@ class BankDepositAdmin(admin.ModelAdmin):
 class CheckBankDepositAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'amount']
     form = forms.bank_deposit.CheckBankDepositAdminForm
- 
+
     def has_delete_permission(self, request, obj=None):
         return False
 
@@ -21,7 +21,7 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
-    
+
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
 
@@ -55,7 +55,7 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
 class CashBankDepositAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'amount']
     form = forms.bank_deposit.CashBankDepositAdminForm
- 
+
     def has_delete_permission(self, request, obj=None):
         return False
 
@@ -64,7 +64,7 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
-    
+
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
 
