@@ -55,14 +55,20 @@
         <h2>{% trans 'Tools' %}</h2>
 
         <p>
+        {% if has_unsent_mails %}
+            <p><strong><a style="color: red;" href="{% url 'bvcadmin:bvc_email_changelist' %}">
+              Envoyer les mails non envoyés
+            </a></strong></p>
+        {% endif %}
+
         {% if current_grouped_command is not None %}
-            <a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
+            <p><a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
             {% if current_grouped_command.state == 'placed' %}    
                 Recevoir la commande groupée
             {% else %}
                 Préparer la commande groupée
             {% endif %}
-            </a>
+            </a></p>
         {% endif %}
         </p>
 
