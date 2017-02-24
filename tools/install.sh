@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR=$(cd "$(dirname "$0")" && pwd)
 
 echo "Please make sure:"
 echo "* the Django app is configured for production (https://docs.djangoproject.com/fr/1.10/howto/deployment/checklist/)"
