@@ -4,7 +4,15 @@
 {% block title %}Commandes BVC commission{% endblock %}
 
 {% block contents %}
-<p>Commandes commissions</p>
+<h1>Commande de bons Vieux Campeur pour les commissions</h1>
+
+<p>
+  Si vous êtes un adhérent, merci de commander <a href="{% url 'bvc:home' %}#passer-commande">ici</a>.
+</p>
+
+<p>
+  <a href="{% url 'bvc:home' %}">Retour à la page des bons</a>
+</p>
 
 <form action="{% url 'bvc:place_commission_command' %}" method="POST">
   {% csrf_token %}

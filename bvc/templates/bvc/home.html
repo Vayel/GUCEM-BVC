@@ -8,11 +8,11 @@
 
 <p>
   Questions : <strong>{{ bvc_manager_mail }}</strong>
-  
+</p>
+
 <p>
   Vous pouvez recevoir par mail la liste de vos commandes en cours en remplissant
   ce formulaire :
-</p>
 
 <form action="{% url 'bvc:send_command_summary' %}" method="POST">
   {% csrf_token %}
@@ -83,7 +83,7 @@
 </p>
 
 
-<h3>Passer commande</h3>
+<h3 id="passer-commande">Passer commande</h3>
 
 <p>
   Si vous êtes une <strong>commission</strong>, merci de commander sur
