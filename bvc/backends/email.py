@@ -28,22 +28,22 @@ class EmailBackend(smtp.EmailBackend):
 
 
     def send_messages(self, email_messages):
-        sent = 0
+        total_sent = 0
         exc = None
 
         for msg in email_messages:
             try:
-                n = super().send_messages([msg])
+                n_sent = super().send_messages([msg])
             except SMTPException as e:
                 exc = e
+                n_sent = 0
+
+            total_sent += n_sent
+            if not n_sent:
                 self.save_mail(msg)
-            else:
-                sent += n
-                if not n:
-                    self.save_mail(msg)
 
         # Propagate exception
         if exc is not None:
             raise exc
 
-        return sent
+        return total_sent
