@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Commandes BVC préparées{% endblock %}
+
+{% block style %}
+<style>
+  table {
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+
+  td, th {
+    border: 1px solid #000;
+    padding: 5px;
+  }
+</style>
+{% endblock %}
+
+{% block contents %}
+{% if member_commands.count %}
+  <table>
+    <tr>
+      <th>Prénom</th>
+      <th>Nom</th>
+      <th>Bons</th>
+      <th>Prix</th>
+      <th>Paiement</th>
+    </tr>
+
+  {% for cmd in member_commands %}
+    <tr>
+      <td>{{ cmd.member.user.first_name }}</td>
+      <td>{{ cmd.member.user.last_name }}</td>
+      <td>{{ cmd.amount }}</td>
+      <td>{{ cmd.price }}</td>
+      <td></td>
+    </tr>
+  {% endfor %}
+  </table>
+{% endif %}
+
+{% if commission_commands.count %}
+  <table>
+    <tr>
+      <th>Commission</th>
+      <th>Bons</th>
+      <th>Distribuée</th>
+    </tr>
+
+  {% for cmd in commission_commands %}
+    <tr>
+      <td>{{ cmd.commission.user.username }}</td>
+      <td>{{ cmd.amount }}</td>
+      <th></th>
+    </tr>
+  {% endfor %}
+  </table>
+{% endif %}
+{% endblock %}

@@ -1,7 +1,9 @@
 import logging
 from smtplib import SMTPException
+from itertools import chain
 
 import django.db.models
+from django.db.models.functions import Lower
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -20,6 +22,20 @@ logger = logging.getLogger(__name__)
 
 
 # Manager
+
+@staff_member_required
+def print_prepared_commands(request):
+    context = {
+        'member_commands': models.MemberCommand.objects.filter(
+            state=models.command.PREPARED_STATE
+        ).order_by(Lower('member__user__last_name'), Lower('member__user__first_name')),
+        'commission_commands': models.CommissionCommand.objects.filter(
+            state=models.command.PREPARED_STATE
+        ).order_by(Lower('commission__user__username')),
+    }
+
+    return render(request, 'bvc/print_prepared_commands.html', context)
+
 
 @staff_member_required
 @require_http_methods(["POST"])

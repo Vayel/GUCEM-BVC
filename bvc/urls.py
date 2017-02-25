@@ -11,4 +11,6 @@ urlpatterns = [
         name='place_commission_command'),
     url(r'^rappel-annulation-commande$', views.contact_unsold_commands,
         name='contact_unsold_commands'),
+    url(r'^tableau-commandes-preparees$', views.print_prepared_commands,
+        name='print_prepared_commands'),
 ]

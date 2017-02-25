@@ -61,6 +61,12 @@
             </a></strong></p>
         {% endif %}
 
+        <p>
+          <a href="{% url 'bvc:print_prepared_commands' %}">
+            Imprimer les commandes préparées
+          </a>
+        </p>
+
         {% if current_grouped_command is not None %}
             <p><a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
             {% if current_grouped_command.state == 'placed' %}    
