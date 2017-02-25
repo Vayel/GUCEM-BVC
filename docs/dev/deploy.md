@@ -20,5 +20,10 @@ Puis installons l'application :
 
 ## Configurer l'application
 
-* Dans l'environnement virtuel, lancer l'application comme expliqué [ici](https://github.com/GrahamDumpleton/mod_wsgi#using-mod_wsgi-express-with-django)
+* Démarrer le serveur : à la racine du projet, `./runserver.sh`
 * Sur le site, dans la partie d'administration (`/admin`), créer une configuration
+* Créer également les commissions
+    * Le mot de passe n'a pas d'importance
+    * L'adresse mail est obligatoire
+    * Le nom d'utilisateur est le nom de la commission, de préférence avec une majuscule au début
+    * Le prénom et le nom de famille n'ont pas d'importance
