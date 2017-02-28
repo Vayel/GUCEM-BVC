@@ -2,13 +2,13 @@
 
 DIR=$(cd "$(dirname "$0")" && pwd)
 
-source "$DIR/work_in_env.sh"
+. "$DIR/work_in_env.sh"
 
 echo "Please make sure:"
 echo "* the Django app is configured for production (https://docs.djangoproject.com/fr/1.10/howto/deployment/checklist/)"
 echo "* all dependencies are installed (cf. the documentation of deployment)"
 echo "Quit (Ctrl+C) if it is not the case, else press ENTER"
-read
+read x
 
 echo ""
 echo "=============================="

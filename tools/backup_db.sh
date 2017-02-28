@@ -15,4 +15,4 @@ sqlite3 "../db.sqlite3" <<EOF
 .exit
 EOF
 
-gdrive upload -p $DRIVE_FILE_ID $DUMP_FNAME
+gdrive update $DRIVE_FILE_ID $DUMP_FNAME
