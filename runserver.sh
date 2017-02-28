@@ -3,7 +3,7 @@
 DIR=$(cd "$(dirname "$0")" && pwd)
 
 cd "$DIR/tools"
-source ./work_in_env.sh
+. ./work_in_env.sh
 
 cd ..
 
