@@ -52,7 +52,7 @@ echo "Creating the cron task for database backup"
 echo "=========================================="
 echo ""
 
-echo TODO
+python "$DIR"/create_db_backup_cron.py
 
 echo ""
 echo "==================="
