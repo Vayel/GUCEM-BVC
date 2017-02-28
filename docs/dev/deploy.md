@@ -15,16 +15,16 @@ Puis installons l'application :
 
 * Cloner ce dépôt
 * Se rendre dans le dossier `tools` et créer un environnement virtuel `bvc` en Python 3 : `virtualenv bvc -p python3`
-* Personnaliser les variables d'environnement contenues dans le fichier `env_vars.sh`. Il est possible de placer ce fichier dans un autre répertoire.
-* Travailler dans l'environnement virtuel : `source ./work_in_env.sh <chemin-fichier-variables-env>`
+* Personnaliser les variables d'environnement contenues dans le fichier `vars.sh`.
+* Travailler dans l'environnement virtuel : `. ./work_in_env.sh`
 * S'assurer que Django est configuré pour la [production](https://docs.djangoproject.com/fr/1.10/howto/deployment/checklist/)
-* Personnaliser le script de sauvegarde de la base (`tools/backup_db.sh`) en spécifiant l'identifiant du fichier de sauvegarde sur GDrive (le créer s'il n'existe pas)
+* Personnaliser le script de sauvegarde de la base (`tools/backup_db.sh`) en spécifiant l'identifiant du fichier de sauvegarde sur GDrive (s'il n'existe pas, le créer en important à la main un fichier .sql et récupérer son id avec `gdrive list`)
 * Lancer le script d'installation : `./install.sh`
 * [Configurer mod_wsgi pour Django](https://github.com/GrahamDumpleton/mod_wsgi#using-mod_wsgi-express-with-django)
 
 ## Configurer l'application
 
-* Démarrer le serveur : à la racine du projet, `./runserver.sh`
+* Démarrer le serveur : à la racine du projet, `./runserver.sh` (la page `/` renverra une erreur tant que le point ci-dessous n'aura pas été fait)
 * Sur le site, dans la partie d'administration (`/admin`), créer une configuration
 * Créer également les commissions
     * Le mot de passe n'a pas d'importance
