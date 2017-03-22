@@ -29,7 +29,7 @@ def treasury_op_from_delta(delta, reason):
 class TreasuryOperation(models.Model):
     REASON_MAX_LEN = 200
 
-    stock = models.PositiveSmallIntegerField(verbose_name='stock',)
+    stock = models.DecimalField(max_digits=7, decimal_places=2, verbose_name='stock',)
     reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison',)
 
     class Meta:

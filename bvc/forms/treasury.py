@@ -4,7 +4,7 @@ from .. import models
 
 
 class TreasuryOperationAdminForm(forms.ModelForm):
-    delta = forms.FloatField(initial=0)
+    delta = forms.DecimalField(initial=0)
 
     class Meta:
         model = models.TreasuryOperation
