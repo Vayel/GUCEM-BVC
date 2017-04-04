@@ -1,7 +1,9 @@
 {% extends "bvc/mails/base.txt" %}
 {% block contents %}
 Votre commande de bons Vieux Campeur est disponible. Vous pouvez venir la 
-récupérer à la permanence le mardi de 18h30 à 20h.
+récupérer à la permanence le mardi de 18h30 à 20h. Votre commande sera annulée
+si vous ne passez pas la récupérer dans les trois prochaines semaines (avant la date
+limite de commande de ce mois-ci).
 
 Montant BVC : {{ amount }}
 Montant à payer : {{ price }}
