@@ -74,7 +74,7 @@ class MemberCommand(IndividualCommand):
     bank_deposit = models.ForeignKey(
         bank_deposit.BankDeposit,
         on_delete=models.CASCADE,
-        null=True,
+        null=True, blank=True,
         related_name='commands',
         verbose_name='dépôt en banque',
     )
