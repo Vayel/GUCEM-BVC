@@ -5,7 +5,7 @@ from django.utils.timezone import now
 
 from .site import admin_site
 from .individual_command import IndividualCommandAdmin
-from .. import models
+from .. import models, forms
 
 
 class CommissionCommandAdmin(IndividualCommandAdmin):
@@ -13,6 +13,23 @@ class CommissionCommandAdmin(IndividualCommandAdmin):
                     'voucher_distrib', 'reason', 'comments']
     actions = ['distribute',]
     ordering = ['datetime_placed']
+    fields = forms.commission_command.CommissionCommandAdminForm.Meta.fields
+    form = forms.commission_command.CommissionCommandAdminForm
+    
+    def get_readonly_fields(self, request, instance=None):
+        if instance: # Editing an existing object
+            fields = self.fields + []
+
+            if (instance.state == models.command.PLACED_STATE or
+                instance.state == models.command.TO_BE_PREPARED_STATE or
+                instance.state == models.command.RECEIVED_STATE or
+                instance.state == models.command.PREPARED_STATE):
+
+                fields.remove('amount')
+
+            return fields
+
+        return self.readonly_fields or []
 
     def distribute(self, request, queryset):
         for cmd in queryset:
