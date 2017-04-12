@@ -1,0 +1,35 @@
+from smtplib import SMTPException
+
+from django.contrib import admin, messages
+from django.utils.timezone import now
+
+from .site import admin_site
+from .individual_command import IndividualCommandAdmin
+from .. import models
+
+
+class CommissionCommandAdmin(IndividualCommandAdmin):
+    list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',
+                    'voucher_distrib', 'reason', 'comments']
+    actions = ['distribute',]
+    ordering = ['datetime_placed']
+
+    def distribute(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.distribute()
+            except models.command.InvalidState:
+                self.message_user(
+                    request,
+                    "La commande {} n'est pas dans le bon état pour être distribuée.".format(cmd),
+                    level=messages.ERROR
+                )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
+                    level=messages.ERROR
+                )
+
+
+admin_site.register(models.CommissionCommand, CommissionCommandAdmin)

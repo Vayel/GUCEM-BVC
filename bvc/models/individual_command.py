@@ -46,6 +46,12 @@ class IndividualCommand(models.Model):
     def price(self):
         return 0
 
+    def amount_changed(self, old_amount):
+        if old_amount == self.amount:
+            return
+
+        voucher.update_stock(old_amount - self.amount, str(self))
+
     def prepare(self):
         if self.state != TO_BE_PREPARED_STATE:
             raise InvalidState(

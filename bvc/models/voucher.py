@@ -20,11 +20,15 @@ def get_stock():
         return 0
 
 
-def update_stock(delta, reason):
-    stock = get_stock() + delta
+def is_delta_valid(delta):
+    return get_stock() + delta >= 0
 
-    if stock < 0:
+
+def update_stock(delta, reason):
+    if not is_delta_valid(delta):
         raise ValueError("Il ne reste pas suffisamment de bons.")
+    
+    stock = get_stock() + delta
 
     op = VoucherOperation(stock=stock, reason=reason)
     op.save()
