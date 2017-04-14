@@ -1,10 +1,10 @@
 {% extends "bvc/mails/base.txt" %}
 
 {% block contents %}
-Votre commande de bons Vieux Campeur de {{ cmd.amount }} euros (prix : {{ cmd.price}} euros) sera annulée si vous ne la récupérez pas à la prochaine permanence du mardi.
+Ta commande de bons Vieux Campeur de {{ cmd.amount }} euros (prix : {{ cmd.price}} euros) sera annulée si tu ne la récupéres pas à la prochaine permanence du mardi.
 
-Si jamais vous ne pouvez pas passer, deux possibilités s'offrent à vous :
+Si jamais tu ne peux pas passer, deux possibilités s'offrent à toi :
 
-* Réitérer votre commande sur le site avant le {{ grouped_command_day } ; comme les autres, elle sera alors disponible environ une semaine après
-* Demander à quelqu'un d'autre de récupérer vos bons, en m'indiquant par mail le nom de cette personne
+* Soit tu réitères ta commande sur le site avant le {{ grouped_command_day } ;  elle sera alors disponible environ une semaine après comme les autres
+* Soit tu demandes à quelqu'un d'autre de récupérer tes bons, en m'indiquant par mail le nom de cette personne
 {% endblock %}
