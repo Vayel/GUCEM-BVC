@@ -1,7 +1,7 @@
 {% extends "bvc/mails/base.txt" %}
 
 {% block contents %}
-Votre commande de bons Vieux Campeur de {{ amount }} euros annulée le {{ cancel_date }} a été réactivée.
+Ta commande de bons Vieux Campeur de {{ amount }} euros annulée le {{ cancel_date }} a été réactivée.
 
-Vous recevrez un mail quand elle sera disponible.
+Tu recevras un mail quand elle sera disponible.
 {% endblock %}
