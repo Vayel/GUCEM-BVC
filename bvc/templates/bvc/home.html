@@ -11,7 +11,7 @@
 </p>
 
 <p>
-  Vous pouvez recevoir par mail la liste de vos commandes en cours en remplissant
+  Tu peux recevoir par mail la liste de tes commandes en cours en remplissant
   ce formulaire :
 
 <form action="{% url 'bvc:send_command_summary' %}" method="POST">
@@ -26,28 +26,28 @@
 <p>
   Pour commander des bons Vieux Campeur (BVC) il suffit de
   remplir le formulaire en bas de page.
-  Vous recevrez alors un mail lorsqu'elle sera
+  Tu recevras alors un mail lorsqu'elle sera
   disponible.
 </p>
 
 <p>
   La <strong>distribution</strong> des bons se fait
-  durant la <strong>permanence du mardi</strong>. Vous réglez en chèque (plus simple pour nous) ou espèces (merci
+  durant la <strong>permanence du mardi</strong>. Tu peux régler en chèque (plus simple pour nous) ou espèces (merci
   de préparer l'appoint) le montant après réduction et
-  récupérez des bons que vous pouvez donner directement au magasin en guise de
-  paiement. Si vous prévenez au préalable par mail le responsable des bons, une
-  personne <strong>autre que vous peut récupérer</strong> vos bons.
+  récupérez des bons que tu peux donner directement au magasin en guise de
+  paiement. Si tu préviens au préalable par mail le responsable des bons, une
+  personne <strong>autre que toi peut récupérer</strong> tes bons.
 </p>
 
 <p>
   Le magasin <strong>ne rend pas la monnaie</strong>. Nous dosons donc
-  les bons de 10, 20 et 50 euros pour que vous puissiez approcher au plus près du prix de votre achat
+  les bons de 10, 20 et 50 euros pour que tu puisses approcher au plus près du prix de ton achat
   sans pour autant avoir des paquets (de bons) énormes. Néanmoins,
-  si vous connaissez d'avance les <strong>dépenses faites
+  si tu connais d'avance les <strong>dépenses faites
   en une seule fois</strong> au magasin, merci de passer une commande pour chacune
   et de cocher
   la case correspondante dans le formulaire. Ainsi, nous savons que nous pouvons
-  vous donner 8 bons de 50 plutôt que 40 bons de 10 pour une dépense de 400 euros, ce qui est bien sûr plus
+  te donner 8 bons de 50 plutôt que 40 bons de 10 pour une dépense de 400 euros, ce qui est bien sûr plus
   pratique. Exemples :
   <ul>
     <li>Je commande pour acheter <strong>en une fois</strong> un ou plusieurs objet(s), je passe <strong>une</strong> commande et <strong>coche</strong> la case</li>
@@ -55,12 +55,12 @@
     <li>Je commande mais ignore comment je vais dépenser mes bons, je passe <strong>une</strong> commande et <strong>ne coche pas</strong> la case</li>
   </ul>
 
-  Dans le doute, <strong>ne cochez pas</strong> la case. Elle sert « juste » à nous
+  Dans le doute, <strong>ne coches pas</strong> la case. Elle sert « juste » à nous
   simplifier le travail.
 </p>
 
 <p>
-  Les commandes sont <strong>mensuelles</strong> : si vous commandez vos bons <strong>avant le {{ last_day_to_command }} au soir</strong>, vous les recevrez environ une semaine après cette date limite. Les commandes du mois n non récupérées avant le {{ last_day_to_command }} du mois n+1
+  Les commandes sont <strong>mensuelles</strong> : si tu commandes tes bons <strong>avant le {{ last_day_to_command }} au soir</strong>, vous les recevrez environ une semaine après cette date limite. Les commandes du mois n non récupérées avant le {{ last_day_to_command }} du mois n+1
   sont <strong>annulées</strong>. Exemples :
   <ul>
     <li>Je commande le <strong>{{ last_day_to_command }} septembre</strong>, je reçois mes bons environ une <strong>semaine</strong> après</li>
@@ -70,7 +70,7 @@
 </p>
 
 <p>
-  En renseignant votre mail ci-dessous, vous recevrez un rappel quelques jours avant
+  En renseignant votre mail ci-dessous, tu recevras un rappel quelques jours avant
   la date limite de commande. Si c'est déjà le cas, l'envoi du formulaire
   désactive les rappels.
 </p>
@@ -86,7 +86,7 @@
 <h3 id="passer-commande">Passer commande</h3>
 
 <p>
-  Si vous êtes une <strong>commission</strong>, merci de commander sur
+  Si t'es une <strong>commission</strong>, merci de commander sur
   <a href="{% url 'bvc:place_commission_command' %}">cette page</a>.
   Pour les <strong>adhérents</strong>, c'est ici :
 </p>
