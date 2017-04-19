@@ -3,7 +3,7 @@
 Ta commande de bons Vieux Campeur est disponible ! Tu peux venir la 
 récupérer à la permanence le mardi de 18h30 à 20h. 
 
-Attention ta commande sera annulée si tu ne passesz pas la récupérer 
+Attention ta commande sera annulée si tu ne passes pas la récupérer 
 dans les trois prochaines semaines (avant la date
 limite de commande de ce mois-ci).
 
@@ -12,5 +12,5 @@ Montant à payer : {{ price }}
 {% if price > 0 %}
 Merci de payer par chèque (ordre : GUCEM) ou de préparer l'appoint, il est difficile pour nous
 de rendre de la monnaie.
-Attention on ne prends pas la carte bleue !!
+Attention, on ne prend pas la carte bleue !
 {% endif %}{% endblock %}
