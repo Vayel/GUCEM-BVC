@@ -65,9 +65,10 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
         instance = super().save(commit=False)
 
         # Create the treasury operation
+        last_deposit = models.CashBankDeposit.objects.last()
         instance.treasury_operation = models.treasury.treasury_op_from_delta(
             self.get_delta(),
-            'BVE {}'.format(models.CashBankDeposit.objects.last().id + 1),
+            'BVE {}'.format(last_deposit.id + 1 if last_deposit is not None else 1),
         )
 
         models.member_command.bank_commands(
