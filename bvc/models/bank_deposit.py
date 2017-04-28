@@ -28,7 +28,7 @@ def fill_deposit_file_commands(writer, deposit):
 
     for cmd in deposit.bank_deposit.commands.all():
         writer.writerow([cmd.id, cmd.member.user.last_name, cmd.member.user.first_name,
-                         cmd.member.type, cmd.member.license, cmd.amount, cmd.price])
+                         cmd.member.club, cmd.member.license, cmd.amount, cmd.price])
 
     writer.writerow([])
 
