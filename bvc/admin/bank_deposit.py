@@ -46,7 +46,7 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         commands = models.MemberCommand.objects.filter(
             bank_deposit=instance.bank_deposit,
         )
-        return sum(cmd.amount for cmd in commands)
+        return sum(cmd.price for cmd in commands)
 
     def date(self, instance):
         return instance.bank_deposit.datetime
@@ -87,7 +87,7 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         treasury_ops = models.TreasuryOperation.objects.filter(
             bank_deposit=instance
         )
-        return (sum(cmd.amount for cmd in commands) -
+        return (sum(cmd.price for cmd in commands) -
                 sum(op.delta for op in treasury_ops))
 
     def date(self, instance):
