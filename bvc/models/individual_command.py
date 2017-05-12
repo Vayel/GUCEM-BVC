@@ -18,6 +18,7 @@ class IndividualCommand(models.Model):
         default=0,
         validators=[validators.validate_voucher_amount_multiple],
         verbose_name='montant',
+        help_text='Avant réduction.',
     )
     comments = models.TextField(default='', blank=True, verbose_name='commentaires',)
     datetime_placed = models.DateTimeField(auto_now_add=True, verbose_name='date')

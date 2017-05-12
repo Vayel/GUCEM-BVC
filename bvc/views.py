@@ -92,10 +92,10 @@ def subscribe_to_reminder(request):
         club_user.save()
 
         if club_user.receive_reminder:
-            msg = ("Vous recevrez un rappel par mail à l'approche de la date "
+            msg = ("Tu recevras un rappel par mail à l'approche de la date "
                    "limite de commande.")
         else:
-            msg = ("Vous ne recevrez plus de rappel par mail à l'approche de "
+            msg = ("Tu ne recevras plus de rappel par mail à l'approche de "
                    "la date limite de commande.")
         messages.success(request, msg)
     else:
@@ -125,13 +125,13 @@ def send_command_summary(request):
         try:
             club_user.send_command_summary()
         except AttributeError:
-            messages.error(request, 'Vous ne semblez pas avoir déjà passé commande.')
+            messages.error(request, 'Tu ne sembles pas avoir déjà passé commande.')
         except SMTPException:
             logger.exception('Cannot send command summary mail.')
             messages.error(request, "L'envoi du mail a échoué.")
         else:
-            messages.success(request, 'Votre demande a bien été prise en compte, '
-                                      'un mail vous a été envoyé.')
+            messages.success(request, 'Ta demande a bien été prise en compte, '
+                                      "un mail t'a été envoyé.")
     else:
         messages.error(request, 'Merci de fournir une adresse mail.')
 
@@ -151,11 +151,11 @@ def place_commission_command(request):
                 cmd.commission.send_command_summary()
             except SMTPException:
                 logger.exception('Cannot send command summary mail after commission command.')
-                messages.error(request, "Votre commande a bien été passée mais "
+                messages.error(request, "Ta commande a bien été passée mais "
                                         "l'envoi du mail a provoqué une erreur.")
             else:
-                messages.success(request, 'Votre commande a bien été '
-                                          'passée. Un mail vous a été envoyé.')
+                messages.success(request, 'Ta commande a bien été '
+                                          "passée. Un mail t'a été envoyé.")
 
             return redirect('bvc:place_commission_command')
     else:
@@ -205,11 +205,11 @@ def home(request):
                         member.send_command_summary()
                     except SMTPException:
                         logger.exception('Cannot send command summary mail after member command.')
-                        messages.error(request, "Votre commande a bien été passée mais "
+                        messages.error(request, "Ta commande a bien été passée mais "
                                                 "l'envoi du mail a provoqué une erreur.")
                     else:
-                        messages.success(request, 'Votre commande a bien été '
-                                                  'passée. Un mail vous a été envoyé.')
+                        messages.success(request, 'Ta commande a bien été '
+                                                  "passée. Un mail t'a été envoyé.")
 
                     return redirect('bvc:home')
     else:
@@ -224,6 +224,8 @@ def home(request):
     context['grouped_cmd_reminder_form'] = forms.user.GroupedCommandReminder()
     context['grouped_command_day'] = models.get_config().grouped_command_day
     context['last_day_to_command'] = models.get_config().grouped_command_day - 1
+    context['esmug_discount'] = models.get_config().esmug_percentage_discount 
+    context['gucem_discount'] = models.get_config().gucem_percentage_discount 
     context['bvc_manager_mail'] = models.get_config().bvc_manager_mail
 
     return render(request, 'bvc/home.html', context)

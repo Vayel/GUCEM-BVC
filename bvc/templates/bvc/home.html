@@ -33,10 +33,10 @@
 <p>
   La <strong>distribution</strong> des bons se fait
   durant la <strong>permanence du mardi</strong>. Tu peux régler en chèque (plus simple pour nous) ou espèces (merci
-  de préparer l'appoint) le montant après réduction et
-  récupérez des bons que tu peux donner directement au magasin en guise de
+  de préparer l'appoint) le montant après réduction (GUCEM : <strong>{{ gucem_discount }}%</strong> - ESMUG : <strong>{{ esmug_discount }}%</strong>) et
+  récupérer des bons que tu peux donner directement au magasin en guise de
   paiement. Si tu préviens au préalable par mail le responsable des bons, une
-  personne <strong>autre que toi peut récupérer</strong> tes bons.
+  personne autre que toi peut <strong>passer à ta place</strong>.
 </p>
 
 <p>
@@ -55,12 +55,12 @@
     <li>Je commande mais ignore comment je vais dépenser mes bons, je passe <strong>une</strong> commande et <strong>ne coche pas</strong> la case</li>
   </ul>
 
-  Dans le doute, <strong>ne coches pas</strong> la case. Elle sert « juste » à nous
+  Dans le doute, <strong>ne coche pas</strong> la case. Elle sert juste à nous
   simplifier le travail.
 </p>
 
 <p>
-  Les commandes sont <strong>mensuelles</strong> : si tu commandes tes bons <strong>avant le {{ last_day_to_command }} au soir</strong>, vous les recevrez environ une semaine après cette date limite. Les commandes du mois n non récupérées avant le {{ last_day_to_command }} du mois n+1
+  Les commandes sont <strong>mensuelles</strong> : si tu commandes tes bons <strong>avant le {{ last_day_to_command }} au soir</strong>, tu les recevras environ une semaine après cette date limite. Les commandes du mois n non récupérées avant le {{ last_day_to_command }} du mois n+1
   sont <strong>annulées</strong>. Exemples :
   <ul>
     <li>Je commande le <strong>{{ last_day_to_command }} septembre</strong>, je reçois mes bons environ une <strong>semaine</strong> après</li>
@@ -70,7 +70,7 @@
 </p>
 
 <p>
-  En renseignant votre mail ci-dessous, tu recevras un rappel quelques jours avant
+  En renseignant ton mail ci-dessous, tu recevras un rappel quelques jours avant
   la date limite de commande. Si c'est déjà le cas, l'envoi du formulaire
   désactive les rappels.
 </p>
@@ -86,7 +86,7 @@
 <h3 id="passer-commande">Passer commande</h3>
 
 <p>
-  Si t'es une <strong>commission</strong>, merci de commander sur
+  Si tu es une <strong>commission</strong>, merci de commander sur
   <a href="{% url 'bvc:place_commission_command' %}">cette page</a>.
   Pour les <strong>adhérents</strong>, c'est ici :
 </p>
