@@ -1,9 +1,10 @@
 {% extends "bvc/mails/base.txt" %}
 {% block contents %}
 Ta commande de bons Vieux Campeur est disponible ! Tu peux venir la 
-récupérer à la permanence le mardi de 18h30 à 20h. 
+récupérer à la permanence le mardi de 18h30 à 20h. Tu peux également demander à
+quelqu'un de passer pour toi (penser à lui dire de prendre un moyen de paiement).
 
-Attention ta commande sera annulée si tu ne passes pas la récupérer 
+Attention, ta commande sera annulée si tu ne la récupères
 dans les trois prochaines semaines (avant la date
 limite de commande de ce mois-ci).
 
@@ -12,5 +13,5 @@ Montant à payer : {{ price }}
 {% if price > 0 %}
 Merci de payer par chèque (ordre : GUCEM) ou de préparer l'appoint, il est difficile pour nous
 de rendre de la monnaie.
-Attention, on ne prend pas la carte bleue !
+Attention, on ne prend que les chèques ou les espèces, pas de carte bleue !
 {% endif %}{% endblock %}

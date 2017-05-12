@@ -32,11 +32,34 @@
 
 <p>
   La <strong>distribution</strong> des bons se fait
-  durant la <strong>permanence du mardi</strong>. Tu peux régler en chèque (plus simple pour nous) ou espèces (merci
+  durant la <a href="https://www.esmug-gucem.fr/gucem/contact/"><strong>permanence du mardi</strong></a>. Tu peux régler en <strong>chèque</strong> (plus simple pour nous) ou <strong>espèces</strong> (merci
   de préparer l'appoint) le montant après réduction (GUCEM : <strong>{{ gucem_discount }}%</strong> - ESMUG : <strong>{{ esmug_discount }}%</strong>) et
   récupérer des bons que tu peux donner directement au magasin en guise de
   paiement. Si tu préviens au préalable par mail le responsable des bons, une
   personne autre que toi peut <strong>passer à ta place</strong>.
+</p>
+
+<p>
+  Les commandes sont <strong>mensuelles</strong> : si tu commandes tes bons <strong>avant le {{ last_day_to_command }} au soir</strong>, tu les recevras environ une semaine après cette date limite. Les commandes du mois n non récupérées avant le {{ last_day_to_command }} du mois n+1
+  sont <strong>annulées</strong>. Exemples :
+  <ul>
+    <li>Je commande le <strong>{{ last_day_to_command }} septembre</strong>, je reçois mes bons environ une <strong>semaine</strong> après</li>
+    <li>Je commande le <strong>{{ grouped_command_day }} septembre</strong>, je reçois mes bons environ un <strong>mois</strong> après (tu es servi comme les commandes passées en octobre)</li>
+    <li>Je commande le <strong>{{ last_day_to_command }} septembre</strong> et <strong>ne passe pas</strong> chercher mes bons <strong>avant le {{ last_day_to_command }} octobre</strong>, ma commande est <strong>annulée</strong></li>
+  </ul>
+</p>
+
+<p>
+  En renseignant ton mail ci-dessous, tu recevras un rappel quelques jours avant
+  la date limite de commande. Si c'est déjà le cas, l'envoi du formulaire
+  désactive les rappels.
+</p>
+
+<form action="{% url 'bvc:subscribe_to_reminder' %}" method="POST">
+  {% csrf_token %}
+  {{ grouped_cmd_reminder_form }}
+  <input type="submit" value="Envoyer" />
+</form>
 </p>
 
 <p>
@@ -58,30 +81,6 @@
   Dans le doute, <strong>ne coche pas</strong> la case. Elle sert juste à nous
   simplifier le travail.
 </p>
-
-<p>
-  Les commandes sont <strong>mensuelles</strong> : si tu commandes tes bons <strong>avant le {{ last_day_to_command }} au soir</strong>, tu les recevras environ une semaine après cette date limite. Les commandes du mois n non récupérées avant le {{ last_day_to_command }} du mois n+1
-  sont <strong>annulées</strong>. Exemples :
-  <ul>
-    <li>Je commande le <strong>{{ last_day_to_command }} septembre</strong>, je reçois mes bons environ une <strong>semaine</strong> après</li>
-    <li>Je commande le <strong>{{ grouped_command_day }} septembre</strong>, je reçois mes bons environ un <strong>mois</strong> après</li>
-    <li>Je commande le <strong>{{ last_day_to_command }} septembre</strong> et <strong>ne passe pas</strong> chercher mes bons <strong>avant le {{ last_day_to_command }} octobre</strong>, ma commande est <strong>annulée</strong></li>
-  </ul>
-</p>
-
-<p>
-  En renseignant ton mail ci-dessous, tu recevras un rappel quelques jours avant
-  la date limite de commande. Si c'est déjà le cas, l'envoi du formulaire
-  désactive les rappels.
-</p>
-
-<form action="{% url 'bvc:subscribe_to_reminder' %}" method="POST">
-  {% csrf_token %}
-  {{ grouped_cmd_reminder_form }}
-  <input type="submit" value="Envoyer" />
-</form>
-</p>
-
 
 <h3 id="passer-commande">Passer commande</h3>
 
