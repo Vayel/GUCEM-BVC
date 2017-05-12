@@ -88,10 +88,7 @@ class BankDeposit(models.Model):
     ref = models.CharField(max_length=REF_MAX_LEN, verbose_name='référence')
 
     def __str__(self):
-        if self.datetime is None:
-            return 'En cours'
-        else:
-            return self.datetime.strftime('%Y-%m-%d %H:%M')
+            return '{0} ({1})'.format(self.datetime.strftime('%Y-%m-%d'), self.ref)
 
 
 class CheckBankDeposit(models.Model):
