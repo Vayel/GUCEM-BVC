@@ -88,3 +88,9 @@ class IndividualCommandAdmin(admin.ModelAdmin):
                     "Une erreur est survenue en envoyant le mail : " + str(e),
                     level=messages.ERROR
                 )
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['voucher_stock'] = models.voucher.get_stock()
+
+        return super().changelist_view(request, extra_context=extra_context)
