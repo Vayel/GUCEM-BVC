@@ -1,5 +1,4 @@
 from django import forms
-from django.utils.timezone import now
 from django.conf import settings
 
 from .. import models
@@ -9,15 +8,6 @@ class BankDepositAdminForm(forms.ModelForm):
     class Meta:
         model = models.BankDeposit
         exclude = ['made']
-
-    def clean_datetime(self):
-        datetime = self.cleaned_data['datetime']
-
-        if datetime > now():
-            raise forms.ValidationError('La date de dépôt ne peut être dans le '
-                                        'futur.')
-
-        return datetime
 
 
 class CheckBankDepositAdminForm(forms.ModelForm):
