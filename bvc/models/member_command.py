@@ -112,7 +112,7 @@ class MemberCommand(IndividualCommand):
         self.payment_type = payment_type
         self.save()
 
-    def add_for_bank_deposit(self):
+    def add_to_bank_deposit(self):
         if self.state != SOLD_STATE:
             raise InvalidState()
 
