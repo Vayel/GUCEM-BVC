@@ -1,4 +1,6 @@
-from django.contrib import admin
+from smtplib import SMTPException
+
+from django.contrib import admin, messages
 
 from .site import admin_site
 from .. import forms
@@ -6,13 +8,16 @@ from .. import models
 
 
 class BankDepositAdmin(admin.ModelAdmin):
+    form = forms.bank_deposit.BankDepositAdminForm
+
     def has_module_permission(self, request):
         return False
 
-class CheckBankDepositAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'amount']
-    form = forms.bank_deposit.CheckBankDepositAdminForm
 
+class AbstractBankDepositAdmin(admin.ModelAdmin):
+    list_display = ['id', 'made', 'date', 'amount', 'ref',]
+    actions = ['make',]
+    
     def has_delete_permission(self, request, obj=None):
         return False
 
@@ -21,6 +26,41 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         del actions['delete_selected']
         return actions
+    
+    def date(self, instance):
+        return instance.bank_deposit.datetime
+
+    def ref(self, instance):
+        return instance.bank_deposit.ref
+
+    def made(self, instance):
+        return instance.bank_deposit.made
+
+    date.admin_order_field = 'bank_deposit__date'
+    ref.admin_order_field = 'bank_deposit__ref'
+    made.admin_order_field = 'bank_deposit__made'
+    made.boolean = True
+
+    def make(self, request, queryset):
+        for deposit in queryset:
+            try:
+                deposit.make()
+            except models.bank_deposit.InvalidState:
+                self.message_user(
+                    request,
+                    "Le dépôt {} n'est pas dans le bon état pour être déposé en banque.".format(deposit),
+                    level=messages.ERROR
+                )
+            except SMTPException as e:
+                self.message_user(
+                    request,
+                    "Une erreur est survenue en envoyant le mail : " + str(e),
+                    level=messages.ERROR
+                )
+
+
+class CheckBankDepositAdmin(AbstractBankDepositAdmin):
+    form = forms.bank_deposit.CheckBankDepositAdminForm
 
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -48,22 +88,9 @@ class CheckBankDepositAdmin(admin.ModelAdmin):
         )
         return sum(cmd.price for cmd in commands)
 
-    def date(self, instance):
-        return instance.bank_deposit.datetime
 
-
-class CashBankDepositAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'amount']
+class CashBankDepositAdmin(AbstractBankDepositAdmin):
     form = forms.bank_deposit.CashBankDepositAdminForm
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_actions(self, request):
-        # Remove delete action
-        actions = super().get_actions(request)
-        del actions['delete_selected']
-        return actions
 
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -89,10 +116,6 @@ class CashBankDepositAdmin(admin.ModelAdmin):
         )
         return (sum(cmd.price for cmd in commands) -
                 sum(op.delta for op in treasury_ops))
-
-    def date(self, instance):
-        return instance.bank_deposit.datetime
-
 
 
 admin_site.register(models.BankDeposit, BankDepositAdmin)

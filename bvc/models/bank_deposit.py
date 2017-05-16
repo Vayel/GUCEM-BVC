@@ -5,7 +5,6 @@ from django.db import models
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.db.models.signals import post_save
 from django.utils.text import slugify
 
 from .command import *
@@ -14,6 +13,8 @@ from .treasury import TreasuryOperation
 
 from .. import utils
 
+
+class InvalidState(Exception): pass
 
 def fill_deposit_file_header(writer, deposit):
     writer.writerow([str(deposit)])
@@ -70,22 +71,12 @@ def send_cash_deposit_file(writer, deposit):
     writer.writerow(['', '', '', '', '', 'Total déposé', deposit.total_price])
 
 
-def send_deposit_file_callback(sender, instance, created, raw, using, update_fields, **kwargs):
-    if created:
-        if sender == CashBankDeposit:
-            send_cash_deposit_file(instance)
-        elif sender == CheckBankDeposit:
-            send_check_deposit_file(instance)
-
-
-post_save.connect(send_deposit_file_callback)
-
-
 class BankDeposit(models.Model):
     REF_MAX_LEN = 20
 
     datetime = models.DateField(verbose_name='date')
     ref = models.CharField(max_length=REF_MAX_LEN, verbose_name='référence')
+    made = models.BooleanField(default=False, verbose_name='déposé',)
 
     def __str__(self):
             return '{0} ({1})'.format(self.datetime.strftime('%Y-%m-%d'), self.ref)
@@ -109,6 +100,15 @@ class CheckBankDeposit(models.Model):
     @property
     def total_price(self):
         return sum(cmd.price for cmd in self.bank_deposit.commands.all())
+
+    def make(self):
+        if self.bank_deposit.made:
+            raise InvalidState()
+
+        send_check_deposit_file(self)
+
+        self.bank_deposit.made = True
+        self.bank_deposit.save()
 
 
 class CashBankDeposit(models.Model):
@@ -137,3 +137,12 @@ class CashBankDeposit(models.Model):
     @property
     def total_price(self):
         return self.total_command_price - self.treasury_operation.delta
+
+    def make(self):
+        if self.bank_deposit.made:
+            raise InvalidState()
+
+        send_cash_deposit_file(self)
+
+        self.bank_deposit.made = True
+        self.bank_deposit.save()

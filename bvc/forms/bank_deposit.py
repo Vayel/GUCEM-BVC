@@ -8,7 +8,7 @@ from .. import models
 class BankDepositAdminForm(forms.ModelForm):
     class Meta:
         model = models.BankDeposit
-        exclude = []
+        exclude = ['made']
 
     def clean_datetime(self):
         datetime = self.cleaned_data['datetime']
