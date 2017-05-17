@@ -79,6 +79,7 @@ class CheckBankDepositAdmin(AbstractBankDepositAdmin):
                 payment_type=models.command.CHECK_PAYMENT,
             )
         )
+        extra_context['numero'] = models.CheckBankDeposit.next_id()
 
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
@@ -104,6 +105,7 @@ class CashBankDepositAdmin(AbstractBankDepositAdmin):
         )
         extra_context['total_available_cash_amount'] = (extra_context['current_treasury'] +
                                                         extra_context['sold_cash_cmd_total_amount'])
+        extra_context['numero'] = models.CashBankDeposit.next_id()
 
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 

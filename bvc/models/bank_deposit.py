@@ -110,6 +110,14 @@ class CheckBankDeposit(models.Model):
         self.bank_deposit.made = True
         self.bank_deposit.save()
 
+    @classmethod
+    def next_id(cls):
+        last = cls.objects.last()
+        if last is None:
+            return 1
+        else:
+            return last.id + 1
+
 
 class CashBankDeposit(models.Model):
     bank_deposit = models.OneToOneField(
@@ -146,3 +154,11 @@ class CashBankDeposit(models.Model):
 
         self.bank_deposit.made = True
         self.bank_deposit.save()
+
+    @classmethod
+    def next_id(cls):
+        last = cls.objects.last()
+        if last is None:
+            return 1
+        else:
+            return last.id + 1
