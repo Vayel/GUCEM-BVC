@@ -22,18 +22,11 @@ class GroupedCommandAdminForm(forms.ModelForm):
         fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
                   'received_amount', 'datetime_prepared', 'prepared_amount',]
 
-    def clean_amount_field(self, state, prev_state):
+    def clean_amount_field(self, state):
         amount = self.cleaned_data[state + '_amount']
 
         if not amount:
             raise forms.ValidationError('The amount cannot be zero.')
-
-        prev_amount = self.instance.__dict__[prev_state + '_amount']
-        if amount > prev_amount:
-            raise forms.ValidationError(
-                'The {} amount cannot be greater than '
-                'the {} amount.'.format(state, prev_state)
-            )
 
         self.amount = amount
         return amount
@@ -82,7 +75,7 @@ class GroupedCommandAdminForm(forms.ModelForm):
 
     def clean_received_amount(self):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
-        return self.clean_amount_field('received', 'placed')
+        return self.clean_amount_field('received')
 
     def clean_datetime_received(self):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
@@ -90,7 +83,7 @@ class GroupedCommandAdminForm(forms.ModelForm):
 
     def clean_prepared_amount(self):
         self.check_state(models.command.RECEIVED_STATE, self.instance.prepare_)
-        return self.clean_amount_field('prepared', 'received')
+        return self.clean_amount_field('prepared')
 
     def clean_datetime_prepared(self):
         self.check_state(models.command.RECEIVED_STATE, self.instance.prepare_)
