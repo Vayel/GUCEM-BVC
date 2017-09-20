@@ -102,3 +102,53 @@
   <input type="submit" value="Commander" />
 </form>
 {% endblock %}
+
+{% block javascript %}
+<script
+  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+  crossorigin="anonymous"></script>
+
+<script>
+$( document ).ready(function() {
+    var ESMUG_DISCOUNT = 0.18;
+    var GUCEM_DISCOUNT = ESMUG_DISCOUNT;
+    var amountInput = $('#id_amount');
+    var clubInput = $('#id_club');
+
+    // Create price HTML element
+    var td = amountInput.closest('td');
+    td.append('<div class="price"></div>');
+    var priceDiv = td.find('.price');
+
+    function getDiscount() {
+        var club = clubInput.val();
+
+        if (club == 'esmug')
+            return ESMUG_DISCOUNT;
+        else if (club == 'gucem')
+            return GUCEM_DISCOUNT;
+        throw 'Unknown club ' + club;
+    }
+
+    function displayPrice(price) {
+        priceDiv.html('Soit <strong>' + price + '</strong> euros à payer.');
+    }
+
+    function computePrice() {
+        var amount = parseInt(amountInput.val());
+        return ((1 - getDiscount()) * amount).toFixed(2);
+    }
+
+    amountInput.blur(function(e) {
+        displayPrice(computePrice());
+    });
+
+    clubInput.change(function(e) {
+        displayPrice(computePrice());
+    });
+
+    displayPrice(computePrice());
+});
+</script>
+{% endblock %}
