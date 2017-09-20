@@ -25,6 +25,9 @@ class MemberCommand(forms.ModelForm):
     class Meta:
         model = models.user.Member
         fields = ['license', 'club']
+        labels = {
+            'license': 'Licence CAF'
+        }
 
 
 class CommandSummary(forms.ModelForm):
