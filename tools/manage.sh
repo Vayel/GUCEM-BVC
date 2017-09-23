@@ -3,6 +3,6 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
 
-. ./bvc/bin/activate
+. ./work_in_env.sh
 ../manage.py "$@"
 deactivate
