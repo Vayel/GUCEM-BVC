@@ -79,7 +79,7 @@ class BankDeposit(models.Model):
     made = models.BooleanField(default=False, verbose_name='déposé',)
 
     def __str__(self):
-            return '{0} ({1})'.format(self.datetime.strftime('%Y-%m-%d'), self.ref)
+        return '{0} (ref {1})'.format(self.datetime.strftime('%Y-%m-%d'), self.ref)
 
 
 class CheckBankDeposit(models.Model):
@@ -95,7 +95,7 @@ class CheckBankDeposit(models.Model):
         verbose_name_plural = "Dépôts de chèques"
 
     def __str__(self):
-        return 'BVC {}'.format(self.id)
+        return 'BVC {} (id {})'.format(self.bank_deposit, self.id)
 
     @property
     def total_price(self):
@@ -136,7 +136,7 @@ class CashBankDeposit(models.Model):
         verbose_name_plural = "Dépôts d'espèces"
 
     def __str__(self):
-        return 'BVE {}'.format(self.id)
+        return 'BVE {} (id {})'.format(self.bank_deposit, self.id)
 
     @property
     def total_command_price(self):

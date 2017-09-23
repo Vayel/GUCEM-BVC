@@ -1,5 +1,4 @@
 import io
-from datetime import timedelta
 import csv
 from itertools import chain
 
@@ -102,19 +101,10 @@ class GroupedCommand(models.Model):
         verbose_name = 'Commande groupée'
         verbose_name_plural = 'Commandes groupées'
 
-    @property
-    def theoric_placed_date(self):
-        date = self.datetime_placed
-        while date.day != get_config().grouped_command_day:
-            date = date - timedelta(days=1)
-        return date
-
     def __str__(self):
-        date = self.theoric_placed_date
-        return 'Commande groupée {month:02d}/{} (id {})'.format(
-            date.year,
+        return 'Commande groupée {} (id {})'.format(
+            self.datetime_placed.strftime('%Y-%m-%d'),
             self.id,
-            month=date.month
         )
 
     def voucher_distrib_to_place(self):
