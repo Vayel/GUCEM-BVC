@@ -1,4 +1,5 @@
 import io
+from datetime import timedelta
 import csv
 from itertools import chain
 
@@ -101,8 +102,20 @@ class GroupedCommand(models.Model):
         verbose_name = 'Commande groupée'
         verbose_name_plural = 'Commandes groupées'
 
+    @property
+    def theoric_placed_date(self):
+        date = self.datetime_placed
+        while date.day != get_config().grouped_command_day:
+            date = date - timedelta(days=1)
+        return date
+
     def __str__(self):
-        return 'Commande groupée n°{}'.format(self.id)
+        date = self.theoric_placed_date
+        return 'Commande groupée {month:02d}/{} (id {})'.format(
+            date.year,
+            self.id,
+            month=date.month
+        )
 
     def voucher_distrib_to_place(self):
         """Determine the quantity of each type of voucher. We should have the correct
@@ -218,11 +231,11 @@ class GroupedCommand(models.Model):
             self.prepare_(0, self.datetime_placed)
 
             email.subject = utils.format_mail_subject(
-                'Commande groupée n°{} non nécessaire'.format(self.id)
+                '{} non nécessaire'.format(str(self))
             )
             email.body = render_to_string('bvc/mails/no_grouped_command.txt', mail_context)
         else:
-            email.subject = utils.format_mail_subject('Commande groupée n°{}'.format(self.id))
+            email.subject = utils.format_mail_subject(str(self))
             email.body = render_to_string('bvc/mails/place_grouped_command.txt', mail_context)
 
         email.send()
