@@ -44,7 +44,11 @@ class CommissionCommand(IndividualCommand):
         verbose_name_plural = 'Commandes des commissions'
 
     def __str__(self):
-        return 'Commande de commission n°{}'.format(self.id)
+        return 'Commande commission {} {} (id {})'.format(
+            self.commission,
+            self.datetime_placed.strftime('%Y-%m-%d'),
+            self.id
+        )
 
     @property
     def email(self):
@@ -59,8 +63,8 @@ class CommissionCommand(IndividualCommand):
         self.save()
 
         send_mail(
-            utils.format_mail_subject('Commande commission n°{} distribuée'.format(
-                self.id,
+            utils.format_mail_subject('{} distribuée'.format(
+                self,
             )),
             render_to_string(
                 'bvc/mails/distribute_commission_command.txt',
