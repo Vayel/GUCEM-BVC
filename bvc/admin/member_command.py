@@ -14,6 +14,7 @@ class MemberCommandAdmin(IndividualCommandAdmin):
     actions = ['sell_by_check', 'sell_by_cash', 'add_to_bank_deposit',
                'remove_from_bank_deposit']
     ordering = ['datetime_placed']
+    search_fields = ('member__user__first_name', 'member__user__last_name', 'amount')
     fields = forms.member_command.MemberCommandAdminForm.Meta.fields
     form = forms.member_command.MemberCommandAdminForm
 

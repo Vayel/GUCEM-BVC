@@ -13,6 +13,7 @@ class CommissionCommandAdmin(IndividualCommandAdmin):
                     'voucher_distrib', 'reason', 'comments']
     actions = ['distribute',]
     ordering = ['datetime_placed']
+    search_fields = ('commission__user__username',)
     fields = forms.commission_command.CommissionCommandAdminForm.Meta.fields
     form = forms.commission_command.CommissionCommandAdminForm
     

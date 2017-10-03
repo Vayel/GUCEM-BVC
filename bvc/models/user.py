@@ -7,6 +7,7 @@ from .. import utils
 
 
 class AbstractUser(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur',)
     receive_reminder = models.BooleanField(
         default=False,
         verbose_name='reçoit le mail de rappel',
@@ -45,8 +46,7 @@ class Member(AbstractUser):
         (ESMUG, 'ESMUG'),
     )
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur',)
-    license = models.CharField(max_length=12, unique=True, verbose_name='licence',)
+    license = models.CharField(max_length=12, unique=True, verbose_name='licence CAF',)
     club = models.CharField(
         max_length=max(len(choice[0]) for choice in CLUB_CHOICES),
         choices=CLUB_CHOICES,
@@ -65,8 +65,6 @@ class Member(AbstractUser):
 
 
 class Commission(AbstractUser):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur',)
-
     class Meta:
         verbose_name = 'commission'
 
