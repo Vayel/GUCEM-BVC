@@ -10,7 +10,7 @@ from .. import models, forms
 
 class CommissionCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',
-                    'voucher_distrib', 'reason', 'comments']
+                    'voucher_distrib', 'reason', 'comments', 'spent_at_once']
     actions = ['distribute',]
     ordering = ['datetime_placed']
     search_fields = ('commission__user__username',)

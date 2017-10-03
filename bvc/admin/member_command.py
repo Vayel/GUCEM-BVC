@@ -10,7 +10,8 @@ from .. import models, forms
 
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price',
-                    'payment_type', 'state', 'voucher_distrib', 'comments',]
+                    'payment_type', 'state', 'voucher_distrib', 'spent_at_once',
+                    'comments',]
     actions = ['sell_by_check', 'sell_by_cash', 'add_to_bank_deposit',
                'remove_from_bank_deposit']
     ordering = ['datetime_placed']
