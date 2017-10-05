@@ -8,7 +8,7 @@ from .. import forms
 
 class GroupedCommandAdmin(admin.ModelAdmin):
     list_display = ['datetime_placed', 'placed_amount', 'received_amount',
-                    'prepared_amount', 'state',]
+                    'state',]
     list_filter = ['state',]
     fields = forms.grouped_command.GroupedCommandAdminForm.Meta.fields
     form = forms.grouped_command.GroupedCommandAdminForm
@@ -38,7 +38,6 @@ class GroupedCommandAdmin(admin.ModelAdmin):
                 fields.remove('received_amount')
                 fields.remove('datetime_received')
             elif instance.state == models.command.RECEIVED_STATE:
-                fields.remove('prepared_amount')
                 fields.remove('datetime_prepared')
 
             return fields
@@ -49,14 +48,14 @@ class GroupedCommandAdmin(admin.ModelAdmin):
         if instance: # Editing an existing object
             if instance.state == None:
                 excluded = ['datetime_placed', 'received_amount', 'datetime_received',
-                            'prepared_amount', 'datetime_prepared']
+                            'datetime_prepared']
             elif instance.state == models.command.PLACED_STATE:
-                excluded = ['prepared_amount', 'datetime_prepared']
+                excluded = ['datetime_prepared']
             else:
                 excluded = []
         else:
             excluded = ['state', 'datetime_placed', 'received_amount',
-                        'datetime_received', 'prepared_amount', 'datetime_prepared']
+                        'datetime_received', 'datetime_prepared']
 
         return [f for f in self.fields or [] if f not in excluded]
     

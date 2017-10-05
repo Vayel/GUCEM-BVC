@@ -6,6 +6,19 @@ from .. import models
 
 class GroupedCommandAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance', None)
+
+        if instance:
+            if instance.state == models.command.PLACED_STATE:
+                kwargs.update(initial={
+                    'received_amount': instance.placed_amount,
+                    'datetime_received': now(),
+                })
+            elif instance.state == models.command.RECEIVED_STATE:
+                kwargs.update(initial={
+                    'datetime_prepared': now(),
+                })
+
         super().__init__(*args, **kwargs)
 
         try:
@@ -20,7 +33,7 @@ class GroupedCommandAdminForm(forms.ModelForm):
     class Meta:
         model = models.GroupedCommand
         fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
-                  'received_amount', 'datetime_prepared', 'prepared_amount',]
+                  'received_amount', 'datetime_prepared',]
 
     def clean_amount_field(self, state):
         amount = self.cleaned_data[state + '_amount']
@@ -81,12 +94,9 @@ class GroupedCommandAdminForm(forms.ModelForm):
         self.check_state(models.command.PLACED_STATE, self.instance.receive)
         return self.clean_date_field('received', 'placed')
 
-    def clean_prepared_amount(self):
-        self.check_state(models.command.RECEIVED_STATE, self.instance.prepare_)
-        return self.clean_amount_field('prepared')
-
     def clean_datetime_prepared(self):
         self.check_state(models.command.RECEIVED_STATE, self.instance.prepare_)
+        self.amount = self.instance.received_amount
         return self.clean_date_field('prepared', 'received')
 
     def save(self, commit=True):

@@ -72,12 +72,6 @@ class GroupedCommand(models.Model):
         validators=[validators.validate_voucher_amount_multiple],
         verbose_name='montant reçu',
     )
-    # Can be different from received_amount in case of loss
-    prepared_amount = models.PositiveSmallIntegerField(
-        default=0,
-        validators=[validators.validate_voucher_amount_multiple],
-        verbose_name='montant préparé',
-    )
     datetime_placed = models.DateTimeField(
         null=True, blank=True,
         verbose_name='date de commande',
@@ -255,13 +249,8 @@ class GroupedCommand(models.Model):
 
         self.state = PREPARED_STATE
         self.datetime_prepared = date
-        self.prepared_amount = amount
 
-        if self.prepared_amount == self.received_amount:
-            voucher.update_stock(self.prepared_amount, str(self))
-        else:
-            voucher.update_stock(self.received_amount, str(self))
-            voucher.update_stock(amount - self.received_amount, 'Perte dans ' + str(self))
+        voucher.update_stock(amount, str(self))
 
         commission_commands = CommissionCommand.objects.filter(
             state=TO_BE_PREPARED_STATE,
