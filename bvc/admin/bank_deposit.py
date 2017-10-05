@@ -130,6 +130,15 @@ class CashBankDepositAdmin(AbstractBankDepositAdmin):
 
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        commands = models.CashBankDeposit.objects.get(id=object_id).bank_deposit.commands.all()
+
+        extra_context = extra_context or {}
+        extra_context['commands'] = commands
+        extra_context['total_price'] = sum(c.price for c in commands)
+
+        return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
+
     def amount(self, instance):
         commands = models.MemberCommand.objects.filter(
             bank_deposit=instance.bank_deposit,

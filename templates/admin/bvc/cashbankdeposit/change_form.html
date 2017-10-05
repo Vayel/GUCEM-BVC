@@ -22,3 +22,66 @@
   </ul>
 {% endif %}{% endif %}
 {% endblock %}
+
+{% block after_related_objects %}
+{% if not add %}
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Type</th>
+            <th>Licence</th>
+            <th>Bons</th>
+            <th>Prix</th>
+        </tr>
+    {% for cmd in commands %}
+        <tr>
+            <td>{{ cmd.id }}</td>
+            <td>{{ cmd.member.user.last_name }}</td>
+            <td>{{ cmd.member.user.first_name }}</td>
+            <td>{{ cmd.member.club }}</td>
+            <td>{{ cmd.member.license }}</td>
+            <td>{{ cmd.amount }}</td>
+            <td>{{ cmd.price }}</td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total commandes</td>
+            <td>{{ total_price }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Delta trésorerie</td>
+            <td>{{ original.treasury_operation.delta }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Total déposé</td>
+            <td>{{ original.total_price }}</td>
+        </tr>
+    <table>
+{% endif %}
+{% endblock %}
