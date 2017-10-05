@@ -37,7 +37,7 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
 
     class Meta:
         model = models.CashBankDeposit
-        exclude = ['treasury_operation']
+        exclude = []
 
     def get_delta(self):
         return (models.member_command.get_available_cash_amount() -

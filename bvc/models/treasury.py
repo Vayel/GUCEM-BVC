@@ -36,6 +36,9 @@ class TreasuryOperation(models.Model):
         verbose_name = 'Opération de trésorerie'
         verbose_name_plural = 'Opérations de trésorerie'
 
+    def __str__(self):
+        return '{} (delta : {})'.format(self.stock, self.delta)
+
     @property
     def delta(self):
         return self.stock - get_previous_treasury(self.id)
