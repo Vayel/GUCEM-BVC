@@ -6,7 +6,7 @@ from .. import models
 
 
 class TreasuryOperationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'stock', 'delta', 'reason',]
+    list_display = ['id', 'stock', 'delta', 'date', 'reason',]
     list_display_links = None
     list_editable = ['reason',]
     form = forms.treasury.TreasuryOperationAdminForm

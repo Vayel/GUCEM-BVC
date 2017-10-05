@@ -31,10 +31,11 @@ class TreasuryOperation(models.Model):
 
     stock = models.DecimalField(max_digits=7, decimal_places=2, verbose_name='stock',)
     reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison',)
+    date = models.DateField(auto_now_add=True,)
 
     class Meta:
-        verbose_name = 'Opération de trésorerie'
-        verbose_name_plural = 'Opérations de trésorerie'
+        verbose_name = 'opération de trésorerie'
+        verbose_name_plural = 'opérations de trésorerie'
 
     def __str__(self):
         return '{} (delta : {})'.format(self.stock, self.delta)

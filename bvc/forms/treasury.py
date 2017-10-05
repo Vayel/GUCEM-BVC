@@ -8,7 +8,7 @@ class TreasuryOperationAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.TreasuryOperation
-        fields = ['reason', 'delta',]
+        fields = ['reason', 'delta']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

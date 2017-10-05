@@ -112,6 +112,7 @@ class VoucherOperation(models.Model):
         verbose_name='stock',
     )
     reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison',)
+    date = models.DateField(auto_now_add=True,)
 
     class Meta:
         verbose_name = 'opération de bons'
