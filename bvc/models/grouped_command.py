@@ -57,6 +57,7 @@ class GroupedCommand(models.Model):
     """Represent a command placed to the treasurer by the manager."""
     STATE_CHOICES = (
         (PLACED_STATE, 'Passée au trésorier'),
+        (TRANSMITTED_STATE, 'Passée au magasin'),
         (RECEIVED_STATE, 'Disponible en magasin'),
         (PREPARED_STATE, 'Préparée'),
     )
@@ -76,6 +77,10 @@ class GroupedCommand(models.Model):
         null=True, blank=True,
         verbose_name='date de commande',
     )
+    datetime_transmitted = models.DateField(
+        null=True, blank=True,
+        verbose_name='date de commande au magasin',
+    )
     datetime_received = models.DateField(
         null=True, blank=True,
         verbose_name='date de réception',
@@ -85,9 +90,10 @@ class GroupedCommand(models.Model):
         verbose_name='date de préparation',
     )
     state = models.CharField(
+        null=True,
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
-        default=PLACED_STATE,
+        default=None,
         verbose_name='état',
     )
 
@@ -147,14 +153,7 @@ class GroupedCommand(models.Model):
 
         return voucher_distrib
 
-    def place(self, amount, datetime=None):
-        if self.datetime_placed != None:
-            raise InvalidState()
-
-        self.placed_amount = amount
-        self.datetime_placed = datetime or now()
-        self.save()
-
+    def send_place_email(self):
         email = EmailMessage(
             '',
             '',
@@ -204,15 +203,15 @@ class GroupedCommand(models.Model):
 
         # Send mail to treasurer
         mail_context = {
-            'amount': amount,
+            'amount': self.placed_amount,
             'commission_cmd': CommissionCommand.objects.filter(state=TO_BE_PREPARED_STATE), 
             'has_distributed_commission_cmd': len(distributed_commission_cmd),
             'voucher_distribution': self.voucher_distrib_to_place(),
         }
 
-        if amount <= 0:
+        if self.placed_amount <= 0:
             self.receive(0, self.datetime_placed)
-            self.prepare_(0, self.datetime_placed)
+            self.prepare_(self.datetime_placed)
 
             email.subject = utils.format_mail_subject(
                 '{} non nécessaire'.format(str(self))
@@ -224,8 +223,26 @@ class GroupedCommand(models.Model):
 
         email.send()
 
-    def receive(self, amount, date):
+
+    def place(self, amount, datetime=None):
+        if self.state is not None:
+            raise InvalidState()
+
+        self.state = PLACED_STATE
+        self.placed_amount = amount
+        self.datetime_placed = datetime or now()
+        self.save()  # Required to have an id, which appears in the mail
+        self.send_place_email()
+
+    def transmit(self, date):
         if self.state != PLACED_STATE:
+            raise InvalidState()
+
+        self.state = TRANSMITTED_STATE
+        self.datetime_transmitted = date
+
+    def receive(self, amount, date):
+        if self.state != TRANSMITTED_STATE:
             raise InvalidState()
 
         self.state = RECEIVED_STATE
@@ -243,15 +260,16 @@ class GroupedCommand(models.Model):
                 [get_config().bvc_manager_mail],
             )
 
-    def prepare_(self, amount, date):
+    def prepare_(self, date):
         if self.state != RECEIVED_STATE:
             raise InvalidState()
 
         self.state = PREPARED_STATE
         self.datetime_prepared = date
 
-        voucher.update_stock(amount, str(self))
+        voucher.update_stock(self.received_amount, str(self))
 
+        # TODO: prepare manually
         commission_commands = CommissionCommand.objects.filter(
             state=TO_BE_PREPARED_STATE,
         ).order_by('datetime_placed')

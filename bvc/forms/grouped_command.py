@@ -11,6 +11,10 @@ class GroupedCommandAdminForm(forms.ModelForm):
         if instance:
             if instance.state == models.command.PLACED_STATE:
                 kwargs.update(initial={
+                    'datetime_transmitted': now()
+                })
+            elif instance.state == models.command.TRANSMITTED_STATE:
+                kwargs.update(initial={
                     'received_amount': instance.placed_amount,
                     'datetime_received': now(),
                 })
@@ -21,6 +25,12 @@ class GroupedCommandAdminForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        self.amount = self.date = None
+
+        try:
+            self.fields['datetime_transmitted'].required = True
+        except KeyError:
+            pass
         try:
             self.fields['datetime_received'].required = True
         except KeyError:
@@ -32,8 +42,8 @@ class GroupedCommandAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.GroupedCommand
-        fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_received',
-                  'received_amount', 'datetime_prepared',]
+        fields = ['state', 'datetime_placed', 'placed_amount', 'datetime_transmitted',
+                  'datetime_received', 'received_amount', 'datetime_prepared',]
 
     def clean_amount_field(self, state):
         amount = self.cleaned_data[state + '_amount']
@@ -62,11 +72,9 @@ class GroupedCommandAdminForm(forms.ModelForm):
         self.date = date
         return date
 
-    def check_state(self, state, callback):
-        if self.instance.__dict__['state'] != state:
+    def check_state(self, state):
+        if self.instance.state != state:
             raise forms.ValidationError("La commande n'est pas dans le bon état.")
-
-        self.callback = callback
 
     def clean_placed_amount(self):
         unprepared_cmd = models.GroupedCommand.objects.exclude(
@@ -80,28 +88,36 @@ class GroupedCommandAdminForm(forms.ModelForm):
             raise forms.ValidationError("Le montant ne permet pas de satisfaire "
                                         "toutes les commandes.")
 
-        self.callback = self.instance.place
-        self.date = now()
         self.amount = amount
+        return amount
 
-        return self.amount
+    def clean_datetime_transmitted(self):
+        self.check_state(models.command.PLACED_STATE)
+        return self.clean_date_field('transmitted', 'placed')
 
     def clean_received_amount(self):
-        self.check_state(models.command.PLACED_STATE, self.instance.receive)
+        self.check_state(models.command.TRANSMITTED_STATE)
         return self.clean_amount_field('received')
 
     def clean_datetime_received(self):
-        self.check_state(models.command.PLACED_STATE, self.instance.receive)
-        return self.clean_date_field('received', 'placed')
+        self.check_state(models.command.TRANSMITTED_STATE)
+        return self.clean_date_field('received', 'transmitted')
 
     def clean_datetime_prepared(self):
-        self.check_state(models.command.RECEIVED_STATE, self.instance.prepare_)
-        self.amount = self.instance.received_amount
+        self.check_state(models.command.RECEIVED_STATE)
         return self.clean_date_field('prepared', 'received')
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        self.callback(self.amount, self.date)
+
+        if instance.state is None:
+            instance.place(self.amount)
+        elif instance.state == models.command.PLACED_STATE:
+            instance.transmit(self.date)
+        elif instance.state == models.command.TRANSMITTED_STATE:
+            instance.receive(self.amount, self.date)
+        elif instance.state == models.command.RECEIVED_STATE:
+            instance.prepare_(self.date)
 
         if commit:
             instance.save()

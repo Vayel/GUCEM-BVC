@@ -35,6 +35,8 @@ class GroupedCommandAdmin(admin.ModelAdmin):
                 fields.remove('placed_amount')
                 fields.remove('datetime_placed')
             elif instance.state == models.command.PLACED_STATE:
+                fields.remove('datetime_transmitted')
+            elif instance.state == models.command.TRANSMITTED_STATE:
                 fields.remove('received_amount')
                 fields.remove('datetime_received')
             elif instance.state == models.command.RECEIVED_STATE:
@@ -46,15 +48,17 @@ class GroupedCommandAdmin(admin.ModelAdmin):
 
     def get_fields(self, request, instance=None):
         if instance: # Editing an existing object
-            if instance.state == None:
-                excluded = ['datetime_placed', 'received_amount', 'datetime_received',
+            if instance.state is None:
+                excluded = ['datetime_placed', 'datetime_transmitted', 'received_amount', 'datetime_received',
                             'datetime_prepared']
             elif instance.state == models.command.PLACED_STATE:
+                excluded = ['received_amount', 'datetime_received', 'datetime_prepared']
+            elif instance.state == models.command.TRANSMITTED_STATE:
                 excluded = ['datetime_prepared']
             else:
                 excluded = []
         else:
-            excluded = ['state', 'datetime_placed', 'received_amount',
+            excluded = ['state', 'datetime_placed', 'datetime_transmitted', 'received_amount',
                         'datetime_received', 'datetime_prepared']
 
         return [f for f in self.fields or [] if f not in excluded]

@@ -70,6 +70,8 @@
         {% if current_grouped_command is not None %}
             <p><a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
             {% if current_grouped_command.state == 'placed' %}    
+                Commande groupée passée au magasin
+            {% elif current_grouped_command.state == 'transmitted' %}    
                 Commande groupée reçue par le magasin
             {% else %}
                 Commande groupée récupérée au magasin
