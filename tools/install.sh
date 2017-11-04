@@ -45,6 +45,7 @@ echo "===================================="
 echo ""
 
 python "$DIR"/create_reminders_cron.py
+python "$DIR"/create_transmit_grouped_command_cron.py
 
 echo ""
 echo "=========================================="
