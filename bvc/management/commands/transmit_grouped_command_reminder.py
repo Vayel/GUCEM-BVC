@@ -19,4 +19,4 @@ class Command(ReminderCommand):
         # An email has already been sent when the grouped command was placed
         # so we don't need to send a reminder the same day
         if datetime.now().day != cmd.datetime_placed.day:
-            cmd.send_place_mail()
+            cmd.send_place_email()
