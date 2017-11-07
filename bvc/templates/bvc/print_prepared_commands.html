@@ -25,6 +25,7 @@
       <th>Nom</th>
       <th>Bons</th>
       <th>Prix</th>
+      <th>En une fois</th>
       <th>Paiement</th>
     </tr>
 
@@ -34,6 +35,7 @@
       <td>{{ cmd.member.user.last_name }}</td>
       <td>{{ cmd.amount }}</td>
       <td>{{ cmd.price }}</td>
+      <td style="text-align: center;">{% if cmd.spent_at_once %} X {% endif %}</td>
       <td></td>
     </tr>
   {% endfor %}
