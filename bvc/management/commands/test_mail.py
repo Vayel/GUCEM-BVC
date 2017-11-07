@@ -6,6 +6,8 @@ from django.core.management.base import BaseCommand
 from django.core.mail import EmailMessage
 from django.conf import settings
 
+from bvc import utils
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
@@ -14,7 +16,7 @@ class Command(BaseCommand):
         writer.writerow(['Col A', 'Col B',])
 
         email = EmailMessage(
-            'BVC - Mail test',
+            utils.format_mail_subject("Démarrage de l'application - mail test"),
             "Test de l'envoi des mails depuis l'application BVC.",
             settings.EMAIL_HOST_USER,
             [settings.EMAIL_HOST_USER],
