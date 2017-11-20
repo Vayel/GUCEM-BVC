@@ -58,9 +58,10 @@ class Member(AbstractUser):
         verbose_name = 'adhérent'
 
     def __str__(self):
-        return '{} {}'.format(
+        return '{} {} - {}'.format(
             self.user.first_name,
             self.user.last_name,
+            self.user.email,
         )
 
 
