@@ -181,7 +181,7 @@ def home(request):
             except ObjectDoesNotExist:
                 pass
 
-            user = user_form.save()
+            user = user_form.save(commit=False)
             user.username = user.email
             user.save()
 
