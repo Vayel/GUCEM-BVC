@@ -162,13 +162,8 @@ class GroupedCommand(models.Model):
             [],
         )
 
-        # Change the state of placed commands
-        MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
-        CommissionCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
-
         # List distributed commission commands
         previous_cmd = get_last_prepared()
-
         if previous_cmd is None:
             distributed_commission_cmd = CommissionCommand.objects.filter(state=GIVEN_STATE)
         else:
@@ -176,9 +171,9 @@ class GroupedCommand(models.Model):
                 state=GIVEN_STATE,
                 datetime_given__gt=previous_cmd.datetime_placed,
             )
-
         distributed_commission_cmd = list(distributed_commission_cmd)
 
+        # Build file of distributed commission commands
         if len(distributed_commission_cmd):
             csvfile = io.StringIO()
             total = 0
@@ -208,7 +203,6 @@ class GroupedCommand(models.Model):
             'has_distributed_commission_cmd': len(distributed_commission_cmd),
             'voucher_distribution': self.voucher_distrib_to_place(),
         }
-
         if self.placed_amount <= 0:
             self.receive(0, self.datetime_placed)
             self.prepare_(self.datetime_placed)
@@ -220,7 +214,6 @@ class GroupedCommand(models.Model):
         else:
             email.subject = utils.format_mail_subject(str(self), reminder=reminder)
             email.body = render_to_string('bvc/mails/place_grouped_command.txt', mail_context)
-
         email.send()
 
 
@@ -232,6 +225,10 @@ class GroupedCommand(models.Model):
         self.placed_amount = amount
         self.datetime_placed = datetime or now()
         self.save()  # Required to have an id, which appears in the mail
+
+        MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+        CommissionCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+
         self.send_place_email()
 
     def transmit(self, date):
