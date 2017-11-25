@@ -218,7 +218,7 @@ class GroupedCommand(models.Model):
             )
             email.body = render_to_string('bvc/mails/no_grouped_command.txt', mail_context)
         else:
-            email.subject = utils.format_mail_subject(('[RAPPEL]' if reminder else '') + str(self))
+            email.subject = utils.format_mail_subject(str(self), reminder=reminder)
             email.body = render_to_string('bvc/mails/place_grouped_command.txt', mail_context)
 
         email.send()
