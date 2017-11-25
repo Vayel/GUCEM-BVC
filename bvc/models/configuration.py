@@ -22,6 +22,11 @@ def get_config_val(key):
 # One row is created each time the configuration is modified to keep an history
 # of old values. So we need to set default values to current ones.
 class Configuration(models.Model):
+    datetime = models.DateTimeField(
+        verbose_name='date',
+        auto_now_add=True,
+        unique=True,
+    )
     esmug_percentage_discount = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(100)],
         verbose_name='réduction ESMUG (%)',
