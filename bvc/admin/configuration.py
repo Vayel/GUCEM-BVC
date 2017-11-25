@@ -5,7 +5,9 @@ from .. import models
 
 
 class ConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['id',]
+    list_display = ['datetime', 'esmug_percentage_discount',
+                    'gucem_percentage_discount', 'grouped_command_day',]
+    readonly_fields = ('datetime',)
 
     def get_readonly_fields(self, request, instance=None):
         if instance is None:
