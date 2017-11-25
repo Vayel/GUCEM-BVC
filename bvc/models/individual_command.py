@@ -41,6 +41,10 @@ class IndividualCommand(models.Model):
     def voucher_distrib(self):
         return voucher.get_distrib(self.amount, self.spent_at_once)
 
+    @property
+    def email(self):
+        raise NotImplementedError()
+
     # Define this property in the abstract class to have a common interface for
     # the templates
     @property
@@ -52,6 +56,20 @@ class IndividualCommand(models.Model):
             return
 
         voucher.update_stock(old_amount - self.amount, str(self))
+    
+    def send_preparation_email(self):
+        send_mail(
+            utils.format_mail_subject('Commande en cours de préparation'),
+            render_to_string(
+                'bvc/mails/command_being_prepared.txt',
+                {
+                    'amount': self.amount,
+                    'price': self.price,
+                }
+            ),
+            get_config().bvc_manager_mail,
+            [self.email],
+        )
 
     def prepare(self):
         if self.state != TO_BE_PREPARED_STATE:

@@ -1,0 +1,8 @@
+{% extends "bvc/mails/base.txt" %}
+{% block contents %}
+Ta commande de bons Vieux Campeur est en cours de préparation et sera disponible
+d'ici une à deux semaines. Un mail te sera envoyé à ce moment.
+
+Montant BVC : {{ amount }}
+Montant à payer : {{ price }}
+{% endblock %}

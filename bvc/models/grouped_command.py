@@ -216,7 +216,6 @@ class GroupedCommand(models.Model):
             email.body = render_to_string('bvc/mails/place_grouped_command.txt', mail_context)
         email.send()
 
-
     def place(self, amount, datetime=None):
         if self.state is not None:
             raise InvalidState()
@@ -226,8 +225,14 @@ class GroupedCommand(models.Model):
         self.datetime_placed = datetime or now()
         self.save()  # Required to have an id, which appears in the mail
 
-        MemberCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
-        CommissionCommand.objects.filter(state=PLACED_STATE).update(state=TO_BE_PREPARED_STATE)
+        placed_member_cmd = MemberCommand.objects.filter(state=PLACED_STATE)
+        for cmd in placed_member_cmd:
+            cmd.send_preparation_email()
+        placed_member_cmd.update(state=TO_BE_PREPARED_STATE)
+        placed_com_cmd = CommissionCommand.objects.filter(state=PLACED_STATE)
+        for cmd in placed_com_cmd:
+            cmd.send_preparation_email()
+        placed_com_cmd.update(state=TO_BE_PREPARED_STATE)
 
         self.send_place_email()
 
