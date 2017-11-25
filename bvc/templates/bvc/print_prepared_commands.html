@@ -26,7 +26,7 @@
       <th>Bons</th>
       <th>Prix</th>
       <th>En une fois</th>
-      <th>Paiement</th>
+      <th colspan="3">Paiement</th>
     </tr>
 
   {% for cmd in member_commands %}
@@ -36,6 +36,8 @@
       <td>{{ cmd.amount }}</td>
       <td>{{ cmd.price }}</td>
       <td style="text-align: center;">{% if cmd.spent_at_once %} X {% endif %}</td>
+      <td></td>
+      <td></td>
       <td></td>
     </tr>
   {% endfor %}
