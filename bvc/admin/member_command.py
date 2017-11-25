@@ -12,7 +12,7 @@ class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price',
                     'payment_type', 'state', 'voucher_distrib', 'spent_at_once',
                     'comments',]
-    actions = ['sell_by_check', 'sell_by_cash', 'add_to_bank_deposit',
+    actions = ['sell_by_check', 'sell_by_cash', 'cancel_sale', 'add_to_bank_deposit',
                'remove_from_bank_deposit']
     ordering = ['datetime_placed']
     search_fields = ('member__user__first_name', 'member__user__last_name', 'amount')
@@ -56,6 +56,17 @@ class MemberCommandAdmin(IndividualCommandAdmin):
 
     def sell_by_cash(self, request, queryset):
         self.sell(request, queryset, models.command.CASH_PAYMENT)
+
+    def cancel_sale(self, request, queryset):
+        for cmd in queryset:
+            try:
+                cmd.cancel_sale()
+            except models.command.InvalidState:
+                self.message_user(
+                    request,
+                    "La commande {} n'est pas dans le bon état pour en annuler la vente.".format(cmd),
+                    level=messages.ERROR
+                )
 
     def add_to_bank_deposit(self, request, queryset):
         for cmd in queryset:

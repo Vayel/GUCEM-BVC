@@ -112,6 +112,15 @@ class MemberCommand(IndividualCommand):
         self.payment_type = payment_type
         self.save()
 
+    def cancel_sale(self):
+        if self.state not in (TO_BE_BANKED_STATE, SOLD_STATE):
+            raise InvalidState()
+
+        self.payment_type = None
+        self.datetime_sold = None
+        self.state = PREPARED_STATE
+        self.save()
+
     def add_to_bank_deposit(self):
         if self.state != SOLD_STATE:
             raise InvalidState()
