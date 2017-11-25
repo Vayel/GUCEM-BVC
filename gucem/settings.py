@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bvc.apps.BvcConfig',
+    'inline_actions',
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,7 @@
 from smtplib import SMTPException
 
 from django.contrib import admin, messages
+from inline_actions.admin import InlineActionsModelAdminMixin
 
 from .site import admin_site
 from .. import forms
@@ -14,9 +15,8 @@ class BankDepositAdmin(admin.ModelAdmin):
         return False
 
 
-class AbstractBankDepositAdmin(admin.ModelAdmin):
+class AbstractBankDepositAdmin(InlineActionsModelAdminMixin, admin.ModelAdmin):
     list_display = ['id', 'made', 'date', 'amount', 'ref',]
-    actions = ['make',]
     
     def has_delete_permission(self, request, obj=None):
         return False
@@ -25,6 +25,16 @@ class AbstractBankDepositAdmin(admin.ModelAdmin):
         # Remove delete action
         actions = super().get_actions(request)
         del actions['delete_selected']
+        return actions
+
+    def get_inline_actions(self, request, obj=None):
+        actions = super().get_inline_actions(request, obj)
+        if obj is None:
+            return actions
+
+        if not obj.bank_deposit.made:
+            actions.append('make')
+
         return actions
     
     def date(self, instance):
@@ -45,22 +55,21 @@ class AbstractBankDepositAdmin(admin.ModelAdmin):
     made.boolean = True
     amount.short_description = 'Montant déposé'
 
-    def make(self, request, queryset):
-        for deposit in queryset:
-            try:
-                deposit.make()
-            except models.bank_deposit.InvalidState:
-                self.message_user(
-                    request,
-                    "Le dépôt {} n'est pas dans le bon état pour être déposé en banque.".format(deposit),
-                    level=messages.ERROR
-                )
-            except SMTPException as e:
-                self.message_user(
-                    request,
-                    "Une erreur est survenue en envoyant le mail : " + str(e),
-                    level=messages.ERROR
-                )
+    def make(self, request, deposit, parent_obj=None):
+        try:
+            deposit.make()
+        except models.bank_deposit.InvalidState:
+            self.message_user(
+                request,
+                "Le dépôt {} n'est pas dans le bon état pour être déposé en banque.".format(deposit),
+                level=messages.ERROR
+            )
+        except SMTPException as e:
+            self.message_user(
+                request,
+                "Une erreur est survenue en envoyant le mail : " + str(e),
+                level=messages.ERROR
+            )
 
     def get_readonly_fields(self, request, instance=None):
         if instance: # Editing an existing object

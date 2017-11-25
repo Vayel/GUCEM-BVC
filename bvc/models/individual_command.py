@@ -136,7 +136,7 @@ class IndividualCommand(models.Model):
         )
 
     def uncancel(self):
-        if self.state not in [CANCELLED_STATE]:
+        if self.state != CANCELLED_STATE:
             raise InvalidState("La commande {} n'est pas dans le bon état pour être désannulée.".format(self))
 
         self.state = PLACED_STATE

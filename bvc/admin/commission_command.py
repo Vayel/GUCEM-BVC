@@ -11,7 +11,6 @@ from .. import models, forms
 class CommissionCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',
                     'voucher_distrib', 'reason', 'comments', 'spent_at_once']
-    actions = ['distribute',]
     ordering = ['datetime_placed']
     search_fields = ('commission__user__username',)
     fields = forms.commission_command.CommissionCommandAdminForm.Meta.fields
@@ -32,22 +31,29 @@ class CommissionCommandAdmin(IndividualCommandAdmin):
 
         return self.readonly_fields or []
 
-    def distribute(self, request, queryset):
-        for cmd in queryset:
-            try:
-                cmd.distribute()
-            except models.command.InvalidState:
-                self.message_user(
-                    request,
-                    "La commande {} n'est pas dans le bon état pour être distribuée.".format(cmd),
-                    level=messages.ERROR
-                )
-            except SMTPException as e:
-                self.message_user(
-                    request,
-                    "Une erreur est survenue en envoyant le mail : " + str(e),
-                    level=messages.ERROR
-                )
+    def get_inline_actions(self, request, obj=None):
+        actions = super().get_inline_actions(request, obj)
+        if obj is None:
+            return actions
+        if obj.state == models.command.PREPARED_STATE:
+            actions.append('distribute')
+        return actions
+
+    def distribute(self, request, cmd, parent_obj=None):
+        try:
+            cmd.distribute()
+        except models.command.InvalidState:
+            self.message_user(
+                request,
+                "La commande {} n'est pas dans le bon état pour être distribuée.".format(cmd),
+                level=messages.ERROR
+            )
+        except SMTPException as e:
+            self.message_user(
+                request,
+                "Une erreur est survenue en envoyant le mail : " + str(e),
+                level=messages.ERROR
+            )
 
 
 admin_site.register(models.CommissionCommand, CommissionCommandAdmin)
