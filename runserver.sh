@@ -25,4 +25,4 @@ echo "=========="
 echo "Run server"
 echo "=========="
 
-./manage.py runmodwsgi "$@"
+./manage.py runmodwsgi --host 0.0.0.0 "$@"
