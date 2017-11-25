@@ -16,4 +16,4 @@ sqlite3 "../db.sqlite3" <<EOF
 .exit
 EOF
 
-gdrive update $DRIVE_FILE_ID $DUMP_FNAME
+gdrive -c "$DIR" update $DRIVE_FILE_ID $DUMP_FNAME
