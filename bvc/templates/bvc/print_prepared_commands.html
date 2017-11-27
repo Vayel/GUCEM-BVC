@@ -21,8 +21,8 @@
 {% if member_commands.count %}
   <table>
     <tr>
-      <th>Prénom</th>
       <th>Nom</th>
+      <th>Prénom</th>
       <th>Bons</th>
       <th>Prix</th>
       <th>En une fois</th>
@@ -31,8 +31,8 @@
 
   {% for cmd in member_commands %}
     <tr>
-      <td>{{ cmd.member.user.first_name }}</td>
       <td>{{ cmd.member.user.last_name }}</td>
+      <td>{{ cmd.member.user.first_name }}</td>
       <td>{{ cmd.amount }}</td>
       <td>{{ cmd.price }}</td>
       <td style="text-align: center;">{% if cmd.spent_at_once %} X {% endif %}</td>
