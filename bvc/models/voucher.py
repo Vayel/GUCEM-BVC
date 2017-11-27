@@ -89,6 +89,18 @@ def get_distrib(amount, sold_at_once=False):
     return subpacket_distrib
 
 
+def round_distrib(distrib):
+    # See https://github.com/Vayel/GUCEM-BVC/issues/77
+    # The number of 10 cannot decrease
+    while distrib[50] % 10:
+        distrib[50] -= 1
+        distrib[20] += 2
+        distrib[10] += 1
+    while distrib[20] % 10:
+        distrib[20] -= 1
+        distrib[10] += 2
+
+
 def get_commands_distrib(commands):
     distribution = get_distrib(0)
 

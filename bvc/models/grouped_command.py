@@ -150,6 +150,7 @@ class GroupedCommand(models.Model):
         # amount is now the amount remaning to place
 
         voucher.add_distribs(voucher_distrib, voucher.get_distrib(amount))
+        voucher.round_distrib(voucher_distrib)
 
         return voucher_distrib
 
