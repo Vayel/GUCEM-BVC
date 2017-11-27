@@ -7,6 +7,7 @@ Commençons par préparer le système :
 * Installer un gestionnaire de tâches plannifiées (par exemple, `cronie`)
 * Installer [`virtualenv`](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
 * Installer [`Apache`](https://github.com/GrahamDumpleton/mod_wsgi#system-requirements)
+* Installer [`wkhtmltopdf`](https://github.com/JazzCore/python-pdfkit)
 * Installer [`gdrive`](https://github.com/prasmussen/gdrive)
     * Faire en sorte qu'on puisse l'appeler via la commande `gdrive` (le placer dans `/usr/bin` avec les bons droits)
     * L'initialiser : `gdrive about`

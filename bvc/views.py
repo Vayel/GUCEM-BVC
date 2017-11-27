@@ -1,3 +1,4 @@
+import os.path
 import logging
 from smtplib import SMTPException
 from itertools import chain
@@ -5,6 +6,7 @@ from itertools import chain
 import django.db.models
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,6 +15,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
+
+import pdfkit
 
 from . import models
 from . import forms
@@ -25,6 +29,9 @@ logger = logging.getLogger(__name__)
 
 @staff_member_required
 def print_prepared_commands(request):
+    PDF_NAME = 'commandes.pdf'
+    PDF_PATH = os.path.join(settings.BASE_DIR, PDF_NAME)
+
     context = {
         'member_commands': models.MemberCommand.objects.filter(
             state=models.command.PREPARED_STATE
@@ -33,6 +40,15 @@ def print_prepared_commands(request):
             state=models.command.PREPARED_STATE
         ).order_by(Lower('commission__user__username')),
     }
+
+    try:
+        pdfkit.from_string(render_to_string('bvc/print_prepared_commands.html', context), PDF_PATH)
+        with open(PDF_PATH, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(PDF_NAME)
+            return response
+    except:
+        pass
 
     return render(request, 'bvc/print_prepared_commands.html', context)
 

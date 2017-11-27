@@ -1,3 +1,4 @@
 django
 python-crontab
 django-inline-actions
+pdfkit
