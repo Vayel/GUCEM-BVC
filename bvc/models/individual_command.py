@@ -42,6 +42,18 @@ class IndividualCommand(models.Model):
         return voucher.get_distrib(self.amount, self.spent_at_once)
 
     @property
+    def n_vouchers_10(self):
+        return self.voucher_distrib[10]
+
+    @property
+    def n_vouchers_20(self):
+        return self.voucher_distrib[20]
+
+    @property
+    def n_vouchers_50(self):
+        return self.voucher_distrib[50]
+
+    @property
     def email(self):
         raise NotImplementedError()
 

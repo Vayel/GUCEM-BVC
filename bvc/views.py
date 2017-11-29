@@ -5,6 +5,7 @@ from itertools import chain
 
 import django.db.models
 from django.db.models.functions import Lower
+from django.db.models import Min
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
@@ -31,11 +32,14 @@ logger = logging.getLogger(__name__)
 def print_prepared_commands(request):
     PDF_NAME = 'commandes.pdf'
     PDF_PATH = os.path.join(settings.BASE_DIR, PDF_NAME)
+    member_cmd = models.MemberCommand.objects.filter(
+        state=models.command.PREPARED_STATE
+    ).order_by(Lower('member__user__last_name'), Lower('member__user__first_name'))
+    min_member_cmd_id = member_cmd.aggregate(Min('id'))['id__min']
 
     context = {
-        'member_commands': models.MemberCommand.objects.filter(
-            state=models.command.PREPARED_STATE
-        ).order_by(Lower('member__user__last_name'), Lower('member__user__first_name')),
+        'member_commands': member_cmd,
+        'neg_min_member_cmd_id': -min_member_cmd_id,
         'commission_commands': models.CommissionCommand.objects.filter(
             state=models.command.PREPARED_STATE
         ).order_by(Lower('commission__user__username')),
