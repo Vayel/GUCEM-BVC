@@ -54,18 +54,13 @@
     <div class="module" id="recent-actions-module">
         <h2>{% trans 'Tools' %}</h2>
 
-        <p>
         {% if has_unsent_mails %}
-            <p><strong><a style="color: red;" href="{% url 'bvcadmin:bvc_email_changelist' %}">
-              Envoyer les mails non envoyés
-            </a></strong></p>
+            <p>
+                <strong><a style="color: red;" href="{% url 'bvcadmin:bvc_email_changelist' %}">
+                    Envoyer les mails non envoyés
+                </a></strong>
+            </p>
         {% endif %}
-
-        <p>
-          <a href="{% url 'bvc:print_prepared_commands' %}">
-            Imprimer les commandes préparées
-          </a>
-        </p>
 
         {% if current_grouped_command is not None %}
             <p><a href="{% url 'bvcadmin:bvc_groupedcommand_change' current_grouped_command.id %}">
@@ -77,6 +72,12 @@
                 Commande groupée récupérée au magasin
             {% endif %}
             </a></p>
+        {% else %}
+            <p>
+              <a href="{% url 'bvc:print_prepared_commands' %}">
+                Imprimer les commandes préparées
+              </a>
+            </p>
         {% endif %}
         </p>
 
