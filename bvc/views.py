@@ -51,8 +51,8 @@ def print_prepared_commands(request):
             response = HttpResponse(fh.read(), content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="{0}"'.format(PDF_NAME)
             return response
-    except:
-        pass
+    except Exception as e:
+        logger.exception(str(e))
 
     return render(request, 'bvc/print_prepared_commands.html', context)
 
