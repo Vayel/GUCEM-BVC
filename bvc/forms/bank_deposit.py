@@ -13,7 +13,7 @@ class BankDepositAdminForm(forms.ModelForm):
 class CheckBankDepositAdminForm(forms.ModelForm):
     class Meta:
         model = models.CheckBankDeposit
-        exclude = []
+        fields = ['bank_deposit']
     
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -37,7 +37,7 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
 
     class Meta:
         model = models.CashBankDeposit
-        exclude = []
+        fields = ['bank_deposit', 'amount']
 
     def get_delta(self):
         return (models.member_command.get_available_cash_amount() -

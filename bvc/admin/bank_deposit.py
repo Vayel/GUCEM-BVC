@@ -81,6 +81,7 @@ class AbstractBankDepositAdmin(InlineActionsModelAdminMixin, admin.ModelAdmin):
 
 class CheckBankDepositAdmin(AbstractBankDepositAdmin):
     form = forms.bank_deposit.CheckBankDepositAdminForm
+    fields = forms.bank_deposit.CheckBankDepositAdminForm.Meta.fields
 
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -129,7 +130,7 @@ class CheckBankDepositAdmin(AbstractBankDepositAdmin):
 
 class CashBankDepositAdmin(AbstractBankDepositAdmin):
     form = forms.bank_deposit.CashBankDepositAdminForm
-    readonly_fields = ['treasury_operation',]
+    fields = forms.bank_deposit.CashBankDepositAdminForm.Meta.fields
 
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
