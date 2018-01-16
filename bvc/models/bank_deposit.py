@@ -88,6 +88,7 @@ class CheckBankDeposit(models.Model):
         BankDeposit,
         related_name='check_deposit',
         verbose_name='dépôt',
+        on_delete=models.CASCADE,
     )
 
     class Meta:
@@ -124,11 +125,13 @@ class CashBankDeposit(models.Model):
         BankDeposit,
         related_name='cash_deposit',
         verbose_name='dépôt',
+        on_delete=models.CASCADE,
     )
     treasury_operation = models.OneToOneField(
         TreasuryOperation,
         related_name='bank_deposit',
         verbose_name='opération sur la trésorerie',
+        on_delete=models.CASCADE,
     )
 
     class Meta:

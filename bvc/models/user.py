@@ -7,7 +7,7 @@ from .. import utils
 
 
 class AbstractUser(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur',)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name='utilisateur', on_delete=models.CASCADE,)
     receive_reminder = models.BooleanField(
         default=False,
         verbose_name='reçoit le mail de rappel',
