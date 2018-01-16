@@ -4,10 +4,42 @@
 {% block object-tools %}
 
 {% if add %}
-  <p>Trésorerie : {{ current_treasury }}</p>
-  <p>Montant des commandes : {{ sold_cash_cmd_total_amount }}</p>
-  <p>Montant total : {{ total_available_cash_amount }}</p>
-  <p>Numéro du dépôt : {{ numero }}</p>
+    <table style="margin-bottom: 20px;">
+        <tr>
+            <td></td>
+            <td>{{ current_treasury }}</td>
+            <td>euros de trésorerie</td>
+        </tr>
+        <tr>
+            <td>+</td>
+            <td>{{ sold_cash_cmd_total_amount }}</td>
+            <td>euros récoltés avec les commandes</td>
+        </tr>
+        <tr>
+            <td>=</td>
+            <td><strong>{{ total_available_cash_amount }}</strong></td>
+            <td><strong>euros d'espèces disponibles</strong></td>
+        </tr>
+    </table>
+
+  <p>
+    Veiller à garder un peu de trésorerie pour pouvoir rendre la monnaie aux
+    adhérents n'ayant pas l'appoint.
+  </p>
+
+  <p>
+    <strong>Informations à remplir sur le coupon de remise :</strong>
+    <ul>
+      <li>Agence : Grenoble</li>
+      <li>Motif : BVE (id {{ numero }})</li>
+      <li>RIB : cf. coupon de remise de chèques</li>
+      <li>Signature</li>
+      <li>Date : cf. ci-dessous</li>
+      <li>Raison sociale : GUCEM Association</li>
+      <li>Nombre et montant de chaque type de billet</li>
+      <li>Total annoncé</li>
+    </ul>
+  </p>
 {% endif %}
 
 {% if change %}{% if not is_popup %}

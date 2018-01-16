@@ -4,16 +4,21 @@
 {% block object-tools %}
 
 {% if add %}
-  <p>Nombre de chèques à déposer : {{ to_be_banked_check_number }}</p>
-  <p>Nombre de chèques non inclus dans le dépôt : {{ not_to_be_banked_check_number }}</p>
+  <p>Nombre de chèques <strong>non inclus</strong> dans le dépôt : {{ not_to_be_banked_check_number }}</p>
   {% if not_to_be_banked_check_number > 0 %}
   <p>
     <a href="{% url 'bvcadmin:bvc_membercommand_changelist' %}?state__exact=sold">Ajouter les chèques manquants</a>
   </p>
   {% endif %}
 
-  <p>Montant total à déposer : {{ to_be_banked_check_total_amount }}</p>
-  <p>Numéro du dépôt : {{ numero }}</p>
+  <p>
+    <strong>Informations à remplir sur le coupon de remise :</strong>
+    <ul>
+      <li>Nombre de chèques : {{ to_be_banked_check_number }}</li>
+      <li>Montant total : {{ to_be_banked_check_total_amount }}</li>
+      <li>Date : cf. ci-dessous</li>
+    </ul>
+  </p>
 {% endif %}
 
 {% if change %}{% if not is_popup %}
