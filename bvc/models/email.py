@@ -27,7 +27,7 @@ class Email(models.Model):
 
 
 class DestAddr(models.Model):
-    email = models.ForeignKey(Email, related_name='to')
+    email = models.ForeignKey(Email, related_name='to', on_delete=models.CASCADE)
     addr = models.EmailField(verbose_name='adresse mail',)
 
     def __str__(self):
@@ -38,7 +38,7 @@ class Attachment(models.Model):
     FILENAME_MAX_LEN = 255
     MIMETYPE_MAX_LEN = 255
 
-    email = models.ForeignKey(Email, related_name='attachments')
+    email = models.ForeignKey(Email, related_name='attachments', on_delete=models.CASCADE)
     filename = models.CharField(max_length=FILENAME_MAX_LEN, verbose_name='nom',)
     mimetype = models.CharField(max_length=MIMETYPE_MAX_LEN, verbose_name='mimetype',)
     content = models.TextField(verbose_name='contenu',)
