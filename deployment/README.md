@@ -15,6 +15,8 @@ Dans le conteneur :
 * Personnaliser le script de sauvegarde de la base (`tools/backup_db.sh`) en spécifiant l'identifiant du fichier de sauvegarde sur GDrive (s'il n'existe pas, le créer en important à la main un fichier .sql et récupérer son id avec `gdrive list`)
 * Lancer le script d'installation : `cd tools; ./install.sh`
 * [Configurer mod_wsgi pour Django](https://github.com/GrahamDumpleton/mod_wsgi#using-mod_wsgi-express-with-django)
+    * Ajouter `mod_wsgi.server` à `gucem/settings.py:INSTALLED_APPS`
+    * `cd tools; . ./work_in_env.sh; cd ..; python manage.py collectstatic`
 
 ## Configurer l'application
 
@@ -22,6 +24,8 @@ Dans le conteneur :
 make run
 # La page `/` renverra une erreur tant que le point ci-dessous n'aura pas été fait
 ```
+
+TODO: faire un script qui pré-remplit la base
 
 * Sur le site, dans la partie d'administration (`/admin`), créer une configuration
 * Créer également les commissions
