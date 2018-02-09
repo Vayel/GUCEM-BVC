@@ -37,7 +37,7 @@
     <tr>
       <td>{{ cmd.member.user.last_name }}</td>
       <td>{{ cmd.member.user.first_name }}</td>
-      <td>{{ cmd.id|add:neg_min_member_cmd_id }}</td>
+      <td><strong>{{ cmd.id|add:neg_min_member_cmd_id }}</strong></td>
       <td>{{ cmd.amount }}</td>
       <td>{{ cmd.price }}</td>
       <td style="text-align: center;">{% if cmd.spent_at_once %} X {% endif %}</td>
