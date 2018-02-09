@@ -11,7 +11,7 @@ from .. import models, forms
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price',
                     'payment_type', 'state', 'voucher_distrib', 'spent_at_once',
-                    'comments',]
+                    ]
     ordering = ['datetime_placed']
     search_fields = ('member__user__first_name', 'member__user__last_name', 'amount')
     fields = forms.member_command.MemberCommandAdminForm.Meta.fields

@@ -6,13 +6,13 @@ from .. import models
 class PlaceMemberCommand(forms.ModelForm):
     class Meta:
         model = models.MemberCommand
-        fields = ['amount', 'spent_at_once', 'comments',]
+        fields = ['amount', 'spent_at_once',]
 
 
 class MemberCommandAdminForm(forms.ModelForm):
     class Meta:
         model = models.MemberCommand
-        fields = ['member', 'state', 'amount', 'comments', 'spent_at_once',
+        fields = ['member', 'state', 'amount', 'spent_at_once',
                    'datetime_prepared', 'datetime_cancelled', 'datetime_sold',
                    'payment_type', 'bank_deposit',]
 

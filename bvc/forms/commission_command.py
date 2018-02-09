@@ -11,13 +11,13 @@ class PlaceCommissionCommand(forms.ModelForm):
 
     class Meta:
         model = models.CommissionCommand
-        fields = ['commission', 'amount', 'reason', 'spent_at_once', 'comments',]
+        fields = ['commission', 'amount', 'reason', 'spent_at_once',]
 
 
 class CommissionCommandAdminForm(forms.ModelForm):
     class Meta:
         model = models.CommissionCommand
-        fields = ['commission', 'state', 'amount', 'reason', 'comments', 'spent_at_once',
+        fields = ['commission', 'state', 'amount', 'reason', 'spent_at_once',
                    'datetime_prepared', 'datetime_cancelled', 'datetime_given',]
 
     def clean_amount(self):

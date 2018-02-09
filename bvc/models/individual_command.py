@@ -20,7 +20,6 @@ class IndividualCommand(models.Model):
         verbose_name='montant',
         help_text='Avant réduction.',
     )
-    comments = models.TextField(default='', blank=True, verbose_name='commentaires',)
     datetime_placed = models.DateTimeField(auto_now_add=True, verbose_name='date')
     datetime_prepared = models.DateField(null=True, blank=True, verbose_name='date de préparation',)
     datetime_cancelled = models.DateField(null=True, blank=True, verbose_name="date d'annulation",)
