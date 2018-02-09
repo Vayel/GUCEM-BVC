@@ -145,6 +145,7 @@ class CashBankDepositAdmin(AbstractBankDepositAdmin):
         extra_context['total_available_cash_amount'] = (extra_context['current_treasury'] +
                                                         extra_context['sold_cash_cmd_total_amount'])
         extra_context['numero'] = models.CashBankDeposit.next_id()
+        extra_context['note_types'] = [10, 20, 50]
 
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
@@ -158,24 +159,15 @@ class CashBankDepositAdmin(AbstractBankDepositAdmin):
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
 
     def amount(self, instance):
-        commands = models.MemberCommand.objects.filter(
-            bank_deposit=instance.bank_deposit,
-        )
-        treasury_ops = models.TreasuryOperation.objects.filter(
-            bank_deposit=instance
-        )
-        return (sum(cmd.price for cmd in commands) -
-                sum(op.delta for op in treasury_ops))
+        return instance.total_price 
 
     amount.short_description = 'Montant déposé'
 
-    def get_readonly_fields(self, request, instance=None):
-        readonly_fields = super().get_readonly_fields(request, instance=instance)
-
-        if instance:
-            if instance.treasury_operation:
-                return readonly_fields + ['amount']
-        return readonly_fields
+    def get_fields(self, request, instance=None):
+        excluded = []
+        if instance: # Editing an existing object
+            excluded = ['n10', 'n20', 'n50']
+        return [f for f in self.fields or [] if f not in excluded]
 
 
 admin_site.register(models.BankDeposit, BankDepositAdmin)

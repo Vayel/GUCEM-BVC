@@ -40,6 +40,34 @@
       <li>Total annoncé</li>
     </ul>
   </p>
+
+  <script>
+    django.jQuery(document).ready(function() {
+        var note_types = {{ note_types }};
+
+        function getId(note) {
+            return "id_n" + note;
+        }
+
+        function updateAmount() {
+            var n;
+            var amount = 0;
+            for(let note of note_types) {
+                n = django.jQuery("#" + getId(note)).val();
+                if(n) {
+                    amount += parseInt(n) * note;
+                }
+            }
+            django.jQuery("#id_amount").val(amount);
+        }
+
+        for(let note of note_types) {
+            django.jQuery("#" + getId(note)).keyup(updateAmount);
+        }
+
+        updateAmount();
+    });
+  </script>
 {% endif %}
 
 {% if change %}{% if not is_popup %}
@@ -93,7 +121,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td>Total commandes</td>
+            <td>&nbsp; Total commandes</td>
             <td>{{ total_price }}</td>
         </tr>
         <tr>
@@ -102,7 +130,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td>Delta trésorerie</td>
+            <td>- Delta trésorerie</td>
             <td>{{ original.treasury_operation.delta }}</td>
         </tr>
         <tr>
@@ -111,7 +139,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td>Total déposé</td>
+            <td>= Total déposé</td>
             <td>{{ original.total_price }}</td>
         </tr>
     <table>

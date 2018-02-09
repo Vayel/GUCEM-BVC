@@ -29,34 +29,62 @@ class CheckBankDepositAdminForm(forms.ModelForm):
 
 
 class CashBankDepositAdminForm(BankDepositAdminForm):
-    amount = forms.IntegerField(
-        min_value=settings.BANK_DEPOSIT_CASH_MULTIPLE,
-        validators=[models.validators.validate_cash_amount_multiple],
-        label='Montant',
+    n10 = forms.IntegerField(
+        min_value=0,
+        label='Nombre de billets de 10',
     )
+    n20 = forms.IntegerField(
+        min_value=0,
+        label='Nombre de billets de 20',
+    )
+    n50 = forms.IntegerField(
+        min_value=0,
+        label='Nombre de billets de 50',
+    )
+    amount = forms.IntegerField(
+        disabled=True,
+        label='Total',
+    )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance', None)
+
+        if instance:
+            kwargs.update(initial={
+                'amount': instance.total_price
+            })
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = models.CashBankDeposit
-        fields = ['bank_deposit', 'amount']
+        fields = ['bank_deposit', 'n10', 'n20', 'n50', 'amount',]
 
-    def get_delta(self):
-        return (models.member_command.get_available_cash_amount() -
-                models.treasury.get_treasury() - self.cleaned_data['amount'])
+    def get_amount(self):
+        return sum(self.cleaned_data['n' + str(n)] * n for n in (10, 20, 50))
 
-    def clean_amount(self):
-        treasury = models.treasury.get_treasury()
+    def clean(self):
+        cleaned_data = super().clean()
+        try:
+            amount = self.get_amount()
+        except KeyError:
+            return
 
-        if treasury + self.get_delta() < 0:
+        if models.member_command.get_available_cash_amount() - amount < 0:
             raise forms.ValidationError("Il n'y a pas autant d'argent liquide à disposition.")
 
-        return self.cleaned_data['amount']
+        return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
 
+        treasury = models.treasury.get_treasury()
+        amount = self.get_amount()
+        total = models.member_command.get_available_cash_amount()
+        treasury_delta = total - treasury - amount
+
         # Create the treasury operation
         instance.treasury_operation = models.treasury.treasury_op_from_delta(
-            self.get_delta(),
+            treasury_delta,
             'BVE {}'.format(models.CashBankDeposit.next_id()),
         )
 
