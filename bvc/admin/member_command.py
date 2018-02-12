@@ -10,8 +10,7 @@ from .. import models, forms
 
 class MemberCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'member', 'datetime_placed', 'amount', 'price',
-                    'payment_type', 'state', 'voucher_distrib', 'spent_at_once',
-                    ]
+                    'payment_type', 'state',]
     ordering = ['datetime_placed']
     search_fields = ('member__user__first_name', 'member__user__last_name', 'amount')
     fields = forms.member_command.MemberCommandAdminForm.Meta.fields
@@ -48,6 +47,11 @@ class MemberCommandAdmin(IndividualCommandAdmin):
 
         return actions
 
+    def price(self, instance):
+        return instance.price
+
+    price.short_description = "Prix"
+
     def sell(self, request, cmd, payment_type):
         try:
             cmd.sell(payment_type)
@@ -64,11 +68,20 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                 level=messages.ERROR
             )
 
+    def get_sell_by_check_label(self, obj):
+        return "Vendre par chèque"
+
     def sell_by_check(self, request, cmd, parent_obj=None):
         self.sell(request, cmd, models.command.CHECK_PAYMENT)
 
+    def get_sell_by_cash_label(self, obj):
+        return "Vendre par espèces"
+
     def sell_by_cash(self, request, cmd, parent_obj=None):
         self.sell(request, cmd, models.command.CASH_PAYMENT)
+
+    def get_cancel_sale_label(self, obj):
+        return "Annuler la vente"
 
     def cancel_sale(self, request, queryset):
         for cmd in queryset:
@@ -80,6 +93,9 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                     "La commande {} n'est pas dans le bon état pour en annuler la vente.".format(cmd),
                     level=messages.ERROR
                 )
+
+    def get_add_to_bank_deposit_label(self, obj):
+        return "Intégrer au dépôt"
 
     def add_to_bank_deposit(self, request, cmd, parent_obj=None):
         try:
@@ -96,6 +112,9 @@ class MemberCommandAdmin(IndividualCommandAdmin):
                 "Une erreur est survenue en envoyant le mail : " + str(e),
                 level=messages.ERROR
             )
+
+    def get_remove_from_bank_deposit_label(self, obj):
+        return "Enlever du dépôt"
 
     def remove_from_bank_deposit(self, request, cmd, parent_obj=None):
         try:

@@ -34,6 +34,9 @@ class IndividualCommandAdmin(InlineActionsModelAdminMixin, admin.ModelAdmin):
 
         return actions
     
+    def get_prepare_label(self, obj):
+        return "Préparer"
+    
     def prepare(self, request, cmd, parent_obj=None):
         try:
             cmd.state = models.command.TO_BE_PREPARED_STATE
@@ -51,6 +54,9 @@ class IndividualCommandAdmin(InlineActionsModelAdminMixin, admin.ModelAdmin):
                 level=messages.ERROR
             )
 
+    def get_cancel_label(self, obj):
+        return "Annuler"
+    
     def cancel(self, request, cmd, parent_obj=None):
         try:
             cmd.cancel()
@@ -66,6 +72,9 @@ class IndividualCommandAdmin(InlineActionsModelAdminMixin, admin.ModelAdmin):
                 "Une erreur est survenue en envoyant le mail : " + str(e),
                 level=messages.ERROR
             )
+
+    def get_uncancel_label(self, obj):
+        return "Restorer"
     
     def uncancel(self, request, cmd, parent_obj=None):
         try:

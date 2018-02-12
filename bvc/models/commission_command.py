@@ -34,7 +34,7 @@ class CommissionCommand(IndividualCommand):
         max_length=max(len(choice[0]) for choice in STATE_CHOICES),
         choices=STATE_CHOICES,
         default=PLACED_STATE,
-        verbose_name='state',
+        verbose_name='état',
     )
     datetime_given = models.DateTimeField(null=True, blank=True, verbose_name='date de distribution')
     reason = models.CharField(max_length=REASON_MAX_LEN, verbose_name='raison')

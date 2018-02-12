@@ -53,7 +53,11 @@ class AbstractBankDepositAdmin(InlineActionsModelAdminMixin, admin.ModelAdmin):
     ref.admin_order_field = 'bank_deposit__ref'
     made.admin_order_field = 'bank_deposit__made'
     made.boolean = True
+    made.short_description = "Déposé"
     amount.short_description = 'Montant déposé'
+
+    def get_make_label(self, obj):
+        return "Déposer"
 
     def make(self, request, deposit, parent_obj=None):
         try:

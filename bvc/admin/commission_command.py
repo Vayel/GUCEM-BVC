@@ -10,7 +10,7 @@ from .. import models, forms
 
 class CommissionCommandAdmin(IndividualCommandAdmin):
     list_display = ['id', 'commission', 'datetime_placed', 'amount', 'state',
-                    'voucher_distrib', 'reason', 'spent_at_once']
+                    'reason',]
     ordering = ['datetime_placed']
     search_fields = ('commission__user__username',)
     fields = forms.commission_command.CommissionCommandAdminForm.Meta.fields
@@ -38,6 +38,9 @@ class CommissionCommandAdmin(IndividualCommandAdmin):
         if obj.state == models.command.PREPARED_STATE:
             actions.append('distribute')
         return actions
+
+    def get_distribute_label(self, obj):
+        return "Distribuer"
 
     def distribute(self, request, cmd, parent_obj=None):
         try:
