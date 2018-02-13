@@ -3,8 +3,10 @@
 {% block contents %}
 Ta commande de bons Vieux Campeur de {{ cmd.amount }} euros (prix : {{ cmd.price}} euros) sera annulée si tu ne la récupéres pas à la prochaine permanence du mardi.
 
-Si jamais tu ne peux pas passer, deux possibilités s'offrent à toi :
+Merci de me prévenir si tu ne comptes pas passer.
 
-* Soit tu réitères ta commande sur le site avant le {{ grouped_command_day } ;  elle sera alors disponible environ une semaine après comme les autres.
-* Soit tu demandes à quelqu'un d'autre de récupérer tes bons, en m'indiquant par mail le nom de cette personne. Il faut qu'elle pense à bien prendre un moyen de paiement, comme indiqué dans le mail de réception de la commande.
+Si jamais tu ne peux pas passer à la permanence, deux possibilités s'offrent à toi :
+
+* Réitérer ta commande sur le site avant le {{ grouped_command_day } ;  elle sera alors disponible environ une semaine après comme les autres.
+* Demander à quelqu'un d'autre de récupérer tes bons, en m'indiquant par mail le nom de cette personne. Il faut bien qu'elle pense à prendre un moyen de paiement, comme indiqué dans le mail de réception de la commande.
 {% endblock %}
