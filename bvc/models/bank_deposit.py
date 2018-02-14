@@ -143,7 +143,7 @@ class CashBankDeposit(models.Model):
 
     @property
     def total_command_price(self):
-        return int(sum(cmd.price for cmd in self.bank_deposit.commands.all()))
+        return sum(cmd.price for cmd in self.bank_deposit.commands.all())
 
     @property
     def total_price(self):
