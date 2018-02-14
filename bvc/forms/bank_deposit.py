@@ -43,6 +43,7 @@ class CashBankDepositAdminForm(BankDepositAdminForm):
     )
     amount = forms.IntegerField(
         disabled=True,
+        required=False,
         label='Total',
     )
 
