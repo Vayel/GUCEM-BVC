@@ -15,7 +15,7 @@ from .. import utils
 class IndividualCommand(models.Model):
     """Represent a command placed to the manager."""
     amount = models.PositiveSmallIntegerField( # Amount before reduction
-        default=0,
+        blank=False, null=False,
         validators=[validators.validate_voucher_amount_multiple],
         verbose_name='montant',
         help_text='Avant réduction.',

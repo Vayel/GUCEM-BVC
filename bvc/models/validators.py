@@ -2,6 +2,9 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 
 def validate_voucher_amount_multiple(value):
+    if not value:
+        raise ValidationError("Le montant ne peut être nul.")
+
     if value % settings.VOUCHER_AMOUNT_MULTIPLE:
         raise ValidationError(
             "{} n'est pas un multiple de {}.".format(
