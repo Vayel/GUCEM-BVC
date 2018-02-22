@@ -9,6 +9,12 @@ class MemberUserCommand(forms.ModelForm):
         model = User
         fields = ['email', 'last_name', 'first_name']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for key in self.fields:
+            self.fields[key].required = True
+
     def clean_email(self):
         """Check if the email is already used by a commission."""
         email = self.cleaned_data['email']
