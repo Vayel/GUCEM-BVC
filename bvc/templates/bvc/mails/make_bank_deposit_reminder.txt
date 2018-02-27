@@ -2,4 +2,7 @@
 
 {% block contents %}
 Rappel : faire un dépôt en banque.
+
+Ce mail est à titre indicatif. Si un dépôt a déjà été fait ou qu'il n'est pas utile
+d'en faire, ce rappel peut être ignoré.
 {% endblock %}
