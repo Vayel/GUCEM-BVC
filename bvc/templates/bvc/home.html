@@ -139,7 +139,7 @@ $( document ).ready(function() {
     }
 
     function computePrice() {
-        var amount = parseInt(amountInput.val());
+        var amount = parseInt(amountInput.val()) || 0;
         return ((1 - getDiscount()) * amount).toFixed(2);
     }
 
