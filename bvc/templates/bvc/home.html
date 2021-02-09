@@ -6,9 +6,13 @@
 {% block contents %}
 <h2>Bons Vieux Campeur au GUCEM</h2>
 
+<h3>Ce site est obsolète. Nouveau site : <a href="https://gucem.williamchevremont.be/">https://gucem.williamchevremont.be/</a></h3>
+
 <p>
   Questions : <strong>{{ bvc_manager_mail }}</strong>
 </p>
+
+<!--
 
 <p>
   Tu peux recevoir par mail la liste de tes commandes en cours en remplissant
@@ -104,9 +108,11 @@ passe commande à {{ bvc_manager_mail }}.
   
   <input type="submit" value="Commander" />
 </form>
+-->
 {% endblock %}
 
 {% block javascript %}
+<!--
 <script
   src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
   integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
@@ -154,4 +160,5 @@ $( document ).ready(function() {
     displayPrice(computePrice());
 });
 </script>
+-->
 {% endblock %}
